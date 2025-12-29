@@ -9,7 +9,7 @@ public class PlayerControls : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -17,6 +17,12 @@ public class PlayerControls : MonoBehaviour
     {
         
     }
+
+    void Awake()
+    {
+        controls = new Actions();
+    }
+
 
     private void OnEnable()
     {
