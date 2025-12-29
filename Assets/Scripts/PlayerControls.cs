@@ -27,6 +27,21 @@ public class PlayerControls : MonoBehaviour
     public float normalGravityScale = 3f;    // gravity normally
     private bool flyHeld;
 
+    [Header("Quick Boost")]
+    public float quickBoostSpeed = 16f;     // initial burst speed
+    public float quickBoostDuration = 0.6f; // seconds
+    public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
+    public float quickBoostCooldown = 0.25f;
+
+    private bool isQuickBoosting;
+    private float quickBoostTimer;
+    private float quickBoostCooldownTimer;
+    private int quickBoostDir;              // -1 or +1
+    private float quickBoostStartSpeed;
+
+    // Facing direction: -1 = left, +1 = right
+    private int facingDir = 1;
+
     void Start()
     {
 
@@ -34,7 +49,16 @@ public class PlayerControls : MonoBehaviour
 
     void Update()
     {
+        // Left-Right Movement Input
         moveInput = controls.Player.Walk.ReadValue<float>();
+
+        // Update facing direction
+        if (moveInput > 0.2f) facingDir = 1;
+        else if (moveInput < -0.2f) facingDir = -1;
+
+        // Quick Boost Cooldown
+        if (quickBoostCooldownTimer > 0f)
+            quickBoostCooldownTimer -= Time.deltaTime;
     }
 
     void Awake()
@@ -43,12 +67,23 @@ public class PlayerControls : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         rb.gravityScale = normalGravityScale;
+
+        if (quickBoostCurve == null || quickBoostCurve.length == 0)
+        {
+            quickBoostCurve = new AnimationCurve(
+                new Keyframe(0f, 1f),
+                new Keyframe(0.7f, 0.35f),
+                new Keyframe(1f, 0f)
+            );
+        }
     }
 
 
     private void OnEnable()
     {
         controls.Player.Enable();
+
+        // Jump
         controls.Player.Jump.performed += OnJump;
 
         // Boost
@@ -58,6 +93,9 @@ public class PlayerControls : MonoBehaviour
         // Fly
         controls.Player.Fly.started += OnFlyStarted;
         controls.Player.Fly.canceled += OnFlyCanceled;
+
+        // Quick Boost
+        controls.Player.QuickBoost.performed += OnQuickBoost;
     }
 
     private void OnDisable()
@@ -70,11 +108,19 @@ public class PlayerControls : MonoBehaviour
         controls.Player.Fly.started -= OnFlyStarted;
         controls.Player.Fly.canceled -= OnFlyCanceled;
 
+        controls.Player.QuickBoost.performed -= OnQuickBoost;
+
         controls.Player.Disable();
     }
 
     private void FixedUpdate()
     {
+        if (isQuickBoosting)
+        {
+            DoQuickBoostStep();
+            return; // skip normal movement during dash
+        }
+
         float speed = boostHeld ? boostSpeed : walkSpeed;
         rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
 
@@ -100,15 +146,40 @@ public class PlayerControls : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        TryJump();
-    }
-
-    private void TryJump()
-    {
         if (IsGrounded())
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
+    }
+
+    private void OnQuickBoost(InputAction.CallbackContext ctx)
+    {
+        if (isQuickBoosting) return;
+        if (quickBoostCooldownTimer > 0f) return;
+
+        // Determine dash direction:
+        // - If player is holding left/right, dash that way
+        // - Otherwise dash in last facing direction
+        int dir = 0;
+        if (moveInput > 0.2f) dir = 1;
+        else if (moveInput < -0.2f) dir = -1;
+        else dir = facingDir;
+
+        // Safety: if somehow facingDir is 0, default to right
+        if (dir == 0) dir = 1;
+
+        quickBoostDir = dir;
+        quickBoostTimer = 0f;
+        isQuickBoosting = true;
+        quickBoostCooldownTimer = quickBoostCooldown;
+
+        quickBoostStartSpeed = quickBoostSpeed;
+
+        // Crisp dash: wipe horizontal velocity first
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
+        // Immediate burst
+        rb.linearVelocity = new Vector2(quickBoostDir * quickBoostStartSpeed, rb.linearVelocity.y);
     }
 
     private bool IsGrounded()
@@ -119,6 +190,23 @@ public class PlayerControls : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0f, Vector2.down, dist, groundLayer);
         return hit.collider != null;
+    }
+
+    private void DoQuickBoostStep()
+    {
+        quickBoostTimer += Time.fixedDeltaTime;
+
+        float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
+        float multiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
+
+        float targetVx = quickBoostDir * quickBoostStartSpeed * multiplier;
+        rb.linearVelocity = new Vector2(targetVx, rb.linearVelocity.y);
+
+        if (timeRemainingPercent >= 1f)
+        {
+            isQuickBoosting = false;
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        }
     }
 
     private void OnFlyStarted(InputAction.CallbackContext ctx) => flyHeld = true;

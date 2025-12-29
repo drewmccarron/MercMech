@@ -127,6 +127,15 @@ public partial class @Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuickBoost"",
+                    ""type"": ""Button"",
+                    ""id"": ""e91935a9-1b0f-4b1f-8497-2b9bdcf73375"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -195,6 +204,17 @@ public partial class @Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Fly"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6a920d9d-d66f-4bca-90ae-c31a58acdfca"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuickBoost"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -207,6 +227,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_GroundBoost = m_Player.FindAction("GroundBoost", throwIfNotFound: true);
         m_Player_Fly = m_Player.FindAction("Fly", throwIfNotFound: true);
+        m_Player_QuickBoost = m_Player.FindAction("QuickBoost", throwIfNotFound: true);
     }
 
     ~@Actions()
@@ -291,6 +312,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_GroundBoost;
     private readonly InputAction m_Player_Fly;
+    private readonly InputAction m_Player_QuickBoost;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -318,6 +340,10 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Fly".
         /// </summary>
         public InputAction @Fly => m_Wrapper.m_Player_Fly;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/QuickBoost".
+        /// </summary>
+        public InputAction @QuickBoost => m_Wrapper.m_Player_QuickBoost;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -356,6 +382,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
             @Fly.started += instance.OnFly;
             @Fly.performed += instance.OnFly;
             @Fly.canceled += instance.OnFly;
+            @QuickBoost.started += instance.OnQuickBoost;
+            @QuickBoost.performed += instance.OnQuickBoost;
+            @QuickBoost.canceled += instance.OnQuickBoost;
         }
 
         /// <summary>
@@ -379,6 +408,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
             @Fly.started -= instance.OnFly;
             @Fly.performed -= instance.OnFly;
             @Fly.canceled -= instance.OnFly;
+            @QuickBoost.started -= instance.OnQuickBoost;
+            @QuickBoost.performed -= instance.OnQuickBoost;
+            @QuickBoost.canceled -= instance.OnQuickBoost;
         }
 
         /// <summary>
@@ -447,5 +479,12 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFly(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuickBoost" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuickBoost(InputAction.CallbackContext context);
     }
 }
