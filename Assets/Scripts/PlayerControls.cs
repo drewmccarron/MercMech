@@ -190,10 +190,8 @@ public class PlayerControls : MonoBehaviour
         // Fly if:
         // - Fly-key or Jump-key is held
         // - only after apex (when vertical velocity <= 0)
-        bool shouldFlyNow =
-            flyInputHeld &&
-            // if we jumped from ground with Jump-key, wait until apex of jump
-            (!jumpedFromGround || rb.linearVelocity.y <= 0f);
+        bool jumpWantsFly = jumpKeyHeld && (!jumpedFromGround || rb.linearVelocity.y <= 0f);
+        bool shouldFlyNow = flyKeyHeld || jumpWantsFly;
 
         if (shouldFlyNow)
         {
