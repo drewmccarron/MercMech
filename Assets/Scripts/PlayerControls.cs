@@ -21,6 +21,12 @@ public class PlayerControls : MonoBehaviour
     public float jumpForce = 10f;
     public LayerMask groundLayer;
     private bool jumpedFromGround; // used to delay W-fly until apex
+    private float coyoteTime = 0.1f;
+    private float timeSinceLastGrounded;
+
+    // Jump assist
+    [SerializeField] private float jumpBufferTime = 0.12f; // 80–150ms feels good
+    private float jumpBufferTimer;
 
     [Header("Boost")]
     private bool boostHeld;
@@ -183,6 +189,21 @@ public class PlayerControls : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Update jump buffer timer
+        if (jumpBufferTimer > 0f)
+            jumpBufferTimer -= Time.fixedDeltaTime;
+
+        // Update grounded state and coyote timer
+        if (IsGrounded())
+        {
+            timeSinceLastGrounded = 0f;
+        }
+        else
+        {
+            timeSinceLastGrounded += Time.fixedDeltaTime;
+        }
+
+        // Handle Quick Boosting
         if (isQuickBoosting)
         {
             DoQuickBoostStep();
@@ -251,10 +272,17 @@ public class PlayerControls : MonoBehaviour
     private void OnJumpStarted(InputAction.CallbackContext ctx)
     {
         jumpKeyHeld = true;
+        jumpBufferTimer = jumpBufferTime;
 
-        if (IsGrounded())
+        bool canJump = timeSinceLastGrounded <= coyoteTime;
+
+        if (jumpBufferTimer > 0f && canJump)
         {
             PerformJump();
+
+            // consume buffer + prevent double jump until you leave ground again
+            jumpBufferTimer = 0f;
+            timeSinceLastGrounded = coyoteTime + 1f;
         }
     }
 
