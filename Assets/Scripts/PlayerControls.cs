@@ -57,6 +57,9 @@ public class PlayerControls : MonoBehaviour
     private bool jumpKeyHeld;
     private bool flyInputHeld => jumpKeyHeld || flyKeyHeld;
 
+    // Reusable buffer to avoid allocations when checking ground contacts
+    private readonly Collider2D[] m_overlapResults = new Collider2D[1];
+
     void Start()
     {
 
@@ -156,6 +159,13 @@ public class PlayerControls : MonoBehaviour
             controls.Player.QuickBoost.performed -= OnQuickBoost;
 
             controls.Player.Disable();
+        }
+
+        // Safety: ensure physics state is sane if the component/script is disabled during a dash.
+        if (rb != null)
+        {
+            rb.gravityScale = normalGravityScale;
+            isQuickBoosting = false;
         }
     }
 
@@ -273,14 +283,14 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
-        // Cast a small box at the bottom of the collider to check for ground
-        // Shift origin down slightly to avoid overlap when touching ground
+        // OverlapBoxNonAlloc is cheaper and avoids per-frame allocations.
+        // Position the box slightly below the collider bottom to avoid immediate overlap issues.
         Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
         Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
 
-        float dist = groundCheckDistance;
-        RaycastHit2D hit = Physics2D.BoxCast(bottomCenterPoint, size, 0f, Vector2.down, dist, groundLayer);
-        return hit.collider != null;
+        // Use layer mask directly in the call to avoid allocating a ContactFilter.
+        int hits = Physics2D.OverlapBoxNonAlloc(bottomCenterPoint, size, 0f, m_overlapResults, groundLayer);
+        return hits > 0;
     }
 
     private float CurrentHorizontalMoveSpeed()
