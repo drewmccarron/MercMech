@@ -30,7 +30,7 @@ public class PlayerControls : MonoBehaviour
     public float normalGravityScale = 3f;    // gravity normally
 
     [Header("Quick Boost")]
-    public float quickBoostSpeed = 16f;     // initial burst speed
+    public float quickBoostStartSpeed = 16f;     // initial burst speed
     public float quickBoostDuration = 0.35f; // seconds
     public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
     public float quickBoostCooldown = 0.4f;
@@ -40,7 +40,6 @@ public class PlayerControls : MonoBehaviour
     private float quickBoostTimer;
     private float quickBoostCooldownTimer;
     private int quickBoostDir;              // -1 or +1
-    private float quickBoostStartSpeed;
 
     // Quick Boost exit tuning
     public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
@@ -250,8 +249,6 @@ public class PlayerControls : MonoBehaviour
         // Track if we were flying before the quick boost to resume upward momentum later
         bool grounded = IsGrounded();
         wasFlyingBeforeQuickBoost = (!grounded && flyKeyHeld);
-
-        quickBoostStartSpeed = quickBoostSpeed;
 
         // Crisp dash: wipe horizontal velocity first
         rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
