@@ -183,24 +183,19 @@ public class PlayerControls : MonoBehaviour
         bool grounded = IsGrounded();
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
 
-        // If we're still rising from a ground jump, block flight from BOTH inputs to jump action
+        // block flight while still rising from a ground-initiated jump
         bool allowFlightNow = !isInJumpRisePhase;
 
         bool shouldFlyNow = allowFlightNow && (flyKeyHeld || jumpKeyHeld);
 
         if (shouldFlyNow)
         {
-            if (!grounded)
-            {
-                TryFly();
-                // Once flight begins, we are no longer in "jumped from ground" mode
-                jumpedFromGround = false;
-            }
-            else
-            {
-                // On ground while holding fly: normal gravity
-                rb.gravityScale = normalGravityScale;
-            }
+            // Start flight immediately (even if grounded) unless we're in the rise phase after a ground jump.
+            // TryFly handles gravity and upward acceleration; calling it on-ground gives takeoff thrust.
+            TryFly();
+
+            // Once flight begins, clear the jumped-from-ground flag so apex gating won't reapply.
+            jumpedFromGround = false;
         }
 
         ClampFallSpeed();
