@@ -7,6 +7,10 @@ public class PlayerControls : MonoBehaviour
     private Rigidbody2D rb;
     private Actions controls;
     private Collider2D col;
+    private ContactFilter2D groundFilter;
+    private float groundProbeOffset = 0.01f;
+    private Vector2 groundBoxOffset;
+    private Vector2 groundBoxSize;
     private float moveInputDirection;
 
     [Header("Move")]
@@ -15,7 +19,6 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Jump")]
     public float jumpForce = 10f;
-    public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
     private bool jumpedFromGround; // used to delay W-fly until apex
 
@@ -87,6 +90,22 @@ public class PlayerControls : MonoBehaviour
         controls = new Actions();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        // Find ground layer
+        if (groundLayer == 0)
+        {
+            groundLayer = LayerMask.GetMask("Ground");
+        }
+
+        groundFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = groundLayer,
+            useTriggers = false
+        };
+
+        groundBoxOffset = Vector2.down * groundProbeOffset;
+
         rb.gravityScale = normalGravityScale;
 
         // Set default quick boost curve
@@ -97,12 +116,6 @@ public class PlayerControls : MonoBehaviour
                 new Keyframe(0.7f, 0.35f),
                 new Keyframe(1f, 0f)
             );
-        }
-
-        // Find ground layer
-        if (groundLayer == 0)
-        {
-            groundLayer = LayerMask.GetMask("Ground");
         }
     }
 
@@ -180,7 +193,6 @@ public class PlayerControls : MonoBehaviour
         float leftRightMoveSpeed = CurrentHorizontalMoveSpeed();
         rb.linearVelocity = new Vector2(moveInputDirection * leftRightMoveSpeed, rb.linearVelocity.y);
 
-        bool grounded = IsGrounded();
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
 
         // block flight while still rising from a ground-initiated jump
@@ -233,11 +245,9 @@ public class PlayerControls : MonoBehaviour
             // Jump impulse on press
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
-            // Mark that we jumped from ground using Jump-key, so Jump-to-fly transition waits until apex
+            // We actually jumped, so enable apex gating no matter what happens next frame
             jumpedFromGround = true;
         }
-        // If airborne, we don't do an instant pop here.
-        // Flying will be handled continuously in FixedUpdate while held.
     }
 
     private void OnJumpCanceled(InputAction.CallbackContext ctx)
@@ -282,18 +292,10 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Vector2 p = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
-        Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
+        Vector2 bottomCenterPoint = (Vector2)col.bounds.center + Vector2.down * (col.bounds.extents.y) + groundBoxOffset;
+        groundBoxSize = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
 
-        var filter = new ContactFilter2D
-        {
-            useLayerMask = true,
-            layerMask = groundLayer,
-            useTriggers = false
-        };
-
-        int count = Physics2D.OverlapBox(p, size, 0f, filter, m_overlapResults);
-        return count > 0;
+        return Physics2D.OverlapBox(bottomCenterPoint, groundBoxSize, 0f, groundFilter, m_overlapResults) > 0;
     }
 
     private float CurrentHorizontalMoveSpeed()
