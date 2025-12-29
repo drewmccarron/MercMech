@@ -25,7 +25,7 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Fly")]
     public float flyAcceleration = 30f;      // upward acceleration while holding Space
-    public float maxFlyUpSpeed = 5f;         // cap upward speed
+    public float maxFlyUpSpeed = 4.5f;         // cap upward speed
     public float flyGravityScale = 2f;     // gravity while flying
     public float normalGravityScale = 3f;    // gravity normally
 
@@ -212,6 +212,9 @@ public class PlayerControls : MonoBehaviour
     {
         rb.gravityScale = flyGravityScale;
 
+        if (rb.linearVelocity.y < 0f)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+
         rb.AddForce(Vector2.up * flyAcceleration, ForceMode2D.Force);
 
         // cap upward speed
@@ -272,7 +275,7 @@ public class PlayerControls : MonoBehaviour
 
         // Track if we were flying before the quick boost to resume upward momentum later
         bool grounded = IsGrounded();
-        wasFlyingBeforeQuickBoost = (!grounded && flyKeyHeld);
+        wasFlyingBeforeQuickBoost = (!grounded && flyInputHeld);
 
         // Crisp dash: wipe horizontal velocity first
         rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -283,13 +286,18 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
-        // OverlapBox is the new recommended API (returns the first collider found or null).
-        // Position the box slightly below the collider bottom to avoid immediate overlap issues.
-        Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
-        Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
+        Vector2 p = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
+        Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
 
-        Collider2D hit = Physics2D.OverlapBox(bottomCenterPoint, size, 0f, groundLayer);
-        return hit != null;
+        var filter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = groundLayer,
+            useTriggers = false
+        };
+
+        int count = Physics2D.OverlapBox(p, size, 0f, filter, m_overlapResults);
+        return count > 0;
     }
 
     private float CurrentHorizontalMoveSpeed()
@@ -343,7 +351,7 @@ public class PlayerControls : MonoBehaviour
 
             // Determine exit vertical velocity
             float exitVy = 0f;
-            if (wasFlyingBeforeQuickBoost && flyKeyHeld) // recommend && not ||
+            if (wasFlyingBeforeQuickBoost && flyInputHeld)
                 exitVy = quickBoostFlyExitUpVelocity;
 
             // Apply exit velocities
