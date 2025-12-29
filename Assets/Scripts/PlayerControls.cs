@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class PlayerControls : MonoBehaviour
 {
     private Rigidbody2D rb;
@@ -64,8 +65,8 @@ public class PlayerControls : MonoBehaviour
 
     void Update()
     {
-        // Left-Right Movement Input
-        moveInputDirection = controls.Player.Walk.ReadValue<float>();
+        // Left-Right movement input with guard controls
+        moveInputDirection = controls != null ? controls.Player.Walk.ReadValue<float>() : 0f;
 
         // Update facing direction
         if (moveInputDirection > 0.2f) facingDirection = 1;
@@ -73,11 +74,15 @@ public class PlayerControls : MonoBehaviour
 
         // Quick Boost Cooldown
         if (quickBoostCooldownTimer > 0f)
+        {
             quickBoostCooldownTimer -= Time.deltaTime;
+            if (quickBoostCooldownTimer < 0f) quickBoostCooldownTimer = 0f;
+        }
     }
 
     void Awake()
     {
+        // Initialize input system
         controls = new Actions();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
@@ -100,9 +105,10 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
-
     private void OnEnable()
     {
+        if (controls == null) return;
+
         controls.Player.Enable();
 
         // Jump
@@ -123,18 +129,21 @@ public class PlayerControls : MonoBehaviour
 
     private void OnDisable()
     {
-        controls.Player.Jump.started -= OnJumpStarted;
-        controls.Player.Jump.canceled -= OnJumpCanceled;
+        if (controls != null)
+        {
+            controls.Player.Jump.started -= OnJumpStarted;
+            controls.Player.Jump.canceled -= OnJumpCanceled;
 
-        controls.Player.GroundBoost.started -= OnBoostStarted;
-        controls.Player.GroundBoost.canceled -= OnBoostCanceled;
+            controls.Player.GroundBoost.started -= OnBoostStarted;
+            controls.Player.GroundBoost.canceled -= OnBoostCanceled;
 
-        controls.Player.Fly.started -= OnFlyStarted;
-        controls.Player.Fly.canceled -= OnFlyCanceled;
+            controls.Player.Fly.started -= OnFlyStarted;
+            controls.Player.Fly.canceled -= OnFlyCanceled;
 
-        controls.Player.QuickBoost.performed -= OnQuickBoost;
+            controls.Player.QuickBoost.performed -= OnQuickBoost;
 
-        controls.Player.Disable();
+            controls.Player.Disable();
+        }
     }
 
     private void FixedUpdate()
@@ -254,7 +263,8 @@ public class PlayerControls : MonoBehaviour
     private bool IsGrounded()
     {
         // Cast a small box at the bottom of the collider to check for ground
-        Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y);
+        // Shift origin down slightly to avoid overlap when touching ground
+        Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
         Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
 
         float dist = groundCheckDistance;
