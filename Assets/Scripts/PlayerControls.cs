@@ -212,9 +212,13 @@ public class PlayerControls : MonoBehaviour
     {
         rb.gravityScale = flyGravityScale;
 
+
+        // prevent downward velocity while flying
         if (rb.linearVelocity.y < 0f)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
+
+        // apply upward acceleration
         rb.AddForce(Vector2.up * flyAcceleration, ForceMode2D.Force);
 
         // cap upward speed
