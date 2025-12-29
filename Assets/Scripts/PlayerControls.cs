@@ -39,6 +39,9 @@ public class PlayerControls : MonoBehaviour
     private int quickBoostDir;              // -1 or +1
     private float quickBoostStartSpeed;
 
+    [Header("Fall")]
+    public float maxFallSpeed = 12f;
+
     // Facing direction: -1 = left, +1 = right
     private int facingDir = 1;
 
@@ -149,6 +152,14 @@ public class PlayerControls : MonoBehaviour
             //clear fly state when landing
             if (grounded) flyHeld = false;
         }
+
+        ClampFallSpeed();
+    }
+
+    private void ClampFallSpeed()
+    {
+        if (rb.linearVelocity.y < -maxFallSpeed)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -maxFallSpeed);
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -212,7 +223,6 @@ public class PlayerControls : MonoBehaviour
         if (timeRemainingPercent >= 1f)
         {
             isQuickBoosting = false;
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
     }
 
