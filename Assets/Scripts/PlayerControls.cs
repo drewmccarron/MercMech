@@ -19,7 +19,6 @@ public class PlayerControls : MonoBehaviour
     public LayerMask groundLayer;
     private bool jumpedFromGround; // used to delay W-fly until apex
 
-
     [Header("Boost")]
     private bool boostHeld;
 
@@ -182,25 +181,26 @@ public class PlayerControls : MonoBehaviour
         rb.linearVelocity = new Vector2(moveInputDirection * leftRightMoveSpeed, rb.linearVelocity.y);
 
         bool grounded = IsGrounded();
+        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
 
-        // If we landed, clear the "jumped from ground" flag
-        if (grounded)
-            jumpedFromGround = false;
+        // If we're still rising from a ground jump, block flight from BOTH inputs to jump action
+        bool allowFlightNow = !isInJumpRisePhase;
 
-        // Fly if:
-        // - Fly-key or Jump-key is held
-        // - only after apex (when vertical velocity <= 0)
-        bool jumpWantsFly = jumpKeyHeld && (!jumpedFromGround || rb.linearVelocity.y <= 0f);
-        bool shouldFlyNow = flyKeyHeld || jumpWantsFly;
+        bool shouldFlyNow = allowFlightNow && (flyKeyHeld || jumpKeyHeld);
 
         if (shouldFlyNow)
         {
-            TryFly();
-        }
-        else
-        {
-            // fall with normal gravity
-            rb.gravityScale = normalGravityScale;
+            if (!grounded)
+            {
+                TryFly();
+                // Once flight begins, we are no longer in "jumped from ground" mode
+                jumpedFromGround = false;
+            }
+            else
+            {
+                // On ground while holding fly: normal gravity
+                rb.gravityScale = normalGravityScale;
+            }
         }
 
         ClampFallSpeed();
