@@ -73,6 +73,16 @@ public class PlayerControls : MonoBehaviour
     private float qbFlyCarryTimer;
     private float qbCarryVx;
 
+    [Header("QB Chaining")]
+    [SerializeField] private float qbChainBufferTime = 0.2f;          // how long a QB press is remembered while QB is active
+    [SerializeField, Range(0f, 1f)] private float qbChainStartPercent = 0.6f; // earliest percent you can chain into the next QB
+    [SerializeField] private float qbChainMinInterval = 0.05f;        // tiny anti-spam / prevents multiple chains in same frame
+
+    private float qbChainBufferTimer;
+    private bool qbChainQueued;
+    private int qbQueuedDir;
+    private float qbChainIntervalTimer;
+
     [Header("Fall")]
     public float maxFallSpeed = 7f;
 
@@ -201,8 +211,8 @@ public class PlayerControls : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (jumpBufferTimer > 0f)
-            jumpBufferTimer -= Time.fixedDeltaTime;
+        // consolidate all fixed-timestep timers into one helper
+        TickFixedTimers();
 
         bool groundedNow = IsGrounded();
         if (groundedNow) timeSinceLastGrounded = 0f;
@@ -222,8 +232,6 @@ public class PlayerControls : MonoBehaviour
         // ---- QB momentum carry protection ----
         if (qbFlyCarryTimer > 0f)
         {
-            qbFlyCarryTimer -= Time.fixedDeltaTime;
-
             int heldDir = AxisToDir(moveInputDirection);
             int carryDir = AxisToDir(qbCarryVx);
 
@@ -268,6 +276,16 @@ public class PlayerControls : MonoBehaviour
         }
 
         ClampFallSpeed();
+    }
+
+    // Centralized fixed-timestep timer tick to reduce duplicated code.
+    private void TickFixedTimers()
+    {
+        float dt = Time.fixedDeltaTime;
+        if (jumpBufferTimer > 0f) jumpBufferTimer = Mathf.Max(0f, jumpBufferTimer - dt);
+        if (qbChainBufferTimer > 0f) qbChainBufferTimer = Mathf.Max(0f, qbChainBufferTimer - dt);
+        if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
+        if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
     }
 
     private static int AxisToDir(float axis)
@@ -330,14 +348,30 @@ public class PlayerControls : MonoBehaviour
 
     private void OnQuickBoost(InputAction.CallbackContext ctx)
     {
-        if (isQuickBoosting) return;
+        // If we are already QBing, queue a chain instead of ignoring the press.
+        if (isQuickBoosting)
+        {
+            // small interval prevents double-queue from one input event or weird repeats
+            if (qbChainIntervalTimer > 0f) return;
+
+            int direction = AxisToDir(moveInputDirection);
+            if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
+
+            qbChainQueued = true;
+            qbQueuedDir = direction;
+            qbChainBufferTimer = qbChainBufferTime;
+            qbChainIntervalTimer = qbChainMinInterval;
+
+            return;
+        }
+
         if (quickBoostCooldownTimer > 0f) return;
 
-        int direction = AxisToDir(moveInputDirection);
+        int directionStart = AxisToDir(moveInputDirection);
         // Safety: if somehow facingDirection is 0, default to right
-        if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
+        if (directionStart == 0) directionStart = facingDirection != 0 ? facingDirection : 1;
 
-        quickBoostDir = direction;
+        quickBoostDir = directionStart;
         quickBoostTimer = 0f;
         isQuickBoosting = true;
         quickBoostCooldownTimer = quickBoostCooldown;
@@ -353,7 +387,13 @@ public class PlayerControls : MonoBehaviour
             wipeHorizontalOnQuickBoostStart ? 0f : rb.linearVelocity.x,
             0f
         );
+
+        // Clear any stale chain request
+        qbChainQueued = false;
+        qbChainBufferTimer = 0f;
+        qbChainIntervalTimer = qbChainMinInterval;
     }
+
 
     private bool IsGrounded()
     {
@@ -378,6 +418,28 @@ public class PlayerControls : MonoBehaviour
 
         rb.gravityScale = 0f;   // no gravity during dash
         float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
+
+        // ---- QB chaining: if a QB press was buffered during this QB, chain into it after a threshold ----
+        if (qbChainQueued && qbChainBufferTimer > 0f && timeRemainingPercentage >= qbChainStartPercent)
+        {
+            // Start the chained QB immediately without leaving QB state.
+            // Keep vertical locked (AC feel) and avoid any end-of-QB hitch.
+            quickBoostDir = qbQueuedDir;
+            quickBoostTimer = 0f;
+
+            // Optional: do NOT wipe velocity on a chain. This keeps momentum smooth.
+            // (Uses your existing rb.linearVelocity.x, doesn't rename anything.)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+
+            // Consume the queued chain input
+            qbChainQueued = false;
+            qbChainBufferTimer = 0f;
+            qbChainIntervalTimer = qbChainMinInterval;
+
+            // Important: return so the rest of this frame doesn't apply the old QB's curve/exit.
+            return;
+        }
+        // -----------------------------------------------------------------------
 
         // Curve output (usually 1 -> 0)
         float curveMultiplier = quickBoostCurve.Evaluate(timeRemainingPercentage);
