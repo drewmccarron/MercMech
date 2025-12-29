@@ -274,9 +274,8 @@ public class PlayerControls : MonoBehaviour
         jumpKeyHeld = true;
         jumpBufferTimer = jumpBufferTime;
 
-        bool canJump = timeSinceLastGrounded <= coyoteTime;
-
-        if (jumpBufferTimer > 0f && canJump)
+        bool canJump = timeSinceLastGrounded <= coyoteTime && jumpBufferTimer > 0f;
+        if (canJump)
         {
             PerformJump();
 
