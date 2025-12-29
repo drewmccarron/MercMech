@@ -118,6 +118,15 @@ public partial class @Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Fly"",
+                    ""type"": ""Button"",
+                    ""id"": ""edb70977-41cc-4dc1-9a5a-79f7048dbce2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -157,7 +166,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""fcf44e69-f8ab-4cdc-b4ab-9353a96879ce"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -168,11 +177,22 @@ public partial class @Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""7ed192d5-e143-4133-8ea6-09240eeb84a2"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/shift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""GroundBoost"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""573775c3-9084-43dc-b1ed-15d6a6168bbb"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fly"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -186,6 +206,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         m_Player_Walk = m_Player.FindAction("Walk", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_GroundBoost = m_Player.FindAction("GroundBoost", throwIfNotFound: true);
+        m_Player_Fly = m_Player.FindAction("Fly", throwIfNotFound: true);
     }
 
     ~@Actions()
@@ -269,6 +290,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Walk;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_GroundBoost;
+    private readonly InputAction m_Player_Fly;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -292,6 +314,10 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/GroundBoost".
         /// </summary>
         public InputAction @GroundBoost => m_Wrapper.m_Player_GroundBoost;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Fly".
+        /// </summary>
+        public InputAction @Fly => m_Wrapper.m_Player_Fly;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -327,6 +353,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
             @GroundBoost.started += instance.OnGroundBoost;
             @GroundBoost.performed += instance.OnGroundBoost;
             @GroundBoost.canceled += instance.OnGroundBoost;
+            @Fly.started += instance.OnFly;
+            @Fly.performed += instance.OnFly;
+            @Fly.canceled += instance.OnFly;
         }
 
         /// <summary>
@@ -347,6 +376,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
             @GroundBoost.started -= instance.OnGroundBoost;
             @GroundBoost.performed -= instance.OnGroundBoost;
             @GroundBoost.canceled -= instance.OnGroundBoost;
+            @Fly.started -= instance.OnFly;
+            @Fly.performed -= instance.OnFly;
+            @Fly.canceled -= instance.OnFly;
         }
 
         /// <summary>
@@ -408,5 +440,12 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnGroundBoost(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Fly" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFly(InputAction.CallbackContext context);
     }
 }
