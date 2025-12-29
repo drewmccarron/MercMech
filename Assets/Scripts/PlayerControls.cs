@@ -325,7 +325,7 @@ public class PlayerControls : MonoBehaviour
         // Don't go below horizontal movespeed if still pressing towards dash direction
         if (heldDir != 0 && heldDir == quickBoostDir)
         {
-            qbSpeedAtThisFrame = Mathf.Max(Mathf.Abs(qbSpeedAtThisFrame * moveInputDirection), CurrentHorizontalMoveSpeed());
+            qbSpeedAtThisFrame = Mathf.Max(qbSpeedAtThisFrame, CurrentHorizontalMoveSpeed());
         }
 
         // Set horizontal dash speed + lock vertical movement during dash
