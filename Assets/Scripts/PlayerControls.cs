@@ -121,8 +121,8 @@ public class PlayerControls : MonoBehaviour
             return; // skip normal movement during dash
         }
 
-        float speed = boostHeld ? boostSpeed : walkSpeed;
-        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
+        float leftRightMoveSpeed = boostHeld ? boostSpeed : walkSpeed;
+        rb.linearVelocity = new Vector2(moveInput * leftRightMoveSpeed, rb.linearVelocity.y);
 
         bool grounded = IsGrounded();
         if (flyHeld)
