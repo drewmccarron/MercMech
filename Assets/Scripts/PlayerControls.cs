@@ -9,10 +9,13 @@ public class PlayerControls : MonoBehaviour
     private float moveInput;
 
     public float walkSpeed = 5f;
+    public float boostSpeed = 9f;
     public float jumpForce = 10f;
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
 
+    private bool boostHeld;
+    private float boostAmount;
 
     void Start()
     {
@@ -36,17 +39,26 @@ public class PlayerControls : MonoBehaviour
     {
         controls.Player.Enable();
         controls.Player.Jump.performed += OnJump;
+
+        // Boost held state
+        controls.Player.GroundBoost.started += OnBoostStarted;
+        controls.Player.GroundBoost.canceled += OnBoostCanceled;
     }
 
     private void OnDisable()
     {
         controls.Player.Jump.performed -= OnJump;
+
+        controls.Player.GroundBoost.started -= OnBoostStarted;
+        controls.Player.GroundBoost.canceled -= OnBoostCanceled;
+
         controls.Player.Disable();
     }
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * walkSpeed, rb.linearVelocity.y);
+        float speed = boostHeld ? boostSpeed : walkSpeed;
+        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -71,4 +83,7 @@ public class PlayerControls : MonoBehaviour
         RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0f, Vector2.down, dist, groundLayer);
         return hit.collider != null;
     }
+
+    private void OnBoostStarted(InputAction.CallbackContext ctx) => boostHeld = true;
+    private void OnBoostCanceled(InputAction.CallbackContext ctx) => boostHeld = false;
 }
