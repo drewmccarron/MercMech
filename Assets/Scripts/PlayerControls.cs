@@ -48,9 +48,6 @@ public class PlayerControls : MonoBehaviour
     private int facingDirection = 1;
     private bool wasFlyingBeforeQuickBoost;
 
-    private float savedGravityScale;
-    private float savedYVelocity;
-
     void Start()
     {
 
@@ -192,10 +189,6 @@ public class PlayerControls : MonoBehaviour
         // Safety: if somehow facingDirection is 0, default to right
         if (direction == 0) direction = 1;
 
-        // Save current vertical state so we can restore it after dash if desired
-        savedGravityScale = rb.gravityScale;
-        savedYVelocity = rb.linearVelocity.y;
-
         quickBoostDir = direction;
         quickBoostTimer = 0f;
         isQuickBoosting = true;
@@ -224,13 +217,14 @@ public class PlayerControls : MonoBehaviour
         return hit.collider != null;
     }
 
+    private float CurrentMaxMoveSpeed()
+    {
+        return boostHeld ? boostSpeed : walkSpeed;
+    }
+
     private void DoQuickBoostStep()
     {
         quickBoostTimer += Time.fixedDeltaTime;
-
-        // Save current vertical state so we can restore it after dash if desired
-        savedGravityScale = rb.gravityScale;
-        savedYVelocity = rb.linearVelocity.y;
 
         // DURING dash: zero out vertical movement and gravity
         rb.gravityScale = 0f;
