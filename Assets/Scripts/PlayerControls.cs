@@ -17,7 +17,7 @@ public class PlayerControls : MonoBehaviour
     public float jumpForce = 10f;
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
-    private bool jumpedWithWFromGround; // used to delay W-fly until apex
+    private bool jumpedFromGround; // used to delay W-fly until apex
 
 
     [Header("Boost")]
@@ -175,7 +175,7 @@ public class PlayerControls : MonoBehaviour
 
         // If we landed, clear the "jumped from ground" flag
         if (grounded)
-            jumpedWithWFromGround = false;
+            jumpedFromGround = false;
 
         // Fly if:
         // - Fly-key or Jump-key is held
@@ -183,7 +183,7 @@ public class PlayerControls : MonoBehaviour
         bool shouldFlyNow =
             flyInputHeld &&
             // if we jumped from ground with Jump-key, wait until apex of jump
-            (!jumpedWithWFromGround || rb.linearVelocity.y <= 0f);
+            (!jumpedFromGround || rb.linearVelocity.y <= 0f);
 
         if (shouldFlyNow)
         {
@@ -225,7 +225,7 @@ public class PlayerControls : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
             // Mark that we jumped from ground using Jump-key, so Jump-to-fly transition waits until apex
-            jumpedWithWFromGround = true;
+            jumpedFromGround = true;
         }
         // If airborne, we don't do an instant pop here.
         // Flying will be handled continuously in FixedUpdate while held.
@@ -236,7 +236,7 @@ public class PlayerControls : MonoBehaviour
         jumpKeyHeld = false;
 
         // If they let go of Jump, stop the “apex-to-fly” transition
-        jumpedWithWFromGround = false;
+        jumpedFromGround = false;
     }
 
     private void OnQuickBoost(InputAction.CallbackContext ctx)
