@@ -31,7 +31,7 @@ public class PlayerControls : MonoBehaviour
     public float quickBoostSpeed = 16f;     // initial burst speed
     public float quickBoostDuration = 0.6f; // seconds
     public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
-    public float quickBoostCooldown = 0.25f;
+    public float quickBoostCooldown = 0.15f;
 
     private bool isQuickBoosting;
     private float quickBoostTimer;
@@ -68,6 +68,7 @@ public class PlayerControls : MonoBehaviour
         col = GetComponent<Collider2D>();
         rb.gravityScale = normalGravityScale;
 
+        // Set default quick boost curve
         if (quickBoostCurve == null || quickBoostCurve.length == 0)
         {
             quickBoostCurve = new AnimationCurve(
@@ -75,6 +76,12 @@ public class PlayerControls : MonoBehaviour
                 new Keyframe(0.7f, 0.35f),
                 new Keyframe(1f, 0f)
             );
+        }
+
+        // Set default ground layer
+        if (groundLayer == 0)
+        {
+            groundLayer = LayerMask.GetMask("Ground");
         }
     }
 
