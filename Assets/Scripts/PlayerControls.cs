@@ -3,23 +3,22 @@ using UnityEngine.InputSystem;
 
 public class PlayerControls : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     private Rigidbody2D rb;
     private Actions controls;
-    private float moveInput;
-    public float speed = 5f;
-
-    public float jumpForce = 10f;
-    public LayerMask groundLayer;
-    public float groundCheckDistance = 0.1f;
     private Collider2D col;
+    private float moveInput;
+
+    public float walkSpeed = 5f;
+    public float jumpForce = 10f;
+    public float groundCheckDistance = 0.1f;
+    public LayerMask groundLayer;
+
 
     void Start()
     {
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         moveInput = controls.Player.Walk.ReadValue<float>();
@@ -47,7 +46,7 @@ public class PlayerControls : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInput * walkSpeed, rb.linearVelocity.y);
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -57,10 +56,8 @@ public class PlayerControls : MonoBehaviour
 
     private void TryJump()
     {
-        Debug.Log("Attempting to jump");
         if (IsGrounded())
         {
-            Debug.Log("Jumped");
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
@@ -72,7 +69,6 @@ public class PlayerControls : MonoBehaviour
         float dist = groundCheckDistance;
 
         RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0f, Vector2.down, dist, groundLayer);
-        Debug.DrawRay(origin, Vector2.down * dist, hit.collider ? Color.green : Color.red);
         return hit.collider != null;
     }
 }
