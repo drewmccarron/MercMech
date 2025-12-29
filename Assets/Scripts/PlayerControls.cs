@@ -62,6 +62,12 @@ public class PlayerControls : MonoBehaviour
     public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
     public float quickBoostNeutralExitSpeed = 2f;      // tune: horizontal speed when exiting dash with no input
 
+    [Header("Quick Boost Acceleration")]
+    [SerializeField] private float quickBoostAccel = 200f;     // ramps up toward target speed
+    [SerializeField] private float quickBoostDecel = 260f;     // ramps down as curve tails off
+    [SerializeField, Range(0f, 1f)] private float quickBoostMinMultiplier = 0.18f; // prevents "near stop" tail
+    [SerializeField] private bool wipeHorizontalOnQuickBoostStart = true;
+
     [Header("Fall")]
     public float maxFallSpeed = 7f;
 
@@ -325,15 +331,18 @@ public class PlayerControls : MonoBehaviour
         isQuickBoosting = true;
         quickBoostCooldownTimer = quickBoostCooldown;
 
+        // Initial small kick to get dash started
+        rb.linearVelocity = new Vector2(quickBoostDir * 6f, 0f); // small kick, tune 3–10
+
         // Track if we were flying before the quick boost to resume upward momentum later
         bool grounded = IsGrounded();
         wasFlyingBeforeQuickBoost = (!grounded && anyFlyInputHeld);
 
-        // Crisp dash: wipe horizontal velocity first
-        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-
-        // Immediate burst, good for frame-zero responsiveness
-        rb.linearVelocity = new Vector2(quickBoostDir * quickBoostStartSpeed, rb.linearVelocity.y);
+        rb.gravityScale = 0f;
+        rb.linearVelocity = new Vector2(
+            wipeHorizontalOnQuickBoostStart ? 0f : rb.linearVelocity.x,
+            0f
+        );
     }
 
     private bool IsGrounded()
@@ -353,51 +362,52 @@ public class PlayerControls : MonoBehaviour
     {
         quickBoostTimer += Time.fixedDeltaTime;
 
-        // Determine held direction
         int heldDir = AxisToDir(moveInputDirection);
 
         rb.gravityScale = 0f; // no gravity during dash
-        float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
+        float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
 
-        // Prevent the tail from slowing to a near-stop before exit speed kicks in
-        float qbCurveMultiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
+        // Curve output (usually 1 -> 0)
+        float curveMultiplier = quickBoostCurve.Evaluate(timeRemainingPercentage);
 
-        float qbSpeedAtThisFrame = quickBoostStartSpeed * qbCurveMultiplier;
-        // Don't go below horizontal movespeed if still pressing towards dash direction
+        // Prevent tail from going to "almost zero" speed before exit logic
+        curveMultiplier = Mathf.Max(curveMultiplier, quickBoostMinMultiplier);
+
+        // Target speed (absolute), then apply direction
+        float targetSpeedAbs = quickBoostStartSpeed * curveMultiplier;
+
+        // If player is holding the dash direction, never drop below normal move speed
         if (heldDir != 0 && heldDir == quickBoostDir)
-        {
-            qbSpeedAtThisFrame = Mathf.Max(qbSpeedAtThisFrame, CurrentHorizontalMoveSpeed());
-        }
+            targetSpeedAbs = Mathf.Max(targetSpeedAbs, CurrentHorizontalMoveSpeed());
 
-        // Set horizontal dash speed + lock vertical movement during dash
-        rb.linearVelocity = new Vector2(quickBoostDir * qbSpeedAtThisFrame, 0f);
+        float targetVelocity = quickBoostDir * targetSpeedAbs;
 
-        // If dash ends
-        if (timeRemainingPercent >= 1f)
+        // Accelerate/decelerate toward target
+        float currentVelocity = rb.linearVelocity.x;
+        float rate = (Mathf.Abs(targetVelocity) > Mathf.Abs(currentVelocity)) ? quickBoostAccel : quickBoostDecel;
+        float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, rate * Time.fixedDeltaTime);
+
+        // Lock vertical movement during dash
+        rb.linearVelocity = new Vector2(newVx, 0f);
+
+        if (timeRemainingPercentage >= 1f)
         {
             // Restore gravity immediately when dash ends
             rb.gravityScale = normalGravityScale;
 
-            // Determine exit horizontal velocities
-            float qbExitVelocity;
+            // Decide exit horizontal
+            float exitVx;
             if (heldDir != 0 && heldDir == quickBoostDir)
-            {
-                // If they are holding a direction, exit at max move speed in that direction
-                qbExitVelocity = heldDir * CurrentHorizontalMoveSpeed();
-            }
+                exitVx = heldDir * CurrentHorizontalMoveSpeed();
             else
-            {
-                // No input: small drift
-                qbExitVelocity = quickBoostDir * quickBoostNeutralExitSpeed;
-            }
+                exitVx = quickBoostDir * quickBoostNeutralExitSpeed;
 
-            // Determine exit vertical velocity
+            // Decide exit vertical
             float exitVy = 0f;
             if (wasFlyingBeforeQuickBoost && anyFlyInputHeld)
                 exitVy = quickBoostFlyExitUpVelocity;
 
-            // Apply exit velocities
-            rb.linearVelocity = new Vector2(qbExitVelocity, exitVy);
+            rb.linearVelocity = new Vector2(exitVx, exitVy);
 
             wasFlyingBeforeQuickBoost = false;
             isQuickBoosting = false;
