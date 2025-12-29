@@ -10,12 +10,12 @@ public class PlayerControls : MonoBehaviour
     private ContactFilter2D groundFilter;
     private float groundProbeOffset = 0.01f;
     private Vector2 groundBoxOffset;
-    private Vector2 groundBoxSize;
     private float moveInputDirection;
 
     [Header("Move")]
     public float walkSpeed = 5f;
     public float boostSpeed = 9f;
+    public const float MoveDeadzone = 0.2f;
 
     [Header("Jump")]
     public float jumpForce = 10f;
@@ -57,7 +57,7 @@ public class PlayerControls : MonoBehaviour
     // Input tracking
     private bool flyKeyHeld;
     private bool jumpKeyHeld;
-    private bool flyInputHeld => jumpKeyHeld || flyKeyHeld;
+    private bool anyFlyInputHeld => jumpKeyHeld || flyKeyHeld;
 
     // Reusable buffer to avoid allocations when checking ground contacts
     private readonly Collider2D[] m_overlapResults = new Collider2D[1];
@@ -73,8 +73,8 @@ public class PlayerControls : MonoBehaviour
         moveInputDirection = controls != null ? controls.Player.Walk.ReadValue<float>() : 0f;
 
         // Update facing direction
-        if (moveInputDirection > 0.2f) facingDirection = 1;
-        else if (moveInputDirection < -0.2f) facingDirection = -1;
+        int dir = AxisToDir(moveInputDirection);
+        if (dir != 0) facingDirection = dir;
 
         // Quick Boost Cooldown
         if (quickBoostCooldownTimer > 0f)
@@ -208,9 +208,20 @@ public class PlayerControls : MonoBehaviour
 
             // Once flight begins, clear the jumped-from-ground flag so apex gating won't reapply.
             jumpedFromGround = false;
+        } else
+        {
+            // Apply normal gravity if not flying
+            rb.gravityScale = normalGravityScale;
         }
 
-        ClampFallSpeed();
+            ClampFallSpeed();
+    }
+
+    private static int AxisToDir(float axis)
+    {
+        if (axis > MoveDeadzone) return 1;
+        if (axis < -MoveDeadzone) return -1;
+        return 0;
     }
 
     private void TryFly()
@@ -242,12 +253,16 @@ public class PlayerControls : MonoBehaviour
 
         if (IsGrounded())
         {
-            // Jump impulse on press
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-
-            // We actually jumped, so enable apex gating no matter what happens next frame
-            jumpedFromGround = true;
+            PerformJump();
         }
+    }
+
+    private void PerformJump()
+    {
+        // Apply jump force
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        // Mark that we jumped from ground to gate flight until apex
+        jumpedFromGround = true;
     }
 
     private void OnJumpCanceled(InputAction.CallbackContext ctx)
@@ -281,7 +296,7 @@ public class PlayerControls : MonoBehaviour
 
         // Track if we were flying before the quick boost to resume upward momentum later
         bool grounded = IsGrounded();
-        wasFlyingBeforeQuickBoost = (!grounded && flyInputHeld);
+        wasFlyingBeforeQuickBoost = (!grounded && anyFlyInputHeld);
 
         // Crisp dash: wipe horizontal velocity first
         rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -293,7 +308,7 @@ public class PlayerControls : MonoBehaviour
     private bool IsGrounded()
     {
         Vector2 bottomCenterPoint = (Vector2)col.bounds.center + Vector2.down * (col.bounds.extents.y) + groundBoxOffset;
-        groundBoxSize = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
+        Vector2 groundBoxSize = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
 
         return Physics2D.OverlapBox(bottomCenterPoint, groundBoxSize, 0f, groundFilter, m_overlapResults) > 0;
     }
@@ -308,9 +323,7 @@ public class PlayerControls : MonoBehaviour
         quickBoostTimer += Time.fixedDeltaTime;
 
         // Determine held direction
-        int heldDir = 0;
-        if (moveInputDirection > 0.2f) heldDir = 1;
-        else if (moveInputDirection < -0.2f) heldDir = -1;
+        int heldDir = AxisToDir(moveInputDirection);
 
         rb.gravityScale = 0f; // no gravity during dash
         float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
@@ -349,7 +362,7 @@ public class PlayerControls : MonoBehaviour
 
             // Determine exit vertical velocity
             float exitVy = 0f;
-            if (wasFlyingBeforeQuickBoost && flyInputHeld)
+            if (wasFlyingBeforeQuickBoost && anyFlyInputHeld)
                 exitVy = quickBoostFlyExitUpVelocity;
 
             // Apply exit velocities
