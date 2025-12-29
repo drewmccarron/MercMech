@@ -16,9 +16,9 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] private float groundAccel = 60f;      // how fast you ramp up on ground
     [SerializeField] private float groundDecel = 80f;      // how fast you stop on ground
     [SerializeField] private float groundTurnAccel = 110f; // how fast you reverse direction on ground
-    [SerializeField] private float airAccel = 30f;         // air control accel
-    [SerializeField] private float airDecel = 20f;         // air drift stopping
-    [SerializeField] private float airTurnAccel = 45f;     // air reverse accel
+    [SerializeField] private float airAccel = 40f;         // air control accel
+    [SerializeField] private float airDecel = 15f;         // air drift stopping
+    [SerializeField] private float airTurnAccel = 80f;     // air reverse accel
 
     [Header("Move")]
     public float walkSpeed = 5f;
@@ -75,7 +75,7 @@ public class PlayerControls : MonoBehaviour
 
     [Header("QB Chaining")]
     [SerializeField] private float qbChainBufferTime = 0.2f;          // how long a QB press is remembered while QB is active
-    [SerializeField, Range(0f, 1f)] private float qbChainStartPercent = 0.6f; // earliest percent you can chain into the next QB
+    [SerializeField, Range(0f, 1f)] private float qbChainStartPercent = 0.8f; // earliest percent you can chain into the next QB
     [SerializeField] private float qbChainMinInterval = 0.05f;        // tiny anti-spam / prevents multiple chains in same frame
 
     private float qbChainBufferTimer;
@@ -228,12 +228,13 @@ public class PlayerControls : MonoBehaviour
         float maxSpeed = CurrentHorizontalMoveSpeed();
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
+        float dt = Time.fixedDeltaTime;
+        int carryDir = AxisToDir(qbCarryVx);
 
         // ---- QB momentum carry protection ----
         if (qbFlyCarryTimer > 0f)
         {
             int heldDir = AxisToDir(moveInputDirection);
-            int carryDir = AxisToDir(qbCarryVx);
 
             // If player still holds same direction (or no input),
             // don't let accel logic pull velocity below carried QB speed.
@@ -245,20 +246,75 @@ public class PlayerControls : MonoBehaviour
                     targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
             }
         }
-        // --------------------------------
 
-        bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
-        bool reversing = hasInput &&
-                         Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
-                         Mathf.Abs(currentVelocity) > 0.1f;
+        // ---- QB momentum carry protection ----
+        // (keeps QB carry from being eaten by ground target logic OR air drag)
+        int heldDirForCarry = AxisToDir(moveInputDirection);
+        bool protectCarry = qbFlyCarryTimer > 0f && (heldDirForCarry == 0 || heldDirForCarry == carryDir);
+        // --------------------------------------
 
-        float accelRate;
-        if (!hasInput) accelRate = groundedNow ? groundDecel : airDecel;
-        else if (reversing) accelRate = groundedNow ? groundTurnAccel : airTurnAccel;
-        else accelRate = groundedNow ? groundAccel : airAccel;
+        if (groundedNow)
+        {
+            // If carry is active and player still holds same direction (or no input),
+            // don't let ground logic pull below carried QB speed.
+            if (protectCarry && carryDir != 0)
+            {
+                if (carryDir > 0) targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
+                else targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
+            }
 
-        float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * Time.fixedDeltaTime);
-        rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
+            bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
+            bool reversing = hasInput &&
+                             Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
+                             Mathf.Abs(currentVelocity) > 0.1f;
+
+            float accelRate;
+            if (!hasInput) accelRate = groundDecel;
+            else if (reversing) accelRate = groundTurnAccel;
+            else accelRate = groundAccel;
+
+            float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * dt);
+            rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
+        }
+        else
+        {
+            // Air = "inertia": input applies thrust, and drag slows you when no input.
+            bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
+
+            if (hasInput)
+            {
+                // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
+                bool reversing = Mathf.Sign(moveInputDirection) != Mathf.Sign(currentVelocity) &&
+                                 Mathf.Abs(currentVelocity) > 0.1f;
+
+                float thrust = reversing ? airTurnAccel : airAccel;
+
+                // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
+                rb.AddForce(Vector2.right * (moveInputDirection * thrust), ForceMode2D.Force);
+
+                // Optional: cap air top speed to your current maxSpeed (keeps things controllable).
+                float vx = rb.linearVelocity.x;
+                if (Mathf.Abs(vx) > maxSpeed)
+                    vx = Mathf.Sign(vx) * maxSpeed;
+
+                rb.linearVelocity = new Vector2(vx, rb.linearVelocity.y);
+            }
+            else
+            {
+                // No input: apply air drag toward 0.
+                float vx = rb.linearVelocity.x;
+                float newVx = Mathf.MoveTowards(vx, 0f, airDecel * dt);
+
+                // If QB carry protection is active, don't drag below the carried QB speed.
+                if (protectCarry && carryDir != 0)
+                {
+                    if (carryDir > 0) newVx = Mathf.Max(newVx, qbCarryVx);
+                    else newVx = Mathf.Min(newVx, qbCarryVx);
+                }
+
+                rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
+            }
+        }
         // ----------------------------
 
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
