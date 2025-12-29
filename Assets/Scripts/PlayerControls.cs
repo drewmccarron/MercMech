@@ -40,6 +40,7 @@ public class PlayerControls : MonoBehaviour
     private float quickBoostStartSpeed;
 
     public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
+    public float quickBoostNeutralExitSpeed = 2f;      // tune: horizontal speed when exiting dash with no input
 
     [Header("Fall")]
     public float maxFallSpeed = 8f;
@@ -232,21 +233,48 @@ public class PlayerControls : MonoBehaviour
         // Lock vertical movement during dash (horizontal line)
         rb.linearVelocity = new Vector2(quickBoostDir * quickBoostSpeed, 0f);
 
+        // Calculate horizontal velocity based on curve
         float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
         float multiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
 
+        // Apply horizontal velocity
         float targetVelocity = quickBoostDir * quickBoostStartSpeed * multiplier;
         rb.linearVelocity = new Vector2(targetVelocity, rb.linearVelocity.y);
 
         if (timeRemainingPercent >= 1f)
         {
             // AFTER dash: if we were flying, restore upward momentum
+            float exitVy = 0f;
             if (wasFlyingBeforeQuickBoost || flyHeld)
             {
                 // keep fly held so thrust continues if Space is still held
                 // (if you want it only if still holding Fly, gate with: if (flyHeld) ...)
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, quickBoostFlyExitUpVelocity);
+                exitVy = quickBoostFlyExitUpVelocity;
             }
+
+            // Determine what direction the player is currently holding
+            int heldDir = 0;
+            if (moveInputDirection > 0.2f) heldDir = 1;
+            else if (moveInputDirection < -0.2f) heldDir = -1;
+
+            // Determine exit horizontal velocity
+            float exitVx;
+            if (heldDir == quickBoostDir)
+            {
+                // Player is still holding the dash direction:
+                // exit at max movement speed in that direction
+                exitVx = heldDir * CurrentMaxMoveSpeed();
+            }
+            else
+            {
+                // No movement held: keep a little drift from the dash
+                // (set this to whatever "small momentum" you want)
+                float drift = 2.5f;
+                exitVx = quickBoostDir * drift;
+            }
+
+            // Apply exit horizontal velocity
+            rb.linearVelocity = new Vector2(exitVx, exitVy);
 
             wasFlyingBeforeQuickBoost = false;
             isQuickBoosting = false;
