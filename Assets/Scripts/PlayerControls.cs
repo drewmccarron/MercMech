@@ -22,8 +22,8 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Fly")]
     public float flyAcceleration = 30f;      // upward acceleration while holding Space
-    public float maxFlyUpSpeed = 8f;         // cap upward speed
-    public float flyGravityScale = 1.5f;     // gravity while flying
+    public float maxFlyUpSpeed = 5f;         // cap upward speed
+    public float flyGravityScale = 2f;     // gravity while flying
     public float normalGravityScale = 3f;    // gravity normally
     private bool flyHeld;
 
