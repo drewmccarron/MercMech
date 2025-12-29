@@ -104,6 +104,20 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        // Dispose the generated action set to free native resources
+        if (controls != null)
+        {
+            controls.Dispose();
+            controls = null;
+        }
+
+        // Also ensure physics restored if object destroyed mid-dash
+        if (rb != null)
+            rb.gravityScale = normalGravityScale;
+    }
+
     private void OnEnable()
     {
         if (controls == null) return;
