@@ -57,8 +57,10 @@ public class PlayerControls : MonoBehaviour
 
     private void TryJump()
     {
+        Debug.Log("Attempting to jump");
         if (IsGrounded())
         {
+            Debug.Log("Jumped");
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
@@ -70,6 +72,7 @@ public class PlayerControls : MonoBehaviour
         float dist = groundCheckDistance;
 
         RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0f, Vector2.down, dist, groundLayer);
+        Debug.DrawRay(origin, Vector2.down * dist, hit.collider ? Color.green : Color.red);
         return hit.collider != null;
     }
 }

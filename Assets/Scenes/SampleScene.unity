@@ -394,7 +394,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.04, y: -0.02}
+  m_Offset: {x: 0.009298503, y: -0.021978244}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -404,7 +404,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.75, y: 0.75}
+  m_Size: {x: 0.994928, y: 0.8207927}
   m_EdgeRadius: 0
 --- !u!4 &646307101
 Transform:
@@ -447,7 +447,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!212 &646307103
 SpriteRenderer:
   serializedVersion: 2
@@ -519,6 +519,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6beaab5bc3b9e5b4b9a67b407f1d799a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  speed: 5
+  jumpForce: 10
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 0.1
 --- !u!1 &1411208206
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +660,7 @@ GameObject:
   - component: {fileID: 1942630883}
   - component: {fileID: 1942630882}
   - component: {fileID: 1942630884}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
