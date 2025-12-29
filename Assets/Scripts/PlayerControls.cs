@@ -29,7 +29,7 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Quick Boost")]
     public float quickBoostSpeed = 16f;     // initial burst speed
-    public float quickBoostDuration = 0.6f; // seconds
+    public float quickBoostDuration = 0.35f; // seconds
     public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
     public float quickBoostCooldown = 0.15f;
 
@@ -39,11 +39,17 @@ public class PlayerControls : MonoBehaviour
     private int quickBoostDir;              // -1 or +1
     private float quickBoostStartSpeed;
 
+    public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
+
     [Header("Fall")]
-    public float maxFallSpeed = 12f;
+    public float maxFallSpeed = 8f;
 
     // Facing direction: -1 = left, +1 = right
     private int facingDirection = 1;
+    private bool wasFlyingBeforeQuickBoost;
+
+    private float savedGravityScale;
+    private float savedYVelocity;
 
     void Start()
     {
@@ -186,10 +192,18 @@ public class PlayerControls : MonoBehaviour
         // Safety: if somehow facingDirection is 0, default to right
         if (direction == 0) direction = 1;
 
+        // Save current vertical state so we can restore it after dash if desired
+        savedGravityScale = rb.gravityScale;
+        savedYVelocity = rb.linearVelocity.y;
+
         quickBoostDir = direction;
         quickBoostTimer = 0f;
         isQuickBoosting = true;
         quickBoostCooldownTimer = quickBoostCooldown;
+
+        // Track if we were flying before the quick boost to resume upward momentum later
+        bool grounded = IsGrounded();
+        wasFlyingBeforeQuickBoost = (!grounded && flyHeld);
 
         quickBoostStartSpeed = quickBoostSpeed;
 
@@ -214,14 +228,33 @@ public class PlayerControls : MonoBehaviour
     {
         quickBoostTimer += Time.fixedDeltaTime;
 
+        // Save current vertical state so we can restore it after dash if desired
+        savedGravityScale = rb.gravityScale;
+        savedYVelocity = rb.linearVelocity.y;
+
+        // DURING dash: zero out vertical movement and gravity
+        rb.gravityScale = 0f;
+
+        // Lock vertical movement during dash (horizontal line)
+        rb.linearVelocity = new Vector2(quickBoostDir * quickBoostSpeed, 0f);
+
         float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
         float multiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
 
-        float targetVx = quickBoostDir * quickBoostStartSpeed * multiplier;
-        rb.linearVelocity = new Vector2(targetVx, rb.linearVelocity.y);
+        float targetVelocity = quickBoostDir * quickBoostStartSpeed * multiplier;
+        rb.linearVelocity = new Vector2(targetVelocity, rb.linearVelocity.y);
 
         if (timeRemainingPercent >= 1f)
         {
+            // AFTER dash: if we were flying, restore upward momentum
+            if (wasFlyingBeforeQuickBoost || flyHeld)
+            {
+                // keep fly held so thrust continues if Space is still held
+                // (if you want it only if still holding Fly, gate with: if (flyHeld) ...)
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, quickBoostFlyExitUpVelocity);
+            }
+
+            wasFlyingBeforeQuickBoost = false;
             isQuickBoosting = false;
         }
     }
