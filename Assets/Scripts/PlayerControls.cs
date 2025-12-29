@@ -283,14 +283,13 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
-        // OverlapBoxNonAlloc is cheaper and avoids per-frame allocations.
+        // OverlapBox is the new recommended API (returns the first collider found or null).
         // Position the box slightly below the collider bottom to avoid immediate overlap issues.
         Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y) + Vector2.down * 0.01f;
         Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
 
-        // Use layer mask directly in the call to avoid allocating a ContactFilter.
-        int hits = Physics2D.OverlapBoxNonAlloc(bottomCenterPoint, size, 0f, m_overlapResults, groundLayer);
-        return hits > 0;
+        Collider2D hit = Physics2D.OverlapBox(bottomCenterPoint, size, 0f, groundLayer);
+        return hit != null;
     }
 
     private float CurrentHorizontalMoveSpeed()
@@ -318,6 +317,7 @@ public class PlayerControls : MonoBehaviour
         if (heldDir != 0 && heldDir == quickBoostDir)
         {
             qbSpeedAtThisFrame = Mathf.Max(qbSpeedAtThisFrame, CurrentHorizontalMoveSpeed());
+            qbSpeedAtThisFrame = Mathf.Max(Mathf.Abs(qbSpeedAtThisFrame * moveInputDirection), CurrentHorizontalMoveSpeed());
         }
 
         // Set horizontal dash speed + lock vertical movement during dash
