@@ -15,7 +15,7 @@ public class PlayerControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        float x = controls.Player.Walk.ReadValue<float>();
     }
 
     void Awake()
@@ -26,25 +26,11 @@ public class PlayerControls : MonoBehaviour
 
     private void OnEnable()
     {
-        controls.Player.Left.performed += moveLeft;
-        controls.Player.Right.performed += moveRight;
-        controls.Player.Enable();
+
     }
 
     private void OnDisable()
     {
-        controls.Player.Left.performed -= moveLeft;
-        controls.Player.Right.performed -= moveRight;
-        controls.Player.Disable();
-    }
 
-    private void moveLeft(InputAction.CallbackContext context)
-    {
-        Debug.Log("Move Left");
-    }
-
-    private void moveRight(InputAction.CallbackContext context)
-    {
-        Debug.Log("Move Right");
     }
 }

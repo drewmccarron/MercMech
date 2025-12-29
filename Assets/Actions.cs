@@ -93,46 +93,48 @@ public partial class @Actions: IInputActionCollection2, IDisposable
             ""id"": ""f37c16dd-84c5-4d0d-94cf-3fb9b31d71c5"",
             ""actions"": [
                 {
-                    ""name"": ""Left"",
-                    ""type"": ""Button"",
-                    ""id"": ""edb3d91c-1727-4843-8c0c-20b31970fe9f"",
-                    ""expectedControlType"": """",
+                    ""name"": ""Walk"",
+                    ""type"": ""Value"",
+                    ""id"": ""47aaa915-c10a-4d85-8eef-bb2816c21d28"",
+                    ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Right"",
-                    ""type"": ""Button"",
-                    ""id"": ""292b2263-c21f-4401-ab3c-2b9fdea6857e"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": """",
-                    ""id"": ""0998a8fc-667d-42d6-9617-b9ade27f3f97"",
+                    ""name"": ""1D Axis"",
+                    ""id"": ""c2ef3862-efb9-4577-b0a4-414608448435"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Walk"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""8000704f-e6be-4106-8977-50f6cb408d0b"",
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Left"",
+                    ""action"": ""Walk"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": false
+                    ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": """",
-                    ""id"": ""28ac00a6-5a4c-432f-906d-8b0352b97212"",
+                    ""name"": ""positive"",
+                    ""id"": ""cc76d6e2-d809-48d6-8ffa-16ce3911e2bb"",
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Right"",
+                    ""action"": ""Walk"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": false
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -141,8 +143,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-        m_Player_Left = m_Player.FindAction("Left", throwIfNotFound: true);
-        m_Player_Right = m_Player.FindAction("Right", throwIfNotFound: true);
+        m_Player_Walk = m_Player.FindAction("Walk", throwIfNotFound: true);
     }
 
     ~@Actions()
@@ -223,8 +224,7 @@ public partial class @Actions: IInputActionCollection2, IDisposable
     // Player
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
-    private readonly InputAction m_Player_Left;
-    private readonly InputAction m_Player_Right;
+    private readonly InputAction m_Player_Walk;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -237,13 +237,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public PlayerActions(@Actions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Player/Left".
+        /// Provides access to the underlying input action "Player/Walk".
         /// </summary>
-        public InputAction @Left => m_Wrapper.m_Player_Left;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Right".
-        /// </summary>
-        public InputAction @Right => m_Wrapper.m_Player_Right;
+        public InputAction @Walk => m_Wrapper.m_Player_Walk;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -270,12 +266,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_PlayerActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_PlayerActionsCallbackInterfaces.Add(instance);
-            @Left.started += instance.OnLeft;
-            @Left.performed += instance.OnLeft;
-            @Left.canceled += instance.OnLeft;
-            @Right.started += instance.OnRight;
-            @Right.performed += instance.OnRight;
-            @Right.canceled += instance.OnRight;
+            @Walk.started += instance.OnWalk;
+            @Walk.performed += instance.OnWalk;
+            @Walk.canceled += instance.OnWalk;
         }
 
         /// <summary>
@@ -287,12 +280,9 @@ public partial class @Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="PlayerActions" />
         private void UnregisterCallbacks(IPlayerActions instance)
         {
-            @Left.started -= instance.OnLeft;
-            @Left.performed -= instance.OnLeft;
-            @Left.canceled -= instance.OnLeft;
-            @Right.started -= instance.OnRight;
-            @Right.performed -= instance.OnRight;
-            @Right.canceled -= instance.OnRight;
+            @Walk.started -= instance.OnWalk;
+            @Walk.performed -= instance.OnWalk;
+            @Walk.canceled -= instance.OnWalk;
         }
 
         /// <summary>
@@ -334,18 +324,11 @@ public partial class @Actions: IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Left" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Walk" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Right" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRight(InputAction.CallbackContext context);
+        void OnWalk(InputAction.CallbackContext context);
     }
 }
