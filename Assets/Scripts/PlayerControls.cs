@@ -6,7 +6,7 @@ public class PlayerControls : MonoBehaviour
     private Rigidbody2D rb;
     private Actions controls;
     private Collider2D col;
-    private float moveInput;
+    private float moveInputDirection;
 
     [Header("Move")]
     public float walkSpeed = 5f;
@@ -43,7 +43,7 @@ public class PlayerControls : MonoBehaviour
     public float maxFallSpeed = 12f;
 
     // Facing direction: -1 = left, +1 = right
-    private int facingDir = 1;
+    private int facingDirection = 1;
 
     void Start()
     {
@@ -53,11 +53,11 @@ public class PlayerControls : MonoBehaviour
     void Update()
     {
         // Left-Right Movement Input
-        moveInput = controls.Player.Walk.ReadValue<float>();
+        moveInputDirection = controls.Player.Walk.ReadValue<float>();
 
         // Update facing direction
-        if (moveInput > 0.2f) facingDir = 1;
-        else if (moveInput < -0.2f) facingDir = -1;
+        if (moveInputDirection > 0.2f) facingDirection = 1;
+        else if (moveInputDirection < -0.2f) facingDirection = -1;
 
         // Quick Boost Cooldown
         if (quickBoostCooldownTimer > 0f)
@@ -132,7 +132,7 @@ public class PlayerControls : MonoBehaviour
         }
 
         float leftRightMoveSpeed = boostHeld ? boostSpeed : walkSpeed;
-        rb.linearVelocity = new Vector2(moveInput * leftRightMoveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInputDirection * leftRightMoveSpeed, rb.linearVelocity.y);
 
         bool grounded = IsGrounded();
         if (flyHeld)
@@ -178,15 +178,15 @@ public class PlayerControls : MonoBehaviour
         // Determine dash direction:
         // - If player is holding left/right, dash that way
         // - Otherwise dash in last facing direction
-        int dir = 0;
-        if (moveInput > 0.2f) dir = 1;
-        else if (moveInput < -0.2f) dir = -1;
-        else dir = facingDir;
+        int direction = 0;
+        if (moveInputDirection > 0.2f) direction = 1;
+        else if (moveInputDirection < -0.2f) direction = -1;
+        else direction = facingDirection;
 
-        // Safety: if somehow facingDir is 0, default to right
-        if (dir == 0) dir = 1;
+        // Safety: if somehow facingDirection is 0, default to right
+        if (direction == 0) direction = 1;
 
-        quickBoostDir = dir;
+        quickBoostDir = direction;
         quickBoostTimer = 0f;
         isQuickBoosting = true;
         quickBoostCooldownTimer = quickBoostCooldown;
@@ -202,11 +202,11 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Vector2 origin = new Vector2(col.bounds.center.x, col.bounds.min.y);
+        Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y);
         Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
         float dist = groundCheckDistance;
 
-        RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0f, Vector2.down, dist, groundLayer);
+        RaycastHit2D hit = Physics2D.BoxCast(bottomCenterPoint, size, 0f, Vector2.down, dist, groundLayer);
         return hit.collider != null;
     }
 
