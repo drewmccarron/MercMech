@@ -12,6 +12,15 @@ public class PlayerControls : MonoBehaviour
     private Vector2 groundBoxOffset;
     private float moveInputDirection;
 
+    [Header("Acceleration")]
+    [SerializeField] private float groundAccel = 60f;     // how fast you ramp up on ground
+    [SerializeField] private float groundDecel = 80f;     // how fast you stop on ground
+    [SerializeField] private float groundTurnAccel = 110f; // how fast you reverse direction on ground
+
+    [SerializeField] private float airAccel = 30f;        // air control accel
+    [SerializeField] private float airDecel = 20f;        // air drift stopping
+    [SerializeField] private float airTurnAccel = 45f;    // air reverse accel
+
     [Header("Move")]
     public float walkSpeed = 5f;
     public float boostSpeed = 9f;
@@ -189,54 +198,51 @@ public class PlayerControls : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Update jump buffer timer
         if (jumpBufferTimer > 0f)
             jumpBufferTimer -= Time.fixedDeltaTime;
 
-        // Update grounded state and coyote timer
-        if (IsGrounded())
-        {
-            timeSinceLastGrounded = 0f;
-        }
-        else
-        {
-            timeSinceLastGrounded += Time.fixedDeltaTime;
-        }
+        bool groundedNow = IsGrounded();
+        if (groundedNow) timeSinceLastGrounded = 0f;
+        else timeSinceLastGrounded += Time.fixedDeltaTime;
 
-        // Handle Quick Boosting
         if (isQuickBoosting)
         {
             DoQuickBoostStep();
             return; // skip normal movement during dash
         }
 
-        // Basic left-right movement
-        float leftRightMoveSpeed = CurrentHorizontalMoveSpeed();
-        rb.linearVelocity = new Vector2(moveInputDirection * leftRightMoveSpeed, rb.linearVelocity.y);
+        // ---- NEW: accel-based horizontal ----
+        float maxSpeed = CurrentHorizontalMoveSpeed();
+        float targetVelocity = moveInputDirection * maxSpeed;
+        float currentVelocity = rb.linearVelocity.x;
+
+        bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
+        bool reversing = hasInput && Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) && Mathf.Abs(currentVelocity) > 0.1f;
+
+        float accelRate;
+        if (!hasInput) accelRate = groundedNow ? groundDecel : airDecel;
+        else if (reversing) accelRate = groundedNow ? groundTurnAccel : airTurnAccel;
+        else accelRate = groundedNow ? groundAccel : airAccel;
+
+        float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * Time.fixedDeltaTime);
+        rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
+        // ------------------------------------
 
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
-
-        // block flight while still rising from a ground-initiated jump
         bool allowFlightNow = !isInJumpRisePhase;
-
         bool shouldFlyNow = allowFlightNow && (flyKeyHeld || jumpKeyHeld);
 
         if (shouldFlyNow)
         {
-            // Start flight immediately (even if grounded) unless we're in the rise phase after a ground jump.
-            // TryFly handles gravity and upward acceleration; calling it on-ground gives takeoff thrust.
             TryFly();
-
-            // Once flight begins, clear the jumped-from-ground flag so apex gating won't reapply.
             jumpedFromGround = false;
         }
         else
         {
-            // Apply normal gravity if not flying
             rb.gravityScale = normalGravityScale;
         }
 
-            ClampFallSpeed();
+        ClampFallSpeed();
     }
 
     private static int AxisToDir(float axis)
