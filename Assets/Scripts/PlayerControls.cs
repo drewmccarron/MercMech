@@ -16,6 +16,8 @@ public class PlayerControls : MonoBehaviour
     public float jumpForce = 10f;
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
+    private bool jumpedWithWFromGround; // used to delay W-fly until apex
+
 
     [Header("Boost")]
     private bool boostHeld;
@@ -25,7 +27,6 @@ public class PlayerControls : MonoBehaviour
     public float maxFlyUpSpeed = 5f;         // cap upward speed
     public float flyGravityScale = 2f;     // gravity while flying
     public float normalGravityScale = 3f;    // gravity normally
-    private bool flyHeld;
 
     [Header("Quick Boost")]
     public float quickBoostSpeed = 16f;     // initial burst speed
@@ -33,12 +34,14 @@ public class PlayerControls : MonoBehaviour
     public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
     public float quickBoostCooldown = 0.4f;
 
+    // Quick Boost state
     private bool isQuickBoosting;
     private float quickBoostTimer;
     private float quickBoostCooldownTimer;
     private int quickBoostDir;              // -1 or +1
     private float quickBoostStartSpeed;
 
+    // Quick Boost exit tuning
     public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
     public float quickBoostNeutralExitSpeed = 2f;      // tune: horizontal speed when exiting dash with no input
 
@@ -48,6 +51,11 @@ public class PlayerControls : MonoBehaviour
     // Facing direction: -1 = left, +1 = right
     private int facingDirection = 1;
     private bool wasFlyingBeforeQuickBoost;
+
+    // Input tracking
+    private bool flyKeyHeld;
+    private bool jumpKeyHeld;
+    private bool flyInputHeld => jumpKeyHeld || flyKeyHeld;
 
     void Start()
     {
@@ -85,7 +93,7 @@ public class PlayerControls : MonoBehaviour
             );
         }
 
-        // Set default ground layer
+        // Find ground layer
         if (groundLayer == 0)
         {
             groundLayer = LayerMask.GetMask("Ground");
@@ -98,7 +106,8 @@ public class PlayerControls : MonoBehaviour
         controls.Player.Enable();
 
         // Jump
-        controls.Player.Jump.performed += OnJump;
+        controls.Player.Jump.started += OnJumpStarted;
+        controls.Player.Jump.canceled += OnJumpCanceled;
 
         // Boost
         controls.Player.GroundBoost.started += OnBoostStarted;
@@ -114,7 +123,8 @@ public class PlayerControls : MonoBehaviour
 
     private void OnDisable()
     {
-        controls.Player.Jump.performed -= OnJump;
+        controls.Player.Jump.started -= OnJumpStarted;
+        controls.Player.Jump.canceled -= OnJumpCanceled;
 
         controls.Player.GroundBoost.started -= OnBoostStarted;
         controls.Player.GroundBoost.canceled -= OnBoostCanceled;
@@ -135,29 +145,46 @@ public class PlayerControls : MonoBehaviour
             return; // skip normal movement during dash
         }
 
-        float leftRightMoveSpeed = boostHeld ? boostSpeed : walkSpeed;
+        // Basic left-right movement
+        float leftRightMoveSpeed = CurrentHorizontalMoveSpeed();
         rb.linearVelocity = new Vector2(moveInputDirection * leftRightMoveSpeed, rb.linearVelocity.y);
 
         bool grounded = IsGrounded();
-        if (flyHeld)
+
+        // If we landed, clear the "jumped from ground" flag
+        if (grounded)
+            jumpedWithWFromGround = false;
+
+        // Fly if:
+        // - Fly-key or Jump-key is held
+        // - (optional) only after apex (when vertical velocity <= 0)
+        bool shouldFlyNow =
+            flyInputHeld &&
+            // if we jumped from ground with Jump-key, wait until apex of jump
+            (!jumpedWithWFromGround || rb.linearVelocity.y <= 0f);
+
+        if (shouldFlyNow)
         {
-            rb.gravityScale = flyGravityScale;
-
-            rb.AddForce(Vector2.up * flyAcceleration, ForceMode2D.Force);
-
-            // cap upward speed
-            if (rb.linearVelocity.y > maxFlyUpSpeed)
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, maxFlyUpSpeed);
+            TryFly();
         }
         else
         {
+            // fall with normal gravity
             rb.gravityScale = normalGravityScale;
-
-            //clear fly state when landing
-            if (grounded) flyHeld = false;
         }
 
         ClampFallSpeed();
+    }
+
+    private void TryFly()
+    {
+        rb.gravityScale = flyGravityScale;
+
+        rb.AddForce(Vector2.up * flyAcceleration, ForceMode2D.Force);
+
+        // cap upward speed
+        if (rb.linearVelocity.y > maxFlyUpSpeed)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, maxFlyUpSpeed);
     }
 
     private void ClampFallSpeed()
@@ -166,12 +193,28 @@ public class PlayerControls : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -maxFallSpeed);
     }
 
-    private void OnJump(InputAction.CallbackContext ctx)
+    private void OnJumpStarted(InputAction.CallbackContext ctx)
     {
+        jumpKeyHeld = true;
+
         if (IsGrounded())
         {
+            // Jump impulse on press
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+            // Mark that we jumped from ground using Jump-key, so Jump-to-fly transition waits until apex
+            jumpedWithWFromGround = true;
         }
+        // If airborne, we don't do an instant pop here.
+        // Flying will be handled continuously in FixedUpdate while held.
+    }
+
+    private void OnJumpCanceled(InputAction.CallbackContext ctx)
+    {
+        jumpKeyHeld = false;
+
+        // If they let go of Jump, stop the “apex-to-fly” transition
+        jumpedWithWFromGround = false;
     }
 
     private void OnQuickBoost(InputAction.CallbackContext ctx)
@@ -197,7 +240,7 @@ public class PlayerControls : MonoBehaviour
 
         // Track if we were flying before the quick boost to resume upward momentum later
         bool grounded = IsGrounded();
-        wasFlyingBeforeQuickBoost = (!grounded && flyHeld);
+        wasFlyingBeforeQuickBoost = (!grounded && flyKeyHeld);
 
         quickBoostStartSpeed = quickBoostSpeed;
 
@@ -210,15 +253,16 @@ public class PlayerControls : MonoBehaviour
 
     private bool IsGrounded()
     {
+        // Cast a small box at the bottom of the collider to check for ground
         Vector2 bottomCenterPoint = new Vector2(col.bounds.center.x, col.bounds.min.y);
         Vector2 size = new Vector2(col.bounds.size.x * 0.9f, 0.05f);
-        float dist = groundCheckDistance;
 
+        float dist = groundCheckDistance;
         RaycastHit2D hit = Physics2D.BoxCast(bottomCenterPoint, size, 0f, Vector2.down, dist, groundLayer);
         return hit.collider != null;
     }
 
-    private float CurrentMaxMoveSpeed()
+    private float CurrentHorizontalMoveSpeed()
     {
         return boostHeld ? boostSpeed : walkSpeed;
     }
@@ -227,62 +271,59 @@ public class PlayerControls : MonoBehaviour
     {
         quickBoostTimer += Time.fixedDeltaTime;
 
-        // DURING dash: zero out vertical movement and gravity
-        rb.gravityScale = 0f;
+        rb.gravityScale = 0f; // no gravity during dash
 
-        // Lock vertical movement during dash (horizontal line)
-        rb.linearVelocity = new Vector2(quickBoostDir * quickBoostSpeed, 0f);
-
-        // Calculate horizontal velocity based on curve
         float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
         float multiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
 
-        // Apply horizontal velocity
-        float targetVelocity = quickBoostDir * quickBoostStartSpeed * multiplier;
-        rb.linearVelocity = new Vector2(targetVelocity, rb.linearVelocity.y);
+        // Prevent the tail from slowing to a near-stop before exit speed kicks in
+        multiplier = Mathf.Max(multiplier, 0.25f); // tune 0.15–0.5
 
+        float qbCurrentVelocity = quickBoostDir * quickBoostStartSpeed * multiplier;
+
+        // Lock vertical movement during dash
+        rb.linearVelocity = new Vector2(qbCurrentVelocity, 0f);
+
+        // If dash ends
         if (timeRemainingPercent >= 1f)
         {
-            // AFTER dash: if we were flying, restore upward momentum
-            float exitVy = 0f;
-            if (wasFlyingBeforeQuickBoost || flyHeld)
-            {
-                // keep fly held so thrust continues if Space is still held
-                // (if you want it only if still holding Fly, gate with: if (flyHeld) ...)
-                exitVy = quickBoostFlyExitUpVelocity;
-            }
+            // Restore gravity immediately when dash ends
+            rb.gravityScale = normalGravityScale;
 
-            // Determine what direction the player is currently holding
+            // Determine held direction
             int heldDir = 0;
             if (moveInputDirection > 0.2f) heldDir = 1;
             else if (moveInputDirection < -0.2f) heldDir = -1;
 
-            // Determine exit horizontal velocity
-            float exitVx;
-            if (heldDir == quickBoostDir)
+            // Determine exit horizontal velocities
+            float qbExitVelocity;
+            if (heldDir != 0 && heldDir == quickBoostDir)
             {
-                // Player is still holding the dash direction:
-                // exit at max movement speed in that direction
-                exitVx = heldDir * CurrentMaxMoveSpeed();
+                // If they are holding a direction, exit at max move speed in that direction
+                qbExitVelocity = heldDir * CurrentHorizontalMoveSpeed();
             }
             else
             {
-                // No movement held: keep a little drift from the dash
-                // (set this to whatever "small momentum" you want)
-                float drift = 2.5f;
-                exitVx = quickBoostDir * drift;
+                // No input: small drift
+                qbExitVelocity = quickBoostDir * quickBoostNeutralExitSpeed;
             }
 
-            // Apply exit horizontal velocity
-            rb.linearVelocity = new Vector2(exitVx, exitVy);
+
+            // Determine exit vertical velocity
+            float exitVy = 0f;
+            if (wasFlyingBeforeQuickBoost && flyKeyHeld) // recommend && not ||
+                exitVy = quickBoostFlyExitUpVelocity;
+
+            // Apply exit velocities
+            rb.linearVelocity = new Vector2(qbExitVelocity, exitVy);
 
             wasFlyingBeforeQuickBoost = false;
             isQuickBoosting = false;
         }
     }
 
-    private void OnFlyStarted(InputAction.CallbackContext ctx) => flyHeld = true;
-    private void OnFlyCanceled(InputAction.CallbackContext ctx) => flyHeld = false;
+    private void OnFlyStarted(InputAction.CallbackContext ctx) => flyKeyHeld = true;
+    private void OnFlyCanceled(InputAction.CallbackContext ctx) => flyKeyHeld = false;
 
     private void OnBoostStarted(InputAction.CallbackContext ctx) => boostHeld = true;
     private void OnBoostCanceled(InputAction.CallbackContext ctx) => boostHeld = false;
