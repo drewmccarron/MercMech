@@ -277,7 +277,7 @@ public class PlayerControls : MonoBehaviour
         // Crisp dash: wipe horizontal velocity first
         rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
-        // Immediate burst
+        // Immediate burst, good for frame-zero responsiveness
         rb.linearVelocity = new Vector2(quickBoostDir * quickBoostStartSpeed, rb.linearVelocity.y);
     }
 
