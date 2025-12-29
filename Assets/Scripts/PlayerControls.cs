@@ -281,29 +281,32 @@ public class PlayerControls : MonoBehaviour
     {
         quickBoostTimer += Time.fixedDeltaTime;
 
-        rb.gravityScale = 0f; // no gravity during dash
+        // Determine held direction
+        int heldDir = 0;
+        if (moveInputDirection > 0.2f) heldDir = 1;
+        else if (moveInputDirection < -0.2f) heldDir = -1;
 
+        rb.gravityScale = 0f; // no gravity during dash
         float timeRemainingPercent = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
-        float multiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
 
         // Prevent the tail from slowing to a near-stop before exit speed kicks in
-        multiplier = Mathf.Max(multiplier, 0.25f); // tune 0.15–0.5
+        float qbCurveMultiplier = quickBoostCurve.Evaluate(timeRemainingPercent);
 
-        float qbCurrentVelocity = quickBoostDir * quickBoostStartSpeed * multiplier;
+        float qbSpeedAtThisFrame = quickBoostStartSpeed * qbCurveMultiplier;
+        // Don't go below horizontal movespeed if still pressing towards dash direction
+        if (heldDir != 0 && heldDir == quickBoostDir)
+        {
+            qbSpeedAtThisFrame = Mathf.Max(qbSpeedAtThisFrame, CurrentHorizontalMoveSpeed());
+        }
 
-        // Lock vertical movement during dash
-        rb.linearVelocity = new Vector2(qbCurrentVelocity, 0f);
+        // Set horizontal dash speed + lock vertical movement during dash
+        rb.linearVelocity = new Vector2(quickBoostDir * qbSpeedAtThisFrame, 0f);
 
         // If dash ends
         if (timeRemainingPercent >= 1f)
         {
             // Restore gravity immediately when dash ends
             rb.gravityScale = normalGravityScale;
-
-            // Determine held direction
-            int heldDir = 0;
-            if (moveInputDirection > 0.2f) heldDir = 1;
-            else if (moveInputDirection < -0.2f) heldDir = -1;
 
             // Determine exit horizontal velocities
             float qbExitVelocity;
@@ -317,7 +320,6 @@ public class PlayerControls : MonoBehaviour
                 // No input: small drift
                 qbExitVelocity = quickBoostDir * quickBoostNeutralExitSpeed;
             }
-
 
             // Determine exit vertical velocity
             float exitVy = 0f;
