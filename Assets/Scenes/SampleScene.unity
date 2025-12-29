@@ -527,10 +527,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   flyAcceleration: 30
-  maxFlyUpSpeed: 5
+  maxFlyUpSpeed: 4.5
   flyGravityScale: 2
   normalGravityScale: 3
-  quickBoostSpeed: 16
+  quickBoostStartSpeed: 16
   quickBoostDuration: 0.35
   quickBoostCurve:
     serializedVersion: 2
@@ -538,10 +538,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  quickBoostCooldown: 0.15
+  quickBoostCooldown: 0.4
   quickBoostFlyExitUpVelocity: 10
   quickBoostNeutralExitSpeed: 2
-  maxFallSpeed: 8
+  maxFallSpeed: 7
 --- !u!1 &1411208206
 GameObject:
   m_ObjectHideFlags: 0
