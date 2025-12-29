@@ -31,7 +31,7 @@ public class PlayerControls : MonoBehaviour
     public float quickBoostSpeed = 16f;     // initial burst speed
     public float quickBoostDuration = 0.35f; // seconds
     public AnimationCurve quickBoostCurve = null; // optional; if null we use a built-in ease
-    public float quickBoostCooldown = 0.15f;
+    public float quickBoostCooldown = 0.4f;
 
     private bool isQuickBoosting;
     private float quickBoostTimer;
@@ -43,7 +43,7 @@ public class PlayerControls : MonoBehaviour
     public float quickBoostNeutralExitSpeed = 2f;      // tune: horizontal speed when exiting dash with no input
 
     [Header("Fall")]
-    public float maxFallSpeed = 8f;
+    public float maxFallSpeed = 7f;
 
     // Facing direction: -1 = left, +1 = right
     private int facingDirection = 1;
