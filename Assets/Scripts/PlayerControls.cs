@@ -208,7 +208,8 @@ public class PlayerControls : MonoBehaviour
 
             // Once flight begins, clear the jumped-from-ground flag so apex gating won't reapply.
             jumpedFromGround = false;
-        } else
+        }
+        else
         {
             // Apply normal gravity if not flying
             rb.gravityScale = normalGravityScale;
@@ -281,13 +282,10 @@ public class PlayerControls : MonoBehaviour
         // Determine dash direction:
         // - If player is holding left/right, dash that way
         // - Otherwise dash in last facing direction
-        int direction = 0;
-        if (moveInputDirection > 0.2f) direction = 1;
-        else if (moveInputDirection < -0.2f) direction = -1;
-        else direction = facingDirection;
+        int direction = AxisToDir(moveInputDirection);
 
         // Safety: if somehow facingDirection is 0, default to right
-        if (direction == 0) direction = 1;
+        if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
 
         quickBoostDir = direction;
         quickBoostTimer = 0f;
