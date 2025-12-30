@@ -31,6 +31,20 @@ public class AimMotor2D
         AimDirection = lastNonZeroDirection;
     }
 
+    // NEW: Update aim from a world-space target position (eg. enemy aiming at player).
+    public void UpdateAimWorld(Vector2 originWorld, Vector2 targetWorld)
+    {
+        AimWorldPosition = targetWorld;
+
+        Vector2 toAim = AimWorldPosition - originWorld;
+        if (toAim.sqrMagnitude > 0.000001f)
+        {
+            lastNonZeroDirection = toAim.normalized;
+        }
+
+        AimDirection = lastNonZeroDirection;
+    }
+
     // Convenience: compute a ray end point for a given length.
     public Vector2 RayEnd(Vector2 originWorld, float length)
     {
