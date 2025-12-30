@@ -519,44 +519,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6beaab5bc3b9e5b4b9a67b407f1d799a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControls
-  groundAccel: 60
-  groundDecel: 80
-  groundTurnAccel: 110
-  airAccel: 30
-  airDecel: 20
-  airTurnAccel: 45
-  walkSpeed: 5
-  boostSpeed: 9
-  jumpForce: 10
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  jumpBufferTime: 0.12
-  flyAcceleration: 30
-  maxFlyUpSpeed: 4.5
-  flyGravityScale: 2
-  normalGravityScale: 3
-  quickBoostStartSpeed: 16
-  quickBoostDuration: 0.35
-  quickBoostCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  quickBoostCooldown: 0.4
-  quickBoostFlyExitUpVelocity: 10
-  quickBoostNeutralExitSpeed: 2
-  quickBoostAccel: 200
-  quickBoostDecel: 260
-  quickBoostMinMultiplier: 0.18
-  wipeHorizontalOnQuickBoostStart: 1
-  qbFlyCarryTime: 0.18
-  qbFlyReleasePercent: 0.85
-  qbChainBufferTime: 0.2
-  qbChainStartPercent: 0.6
-  qbChainMinInterval: 0.05
-  maxFallSpeed: 7
+  horizontalSettings:
+    groundAccel: 30
+    groundDecel: 15
+    groundTurnAccel: 30
+    airAccel: 15
+    airDecel: 5
+    airTurnAccel: 25
+  moveSettings:
+    maxUnboostedGroundSpeed: 4
+    maxGroundBoostSpeed: 8
+    maxFallingHorizontalSpeed: 3
+    maxFlyingHorizontalSpeed: 6
+  jumpSettings:
+    jumpForce: 10
+    groundLayer:
+      serializedVersion: 2
+      m_Bits: 0
+    coyoteTime: 0.1
+    jumpBufferTime: 0.12
+    jumpWindupTime: 0.5
+  flightSettings:
+    flyAcceleration: 30
+    maxFlyUpSpeed: 4.5
+    flyGravityScale: 2
+    normalGravityScale: 3
+  quickBoostSettings:
+    quickBoostStartSpeed: 16
+    quickBoostDuration: 0.35
+    quickBoostCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    quickBoostCooldown: 0.4
+    quickBoostFlyExitUpVelocity: 10
+    quickBoostNeutralExitSpeed: 2
+    quickBoostAccel: 200
+    quickBoostDecel: 260
+    quickBoostMinMultiplier: 0.18
+    wipeHorizontalOnQuickBoostStart: 1
+    qbFlyCarryTime: 0.18
+    qbFlyReleasePercent: 0.85
+    qbChainBufferTime: 0.2
+    qbChainStartPercent: 0.8
+    qbChainMinInterval: 0.05
+  fallSettings:
+    maxFallSpeed: 7
 --- !u!1 &1433881493
 GameObject:
   m_ObjectHideFlags: 0
