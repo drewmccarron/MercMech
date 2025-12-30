@@ -194,15 +194,6 @@ public class PlayerControls : MonoBehaviour
         // Determine whether we are currently in flight (from flight motor).
         bool inFlight = flightMotor != null && flightMotor.flightActive;
 
-        horizontalMotor.ProcessHorizontalMovement(
-            groundedNow: groundedNow,
-            moveInputDirection: moveInputDirection,
-            boostHeld: boostHeld,
-            qbFlyCarryTimer: qbFlyCarryTimer,
-            qbCarryVx: qbCarryVx,
-            inFlight: inFlight
-        );
-
         if (!jumpMotor.IsWindingUp)
         {
             // Flight motor
@@ -211,6 +202,15 @@ public class PlayerControls : MonoBehaviour
                 jumpedFromGround: ref jumpMotor.jumpedFromGround
             );
         }
+
+        horizontalMotor.ProcessHorizontalMovement(
+            groundedNow: groundedNow,
+            moveInputDirection: moveInputDirection,
+            boostHeld: boostHeld,
+            qbFlyCarryTimer: qbFlyCarryTimer,
+            qbCarryVx: qbCarryVx,
+            inFlight: inFlight
+        );
 
         ClampFallSpeed();
     }
