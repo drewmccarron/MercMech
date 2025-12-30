@@ -5,6 +5,9 @@ public class FlightMotor2D
     private readonly Rigidbody2D rb;
     private readonly Settings settings;
 
+    // Tracks whether flight mode is currently active so we only change gravity when state transitions.
+    private bool flightActive;
+
     [System.Serializable]
     public class Settings
     {
@@ -19,9 +22,12 @@ public class FlightMotor2D
     {
         this.rb = rb;
         this.settings = settings;
+        flightActive = false;
     }
 
     // Flight logic separated from movement for easier tuning.
+    // anyFlyInputHeld: true when fly or jump input is held.
+    // jumpedFromGround: ref to gate used to block flight until apex after a ground jump.
     public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround)
     {
         // If the player jumped from ground and is still rising, block flight until apex.
@@ -30,20 +36,35 @@ public class FlightMotor2D
 
         if (shouldFlyNow)
         {
+            // Enter flight state if not already active (only update gravity on state transition).
+            if (!flightActive)
+            {
+                rb.gravityScale = settings.flyGravityScale;
+                flightActive = true;
+            }
+
             TryFly();
-            jumpedFromGround = false; // once flying, clear the gate
+
+            // Once flight begins, clear the gate so apex-check won't block subsequent flight.
+            jumpedFromGround = false;
         }
         else
         {
-            rb.gravityScale = settings.normalGravityScale;
+            // Only restore normal gravity if we were previously in flight.
+            if (flightActive)
+            {
+                Debug.Log("Exiting flight mode, restoring normal gravity.");
+                rb.gravityScale = settings.normalGravityScale;
+                flightActive = false;
+            }
+
+            // If not flying and flight not active, do nothing (avoid setting gravity each FixedUpdate).
         }
     }
 
     // Apply flying forces & gravity changes.
     private void TryFly()
     {
-        rb.gravityScale = settings.flyGravityScale;
-
         // apply upward acceleration
         rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
 
