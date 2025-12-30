@@ -51,6 +51,13 @@ public class PlayerControls : MonoBehaviour
     [SerializeField, Tooltip("Maximum falling speed (vertical). This clamps downward velocity.\nSuggested range: 6 - 14")]
     private FallSettings fallSettings = new FallSettings();
 
+    // Fire input
+    private bool fireHeld;
+    private bool firePressedThisFrame;
+
+    public bool FireHeld => fireHeld;
+    public bool FirePressedThisFrame => firePressedThisFrame;
+
     // Facing / state
     private int facingDirection = 1;
 
@@ -90,6 +97,8 @@ public class PlayerControls : MonoBehaviour
         // Quick-boost cooldown reduced per-frame (smoother feel than fixedstep).
         if (quickBoostMotor != null)
             quickBoostMotor.TickQuickBoostCooldown(Time.deltaTime);
+
+        firePressedThisFrame = false;
     }
 
     // Cache components and defaults.
@@ -152,6 +161,9 @@ public class PlayerControls : MonoBehaviour
         controls.Player.Fly.started += OnFlyStarted;
         controls.Player.Fly.canceled += OnFlyCanceled;
 
+        controls.Player.Fire.started += OnFireStarted;
+        controls.Player.Fire.canceled += OnFireCanceled;
+
         controls.Player.QuickBoost.performed += OnQuickBoost;
     }
 
@@ -167,6 +179,9 @@ public class PlayerControls : MonoBehaviour
 
             controls.Player.Fly.started -= OnFlyStarted;
             controls.Player.Fly.canceled -= OnFlyCanceled;
+
+            controls.Player.Fire.started -= OnFireStarted;
+            controls.Player.Fire.canceled -= OnFireCanceled;
 
             controls.Player.QuickBoost.performed -= OnQuickBoost;
 
@@ -332,6 +347,14 @@ public class PlayerControls : MonoBehaviour
 
     private void OnBoostStarted(InputAction.CallbackContext ctx) => boostHeld = true;
     private void OnBoostCanceled(InputAction.CallbackContext ctx) => boostHeld = false;
+
+    private void OnFireStarted(InputAction.CallbackContext ctx)
+    {
+        fireHeld = true;
+        firePressedThisFrame = true;
+    }
+
+    private void OnFireCanceled(InputAction.CallbackContext ctx) => fireHeld = false;
 
     // ------------------------
     // Inspector settings containers (Serializeable)

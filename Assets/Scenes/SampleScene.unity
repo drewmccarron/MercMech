@@ -388,7 +388,8 @@ GameObject:
   - component: {fileID: 646307104}
   - component: {fileID: 646307106}
   - component: {fileID: 646307105}
-  m_Layer: 0
+  - component: {fileID: 646307107}
+  m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -732,6 +733,23 @@ MonoBehaviour:
   line: {fileID: 646307105}
   rayLength: 25
   drawDebugRay: 1
+--- !u!114 &646307107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 646307099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c112856c8545c6d44a4ccf7bb19d887f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerShooting
+  projectilePrefab: {fileID: 418380843088254328, guid: c5fd1cbaca784474391e05768b401b89, type: 3}
+  projectileSpeed: 20
+  fireCooldownSeconds: 0.2
+  holdToFire: 1
+  muzzleForwardOffset: 0.15
 --- !u!1 &1269452251
 GameObject:
   m_ObjectHideFlags: 0

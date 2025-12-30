@@ -4,8 +4,7 @@ using UnityEngine;
 public class AimVisualizer2D : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform aimPointVisual;   // optional: assign a small sprite/marker transform
-    [SerializeField] private LineRenderer line;          // optional: assign (or add) a LineRenderer
+    [SerializeField] private Transform aimPointVisual;   // assign a small sprite/marker transform
 
     [Header("Ray Settings")]
     [SerializeField] private float rayLength = 25f;
@@ -32,13 +31,6 @@ public class AimVisualizer2D : MonoBehaviour
             aimPointVisual.position = new Vector3(aimPoint.x, aimPoint.y, aimPointVisual.position.z);
 
         Vector2 end = origin + dir * rayLength;
-
-        if (line != null)
-        {
-            line.positionCount = 2;
-            line.SetPosition(0, new Vector3(origin.x, origin.y, 0f));
-            line.SetPosition(1, new Vector3(end.x, end.y, 0f));
-        }
 
         if (drawDebugRay)
         {
