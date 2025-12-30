@@ -21,13 +21,13 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] private float airTurnAccel = 80f;     // air reverse accel
 
     [Header("Move")]
-    public float walkSpeed = 5f;
-    public float boostSpeed = 9f;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float boostSpeed = 9f;
     public const float MoveDeadzone = 0.2f;
 
     [Header("Jump")]
-    public float jumpForce = 10f;
-    public LayerMask groundLayer;
+    [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private LayerMask groundLayer;
     private bool jumpedFromGround; // used to delay W-fly until apex
     private float coyoteTime = 0.1f;
     private float timeSinceLastGrounded;
@@ -40,16 +40,16 @@ public class PlayerControls : MonoBehaviour
     private bool boostHeld;
 
     [Header("Fly")]
-    public float flyAcceleration = 30f;   // upward acceleration while holding Space
-    public float maxFlyUpSpeed = 4.5f;    // cap upward speed
-    public float flyGravityScale = 2f;    // gravity while flying
-    public float normalGravityScale = 3f; // gravity normally
+    [SerializeField] private float flyAcceleration = 30f;   // upward acceleration while holding Space
+    [SerializeField] private float maxFlyUpSpeed = 4.5f;    // cap upward speed
+    [SerializeField] private float flyGravityScale = 2f;    // gravity while flying
+    [SerializeField] private float normalGravityScale = 3f; // gravity normally
 
     [Header("Quick Boost")]
-    public float quickBoostStartSpeed = 16f;       // initial burst speed
-    public float quickBoostDuration = 0.35f;       // seconds
-    public AnimationCurve quickBoostCurve = null;  // optional; if null we use a built-in ease
-    public float quickBoostCooldown = 0.4f;
+    [SerializeField] private float quickBoostStartSpeed = 16f;       // initial burst speed
+    [SerializeField] private float quickBoostDuration = 0.35f;       // seconds
+    [SerializeField] private AnimationCurve quickBoostCurve = null;  // optional; if null we use a built-in ease
+    [SerializeField] private float quickBoostCooldown = 0.4f;
 
     // Quick Boost state
     private bool isQuickBoosting;
@@ -58,8 +58,8 @@ public class PlayerControls : MonoBehaviour
     private int quickBoostDir; // -1 or +1
 
     // Quick Boost exit tuning
-    public float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
-    public float quickBoostNeutralExitSpeed = 2f;   // tune: horizontal speed when exiting dash with no input
+    [SerializeField] private float quickBoostFlyExitUpVelocity = 10f; // tune: how much upward momentum to resume with
+    [SerializeField] private float quickBoostNeutralExitSpeed = 2f;   // tune: horizontal speed when exiting dash with no input
 
     [Header("Quick Boost Acceleration")]
     [SerializeField] private float quickBoostAccel = 200f;     // ramps up toward target speed
@@ -84,7 +84,7 @@ public class PlayerControls : MonoBehaviour
     private float qbChainIntervalTimer;
 
     [Header("Fall")]
-    public float maxFallSpeed = 7f;
+    [SerializeField] private float maxFallSpeed = 7f;
 
     // Facing direction: -1 = left, +1 = right
     private int facingDirection = 1;
@@ -211,12 +211,10 @@ public class PlayerControls : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // consolidate all fixed-timestep timers into one helper
+        // consolidate timers
         TickFixedTimers();
 
-        bool groundedNow = IsGrounded();
-        if (groundedNow) timeSinceLastGrounded = 0f;
-        else timeSinceLastGrounded += Time.fixedDeltaTime;
+        bool groundedNow = UpdateGroundState();
 
         if (isQuickBoosting)
         {
@@ -224,6 +222,33 @@ public class PlayerControls : MonoBehaviour
             return; // skip normal movement during dash
         }
 
+        ProcessHorizontalMovement(groundedNow);
+
+        ProcessFlight(groundedNow);
+
+        ClampFallSpeed();
+    }
+
+    // Centralized fixed-timestep timer tick to reduce duplicated code.
+    private void TickFixedTimers()
+    {
+        float dt = Time.fixedDeltaTime;
+        if (jumpBufferTimer > 0f) jumpBufferTimer = Mathf.Max(0f, jumpBufferTimer - dt);
+        if (qbChainBufferTimer > 0f) qbChainBufferTimer = Mathf.Max(0f, qbChainBufferTimer - dt);
+        if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
+        if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
+    }
+
+    private bool UpdateGroundState()
+    {
+        bool groundedNow = IsGrounded();
+        if (groundedNow) timeSinceLastGrounded = 0f;
+        else timeSinceLastGrounded += Time.fixedDeltaTime;
+        return groundedNow;
+    }
+
+    private void ProcessHorizontalMovement(bool groundedNow)
+    {
         // ---- accel-based horizontal ----
         float maxSpeed = CurrentHorizontalMoveSpeed();
         float targetVelocity = moveInputDirection * maxSpeed;
@@ -231,38 +256,20 @@ public class PlayerControls : MonoBehaviour
         float dt = Time.fixedDeltaTime;
         int carryDir = AxisToDir(qbCarryVx);
 
-        // ---- QB momentum carry protection ----
-        if (qbFlyCarryTimer > 0f)
+        // Carry protection
+        bool protectCarry = qbFlyCarryTimer > 0f;
+        if (protectCarry)
         {
-            int heldDir = AxisToDir(moveInputDirection);
-
-            // If player still holds same direction (or no input),
-            // don't let accel logic pull velocity below carried QB speed.
-            if (heldDir == 0 || heldDir == carryDir)
+            int heldDirForCarry = AxisToDir(moveInputDirection);
+            if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
             {
-                if (carryDir > 0)
-                    targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
-                else if (carryDir < 0)
-                    targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
+                if (carryDir > 0) targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
+                else if (carryDir < 0) targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
             }
         }
 
-        // ---- QB momentum carry protection ----
-        // (keeps QB carry from being eaten by ground target logic OR air drag)
-        int heldDirForCarry = AxisToDir(moveInputDirection);
-        bool protectCarry = qbFlyCarryTimer > 0f && (heldDirForCarry == 0 || heldDirForCarry == carryDir);
-        // --------------------------------------
-
         if (groundedNow)
         {
-            // If carry is active and player still holds same direction (or no input),
-            // don't let ground logic pull below carried QB speed.
-            if (protectCarry && carryDir != 0)
-            {
-                if (carryDir > 0) targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
-                else targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
-            }
-
             bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
             bool reversing = hasInput &&
                              Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
@@ -315,8 +322,10 @@ public class PlayerControls : MonoBehaviour
                 rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
             }
         }
-        // ----------------------------
+    }
 
+    private void ProcessFlight(bool groundedNow)
+    {
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
         bool allowFlightNow = !isInJumpRisePhase;
         bool shouldFlyNow = allowFlightNow && (flyKeyHeld || jumpKeyHeld);
@@ -330,18 +339,6 @@ public class PlayerControls : MonoBehaviour
         {
             rb.gravityScale = normalGravityScale;
         }
-
-        ClampFallSpeed();
-    }
-
-    // Centralized fixed-timestep timer tick to reduce duplicated code.
-    private void TickFixedTimers()
-    {
-        float dt = Time.fixedDeltaTime;
-        if (jumpBufferTimer > 0f) jumpBufferTimer = Mathf.Max(0f, jumpBufferTimer - dt);
-        if (qbChainBufferTimer > 0f) qbChainBufferTimer = Mathf.Max(0f, qbChainBufferTimer - dt);
-        if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
-        if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
     }
 
     private static int AxisToDir(float axis)
@@ -450,7 +447,6 @@ public class PlayerControls : MonoBehaviour
         qbChainIntervalTimer = qbChainMinInterval;
     }
 
-
     private bool IsGrounded()
     {
         Vector2 bottomCenterPoint =
@@ -468,39 +464,46 @@ public class PlayerControls : MonoBehaviour
 
     private void DoQuickBoostStep()
     {
-        quickBoostTimer += Time.fixedDeltaTime;
+        // top-level splitter
+        if (HandleQBChaining()) return;
+        ApplyQBVelocity();
+        CheckQBEnd();
+    }
 
-        int heldDir = AxisToDir(moveInputDirection);
-
-        rb.gravityScale = 0f;   // no gravity during dash
+    private bool HandleQBChaining()
+    {
         float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
-
-        // ---- QB chaining: if a QB press was buffered during this QB, chain into it after a threshold ----
         if (qbChainQueued && qbChainBufferTimer > 0f && timeRemainingPercentage >= qbChainStartPercent)
         {
-            // Start the chained QB immediately without leaving QB state.
-            // Keep vertical locked (AC feel) and avoid any end-of-QB hitch.
             quickBoostDir = qbQueuedDir;
             quickBoostTimer = 0f;
-
-            // Optional: do NOT wipe velocity on a chain. This keeps momentum smooth.
-            // (Uses your existing rb.linearVelocity.x, doesn't rename anything.)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
-            // Consume the queued chain input
             qbChainQueued = false;
             qbChainBufferTimer = 0f;
             qbChainIntervalTimer = qbChainMinInterval;
 
-            // Important: return so the rest of this frame doesn't apply the old QB's curve/exit.
-            return;
+            return true;
         }
-        // -----------------------------------------------------------------------
 
-        // Curve output (usually 1 -> 0)
+        return false;
+    }
+
+    private void ApplyQBVelocity()
+    {
+        quickBoostTimer += Time.fixedDeltaTime;
+
+        int heldDir = AxisToDir(moveInputDirection);
+        rb.gravityScale = 0f;   // no gravity during dash
+        float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
+
+        // ensure curve
+        if (quickBoostCurve == null)
+        {
+            quickBoostCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(0.7f, 0.35f), new Keyframe(1f, 0f));
+        }
+
         float curveMultiplier = quickBoostCurve.Evaluate(timeRemainingPercentage);
-        
-        // Prevent tail from going to "almost zero" speed before exit logic
         curveMultiplier = Mathf.Max(curveMultiplier, quickBoostMinMultiplier);
 
         float targetSpeedAbs = quickBoostStartSpeed * curveMultiplier;
@@ -510,29 +513,27 @@ public class PlayerControls : MonoBehaviour
             targetSpeedAbs = Mathf.Max(targetSpeedAbs, CurrentHorizontalMoveSpeed());
 
         float targetVelocity = quickBoostDir * targetSpeedAbs;
-
         float currentVelocity = rb.linearVelocity.x;
 
-        // If player is holding dash direction, do NOT decelerate the QB toward lower targets.
-        // This prevents the "tail slowdown" feeling and keeps it snappy into the move speed floor.
         float rate;
         if (heldDir != 0 && heldDir == quickBoostDir)
         {
-            rate = quickBoostAccel; // only chase upward / maintain, don't "decel tail"
+            rate = quickBoostAccel;
         }
         else
         {
-            // Normal accel/decel logic
             rate = (Mathf.Abs(targetVelocity) > Mathf.Abs(currentVelocity)) ? quickBoostAccel : quickBoostDecel;
         }
 
         float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, rate * Time.fixedDeltaTime);
-        
-        // Lock vertical movement during dash
         rb.linearVelocity = new Vector2(newVx, 0f);
+    }
 
-        // Optional: allow "QB -> Fly" release near the end (Armored Core feel)
+    private void CheckQBEnd()
+    {
+        float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / quickBoostDuration);
         bool wantsFly = anyFlyInputHeld && !IsGrounded();
+
         if (wantsFly && timeRemainingPercentage >= qbFlyReleasePercent)
         {
             EndQuickBoostIntoCarry(wantsFly: true);
