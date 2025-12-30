@@ -5,7 +5,7 @@ using MercMech.Common;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class PlayerControls : MonoBehaviour
 {
-    // Cached components
+  // Cached components
     private Rigidbody2D rb;
     private Actions controls;
     private Collider2D col;
@@ -44,7 +44,8 @@ public class PlayerControls : MonoBehaviour
     #endregion
 
     [Header("Fall")]
-    [SerializeField] private FallSettings fallSettings = new FallSettings();
+    [SerializeField, Tooltip("Maximum falling speed (vertical). This clamps downward velocity.\nSuggested range: 6 - 14")]
+    private FallSettings fallSettings = new FallSettings();
 
     // Facing / state
     private int facingDirection = 1;
@@ -192,7 +193,7 @@ public class PlayerControls : MonoBehaviour
         float qbCarryVx = quickBoostMotor != null ? quickBoostMotor.qbCarryVx : 0f;
 
         // Determine whether we are currently in flight (from flight motor).
-        bool inFlight = flightMotor != null && flightMotor.flightActive;
+        bool inFlight = flightMotor != null && flightMotor.IsFlying;
 
         if (!jumpMotor.IsWindingUp)
         {
@@ -303,6 +304,7 @@ public class PlayerControls : MonoBehaviour
     [System.Serializable]
     private class FallSettings
     {
+        [Tooltip("Max downward fall speed clamp.\nSuggested range: 6 - 14")]
         public float maxFallSpeed = 7f;
     }
 }

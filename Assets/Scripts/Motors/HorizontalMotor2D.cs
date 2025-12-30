@@ -9,11 +9,23 @@ public class HorizontalMotor2D
     public class Settings
     {
         [Header("Acceleration")]
+
+        [Tooltip("Ground acceleration when moving. Higher = faster reach of target horizontal speed.\nSuggested range: 30 - 150")]
         public float groundAccel = 30f;      // ground acceleration when moving
+
+        [Tooltip("Ground deceleration when no input. Higher = stops quicker when releasing input.\nSuggested range: 30 - 150")]
         public float groundDecel = 15f;      // ground deceleration when no input
+
+        [Tooltip("Ground reverse acceleration (turning). Higher = faster reversal of direction on ground.\nSuggested range: 60 - 200")]
         public float groundTurnAccel = 30f; // ground reverse accel
+
+        [Tooltip("Air control acceleration when player provides horizontal input. Higher = stronger air steering.\nSuggested range: 10 - 80")]
         public float airAccel = 15f;         // air control acceleration
+
+        [Tooltip("Air drag / deceleration when no horizontal input. Higher = faster slowdown in air.\nSuggested range: 5 - 40")]
         public float airDecel = 5f;         // air drag when no input
+
+        [Tooltip("Air reverse acceleration (turning) while airborne. Higher = faster air reversals.\nSuggested range: 20 - 120")]
         public float airTurnAccel = 25f;     // air reverse accel
     }
 
@@ -21,14 +33,18 @@ public class HorizontalMotor2D
     public class MoveSettings
     {
         [Header("Move")]
+
+        [Tooltip("Max horizontal move speed when unboosted and on ground (walking).\nSuggested range: 2 - 5")]
         public float maxUnboostedGroundSpeed = 4f;
+
+        [Tooltip("Max horizontal move speed when boosted/sprinting on ground.\nSuggested range: 6 - 12")]
         public float maxGroundBoostSpeed = 8f;
 
         [Header("Air Horizontal Caps")]
-        [Tooltip("Maximum horizontal speed while falling (not flying).")]
+        [Tooltip("Maximum horizontal speed while falling (not flying). This is a hard cap applied in-air when the player is not in flight.\nSuggested range: 2 - 6")]
         public float maxFallingHorizontalSpeed = 3f;
 
-        [Tooltip("Maximum horizontal speed while flying.")]
+        [Tooltip("Maximum horizontal speed while flying. This cap is applied during flight (can be higher than falling cap).\nSuggested range: 3 - 8")]
         public float maxFlyingHorizontalSpeed = 6f;
     }
 

@@ -24,15 +24,22 @@ public class JumpMotor2D
     public class Settings
     {
         [Header("Jump")]
+
+        [Tooltip("Vertical jump velocity applied when the jump activates.\nSuggested range: 6 - 16")]
         public float jumpForce = 10f;
+
+        [Tooltip("Layer mask used to detect ground (assign your Ground layer).\nNo suggested numeric range.")]
         public LayerMask groundLayer;
+
+        [Tooltip("Coyote time window (seconds) - allows jumping shortly after leaving ground.\nSuggested range: 0 - 0.2")]
         public float coyoteTime = 0.1f; // allow jump shortly after leaving ground
 
         [Header("Jump Assist")]
+        [Tooltip("Time to buffer a jump input before landing (seconds).\nSuggested range: 0.05 - 0.2")]
         public float jumpBufferTime = 0.12f; // buffer input before you land
 
         [Header("Jump Windup")]
-        [Tooltip("Delay after press before jump activates when held.")]
+        [Tooltip("Delay after press before jump activates when held (seconds). This creates the 'wind-up' feel.\nSuggested range: 0.1 - 1.0")]
         public float jumpWindupTime = 0.2f;
     }
 

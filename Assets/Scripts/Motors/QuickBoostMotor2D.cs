@@ -14,35 +14,72 @@ public class QuickBoostMotor2D
     public class Settings
     {
         [Header("Quick Boost")]
-        public float quickBoostStartSpeed = 16f;       // configured dash speed
-        public float quickBoostDuration = 0.35f;       // dash duration
-        public AnimationCurve quickBoostCurve = null;  // speed-over-time curve (1->0)
+
+        [Tooltip("Configured initial dash speed (units/sec).\nSuggested range: 8 - 32")]
+        public float quickBoostStartSpeed = 16f;
+
+        [Tooltip("Dash duration in seconds.\nSuggested range: 0.18 - 0.6")]
+        public float quickBoostDuration = 0.35f;
+
+        [Tooltip("Speed-over-time curve (evaluated 0->1 across the dash). Leave null to use default ease.")]
+        public AnimationCurve quickBoostCurve = null;
+
+        [Tooltip("Cooldown between dashes in seconds.\nSuggested range: 0.1 - 1.0")]
         public float quickBoostCooldown = 0.4f;
 
-        // Quick Boost exit tuning
+        [Header("Quick Boost Exit Tuning")]
+
+        [Tooltip("Upward velocity applied when exiting QB into flight if conditions meet.\nSuggested range: 4 - 14")]
         public float quickBoostFlyExitUpVelocity = 10f;
+
+        [Tooltip("Neutral horizontal exit speed used when no input on dash exit.\nSuggested range: 0 - 4")]
         public float quickBoostNeutralExitSpeed = 2f;
 
         [Header("Quick Boost Acceleration")]
+
+        [Tooltip("Ramps up toward the target QB speed. Higher = snappier accelerate.\nSuggested range: 50 - 400")]
         public float quickBoostAccel = 200f;
+
+        [Tooltip("Ramps down during the tail. Higher = quicker tail decel.\nSuggested range: 100 - 600")]
         public float quickBoostDecel = 260f;
-        [Range(0f, 1f)] public float quickBoostMinMultiplier = 0.18f; // prevents near-zero tail
+
+        [Tooltip("Prevents the QB tail from falling to near-zero. Multiply 0..1.")]
+        [Range(0f, 1f)]
+        public float quickBoostMinMultiplier = 0.18f; // prevents near-zero tail
+
+        [Tooltip("If true, horizontal velocity is wiped at QB start for a crisp dash.")]
         public bool wipeHorizontalOnQuickBoostStart = true;
 
         [Header("QB -> Fly Carry")]
-        public float qbFlyCarryTime = 0.18f;     // protect QB horizontal after exit
-        [Range(0f, 1f)] public float qbFlyReleasePercent = 0.85f; // early QB->fly release
+
+        [Tooltip("How long to protect QB horizontal momentum after QB ends (seconds).\nSuggested range: 0.05 - 0.4")]
+        public float qbFlyCarryTime = 0.18f;
+
+        [Tooltip("If QB -> Fly behavior is allowed early (percentage of dash completed).\n0..1")]
+        [Range(0f, 1f)]
+        public float qbFlyReleasePercent = 0.85f;
 
         [Header("QB Chaining")]
+
+        [Tooltip("How long a QB press is remembered while QB is active (seconds).\nSuggested range: 0.05 - 0.4")]
         public float qbChainBufferTime = 0.2f;
-        [Range(0f, 1f)] public float qbChainStartPercent = 0.8f;
+
+        [Tooltip("Earliest percent of the dash where chaining into a new QB is allowed (0..1).")]
+        [Range(0f, 1f)]
+        public float qbChainStartPercent = 0.8f;
+
+        [Tooltip("Tiny anti-spam interval between queue events (seconds).\nSuggested range: 0.01 - 0.1")]
         public float qbChainMinInterval = 0.05f;
 
-        [Header("Quick Boost Exit -> Fly")]
+        [Header("Quick Boost Exit -> Fly Multipliers")]
+
+        [Tooltip("Multiplier applied to the upkick when QB->fly but you were NOT flying before QB. 0..1")]
         [Range(0f, 1f)]
-        public float quickBoostFlyExitUpVelocityNonFlightMultiplier = 0.6f; // upkick strength when QB->fly but you weren't flying before QB
+        public float quickBoostFlyExitUpVelocityNonFlightMultiplier = 0.6f;
+
+        [Tooltip("Multiplier applied to the upkick when QB->fly and you WERE flying before QB. 0..1")]
         [Range(0f, 1f)]
-        public float quickBoostFlyExitUpVelocityFlightMultiplier = 1f; // uptick strength when fly(hold) -> QB -> fly. Default at 1.0 for now;
+        public float quickBoostFlyExitUpVelocityFlightMultiplier = 1f;
     }
 
     // Quick Boost state (kept same names)

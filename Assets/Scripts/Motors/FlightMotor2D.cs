@@ -6,17 +6,30 @@ public class FlightMotor2D
     private readonly Settings settings;
 
     // Tracks whether flight mode is currently active so we only change gravity when state transitions.
-    internal bool flightActive;
+    private bool flightActive;
+
+    // Expose read-only flight state
+    public bool IsFlying => flightActive;
 
     [System.Serializable]
     public class Settings
     {
         [Header("Fly")]
-        public float flyAcceleration = 30f;   // upward force while holding fly
-        public float maxFlyUpSpeed = 4.5f;    // upward speed cap while flying
-        public float flyGravityScale = 2f;    // gravity while flying
-        public float normalGravityScale = 3f; // gravity when not flying
-        public float flyApexEngageVelocityThreshold = 4.0f;    // allow flight to engage once upward speed is <= this (jump -> flight transition)
+
+        [Tooltip("Upward acceleration applied while flying. Higher = faster climb.\nSuggested range: 10 - 80")]
+        public float flyAcceleration = 30f;
+
+        [Tooltip("Upward speed cap while flying.\nSuggested range: 2 - 8")]
+        public float maxFlyUpSpeed = 4.5f;
+
+        [Tooltip("Gravity scale while flying (lower -> floatier).\nSuggested range: 0.5 - 3")]
+        public float flyGravityScale = 2f;
+
+        [Tooltip("Gravity scale normally (when not flying).\nSuggested range: 1 - 6")]
+        public float normalGravityScale = 3f;
+
+        [Tooltip("Upward velocity threshold used to block flight until apex when jumping from ground.\nSuggested range: 0.5 - 6 (units/sec)")]
+        public float flyApexEngageVelocityThreshold = 4.0f;
     }
 
     public FlightMotor2D(Rigidbody2D rb, Settings settings)
