@@ -8,6 +8,10 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField, Tooltip("Current health at runtime (read-only in inspector).")]
     private float currentHealth;
 
+    [SerializeField]
+    private bool destroyOnDeath = true;
+
+
     public float MaxHealth => maxHealth;
     public float CurrentHealth => currentHealth;
 
@@ -26,7 +30,7 @@ public class Health : MonoBehaviour, IDamageable
         // Optional: for quick testing.
         // Debug.Log($"{name} took {amount} damage. HP: {currentHealth}/{maxHealth}");
 
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0f && destroyOnDeath)
         {
             // For a dummy target, destroying is fine.
             Destroy(gameObject);
