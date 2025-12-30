@@ -4,21 +4,14 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerControls))]
 public class PlayerShooting : MonoBehaviour
 {
-    [Header("Projectile")]
+    // Add near the top of the class:
+    [Header("Weapon Config")]
     [SerializeField]
-    private Projectile2D projectilePrefab;
-    [SerializeField]
-    private float projectileSpeed = 20f;
+    private WeaponConfig2D weaponConfig;
 
-    [Header("Fire")]
-    [SerializeField]
-    private float fireCooldownSeconds = 0.2f; // adjustable: lower = faster
+    [Header("Settings")]
     [SerializeField]
     private bool holdToFire = true;
-
-    [Header("Spawn")]
-    [SerializeField]
-    private float muzzleForwardOffset = 0.15f; // small offset along aim dir to avoid immediate overlap
 
     private PlayerControls player;
     private WeaponMotor2D weaponMotor;
@@ -52,18 +45,26 @@ public class PlayerShooting : MonoBehaviour
 
     private void TryFire()
     {
-        if (projectilePrefab == null)
+        if (weaponConfig == null)
+            return;
+        Projectile2D prefab = weaponConfig.projectilePrefab;
+        if (prefab == null)
             return;
 
-        if (!weaponMotor.TryConsumeFire(fireCooldownSeconds))
+        float cooldown = weaponConfig.fireCooldownSeconds;
+        float speed = weaponConfig.projectileSpeed;
+        float dmg = weaponConfig.damagePerHit;
+        float muzzleOffset = weaponConfig.muzzleForwardOffset;
+
+        if (!weaponMotor.TryConsumeFire(cooldown))
             return;
 
         Vector2 origin = player.AimOriginWorld;
         Vector2 dir = player.AimDirection;
 
-        Vector2 spawnPos = origin + dir * muzzleForwardOffset;
+        Vector2 spawnPos = origin + dir * muzzleOffset;
 
-        Projectile2D proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-        proj.Init(dir * projectileSpeed, playerCollider);
+        Projectile2D proj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        proj.Init(dir * speed, playerCollider, dmg);
     }
 }

@@ -15,15 +15,19 @@ public class Projectile2D : MonoBehaviour
     private float lifeTimer;
     private Collider2D ownerCollider;
 
+    [SerializeField]
+    private float damage;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         lifeTimer = maxLifetime;
     }
 
-    public void Init(Vector2 velocity, Collider2D ownerToIgnore = null)
+    public void Init(Vector2 velocity, Collider2D ownerToIgnore, float damageAmount)
     {
         ownerCollider = ownerToIgnore;
+        damage = damageAmount;
         rb.linearVelocity = velocity;
     }
 
@@ -44,6 +48,11 @@ public class Projectile2D : MonoBehaviour
         if ((hitMask.value & otherLayerMask) == 0)
             return;
 
+        // NEW: Apply damage if the thing we hit can take it.
+        IDamageable damageable = other.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+            damageable.TakeDamage(damage);
+
         Destroy(gameObject);
     }
 
@@ -58,6 +67,11 @@ public class Projectile2D : MonoBehaviour
         int otherLayerMask = 1 << other.gameObject.layer;
         if ((hitMask.value & otherLayerMask) == 0)
             return;
+
+        // NEW: Apply damage if the thing we hit can take it.
+        IDamageable damageable = other.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+            damageable.TakeDamage(damage);
 
         Destroy(gameObject);
     }
