@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig2D
   projectilePrefab: {fileID: 418380843088254328, guid: c5fd1cbaca784474391e05768b401b89, type: 3}
   projectileSpeed: 20
+  projectileLifetimeSeconds: 4
   fireCooldownSeconds: 0.3
   damagePerHit: 50
   muzzleForwardOffset: 0.15
