@@ -198,13 +198,14 @@ public class PlayerControls : MonoBehaviour
             qbCarryVx: qbCarryVx
         );
 
-        // Flight motor
-        flightMotor.ProcessFlight(
-            groundedNow: groundedNow,
-            flyKeyHeld: flyKeyHeld,
-            jumpKeyHeld: jumpKeyHeld,
-            jumpedFromGround: ref jumpMotor.jumpedFromGround
-        );
+        if (!jumpMotor.IsWindingUp)
+        {
+            // Flight motor
+            flightMotor.ProcessFlight(
+                anyFlyInputHeld: anyFlyInputHeld,
+                jumpedFromGround: ref jumpMotor.jumpedFromGround
+            );
+        }
 
         ClampFallSpeed();
     }

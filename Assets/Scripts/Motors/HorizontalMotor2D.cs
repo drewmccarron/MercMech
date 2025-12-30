@@ -20,8 +20,8 @@ public class HorizontalMotor2D
     public class MoveSettings
     {
         [Header("Move")]
-        public float walkSpeed = 5f;
-        public float boostSpeed = 9f;
+        public float maxWalkSpeed = 5f;
+        public float maxBoostSpeed = 9f;
     }
 
     private readonly Settings settings;
@@ -37,7 +37,7 @@ public class HorizontalMotor2D
     // Horizontal movement separated for clarity and testing.
     public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx)
     {
-        float maxSpeed = CurrentHorizontalMoveSpeed(boostHeld);
+        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld);
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
         float dt = Time.fixedDeltaTime;
@@ -56,14 +56,13 @@ public class HorizontalMotor2D
             }
         }
 
+        bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
+        bool reversing = hasInput &&
+                             Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
+                             Mathf.Abs(currentVelocity) > 0.1f;
         if (groundedNow)
         {
             // Grounded: deterministic MoveTowards-style acceleration & deceleration.
-            bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
-            bool reversing = hasInput &&
-                             Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
-                             Mathf.Abs(currentVelocity) > 0.1f;
-
             float accelRate;
             if (!hasInput) accelRate = settings.groundDecel;
             else if (reversing) accelRate = settings.groundTurnAccel;
@@ -75,18 +74,13 @@ public class HorizontalMotor2D
         else
         {
             // Air: apply thrust while input, otherwise apply drag.
-            bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
-
             if (hasInput)
             {
                 // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
-                bool reversing = Mathf.Sign(moveInputDirection) != Mathf.Sign(currentVelocity) &&
-                                 Mathf.Abs(currentVelocity) > 0.1f;
-
                 float thrust = reversing ? settings.airTurnAccel : settings.airAccel;
 
                 // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
-                rb.AddForce(Vector2.right * (moveInputDirection * thrust), ForceMode2D.Force);
+                rb.AddForce(Vector2.right * moveInputDirection * thrust, ForceMode2D.Force);
 
                 // Optional: cap air top speed to your current maxSpeed (keeps things controllable).
                 float vx = rb.linearVelocity.x;
@@ -113,9 +107,9 @@ public class HorizontalMotor2D
         }
     }
 
-    public float CurrentHorizontalMoveSpeed(bool boostHeld)
+    public float CurrentMaxHorizontalMoveSpeed(bool boostHeld)
     {
-        return boostHeld ? moveSettings.boostSpeed : moveSettings.walkSpeed;
+        return boostHeld ? moveSettings.maxBoostSpeed : moveSettings.maxWalkSpeed;
     }
 
     private static int AxisToDir(float axis)

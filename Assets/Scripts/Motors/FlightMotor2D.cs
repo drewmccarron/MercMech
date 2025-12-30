@@ -22,13 +22,11 @@ public class FlightMotor2D
     }
 
     // Flight logic separated from movement for easier tuning.
-    public void ProcessFlight(bool groundedNow, bool flyKeyHeld, bool jumpKeyHeld, ref bool jumpedFromGround)
+    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround)
     {
-        // If we jumped from ground and still rising, block flight until apex.
+        // If the player jumped from ground and is still rising, block flight until apex.
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
-        bool allowFlightNow = !isInJumpRisePhase;
-
-        bool shouldFlyNow = allowFlightNow && (flyKeyHeld || jumpKeyHeld);
+        bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld;
 
         if (shouldFlyNow)
         {

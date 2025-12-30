@@ -245,7 +245,7 @@ public class QuickBoostMotor2D
     {
         // This mirrors your original: boostHeld lives in PlayerControls, so QB uses the "move speed floor"
         // as the normal (walk) floor. If you want QB floor to respect boostHeld, we can wire it in.
-        return moveSettings.walkSpeed;
+        return moveSettings.maxWalkSpeed;
     }
 
     private static int AxisToDir(float axis)
