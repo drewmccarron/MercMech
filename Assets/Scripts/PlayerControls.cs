@@ -18,11 +18,6 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] private HorizontalMotor2D.Settings horizontalSettings = new HorizontalMotor2D.Settings();
     #endregion
 
-    #region Move settings (Inspector -> HorizontalMotor2D.MoveSettings)
-    [Header("Move")]
-    [SerializeField] private HorizontalMotor2D.MoveSettings moveSettings = new HorizontalMotor2D.MoveSettings();
-    public const float MoveDeadzone = 0.2f;
-    #endregion
 
     #region Jump settings (Inspector -> JumpMotor2D.Settings)
     [Header("Jump")]

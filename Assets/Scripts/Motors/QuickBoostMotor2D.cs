@@ -189,8 +189,8 @@ public class QuickBoostMotor2D
     // If a chain request exists and timing meets threshold, start the new QB immediately.
     private bool HandleQBChaining()
     {
-        float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
-        if (qbChainQueued && qbChainBufferTimer > 0f && timeRemainingPercentage >= settings.qbChainStartPercent)
+        float dashPercentProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
+        if (qbChainQueued && qbChainBufferTimer > 0f && dashPercentProgress >= settings.qbChainStartPercent)
         {
             quickBoostDir = qbQueuedDir;
             quickBoostTimer = 0f;
@@ -261,12 +261,12 @@ public class QuickBoostMotor2D
 
         rb.gravityScale = wantsFly ? flightSettings.flyGravityScale : flightSettings.normalGravityScale;
 
-        int heldDir = InputUtils.AxisToDir(rb.linearVelocity.x); // direction based on actual motion is OK here
+        int currentMovingDir = InputUtils.AxisToDir(rb.linearVelocity.x); // direction based on actual motion is OK here
         float exitVx;
 
         // If player continues holding dash direction, exit at move speed floor.
         // We don't have raw input here (PlayerControls will protect carry in HorizontalMotor).
-        if (heldDir != 0 && heldDir == quickBoostDir)
+        if (currentMovingDir != 0 && currentMovingDir == quickBoostDir)
             exitVx = quickBoostDir * CurrentHorizontalMoveSpeed();
         else
             exitVx = quickBoostDir * settings.quickBoostNeutralExitSpeed;

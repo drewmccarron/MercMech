@@ -28,8 +28,8 @@ public class FlightMotor2D
         [Tooltip("Gravity scale normally (when not flying).\nSuggested range: 1 - 6")]
         public float normalGravityScale = 3f;
 
-        [Tooltip("Upward velocity threshold used to block flight until apex when jumping from ground.\nSuggested range: 0.5 - 6 (units/sec)")]
-        public float flyApexEngageVelocityThreshold = 4.0f;
+        [Tooltip("Upward velocity threshold used to block flight until achieved when jumping from ground.\nSuggested range: 0.5 - 6 (units/sec)")]
+        public float flyUpwardEngageVelocityThreshold = 4.0f;
     }
 
     public FlightMotor2D(Rigidbody2D rb, Settings settings)
@@ -45,7 +45,7 @@ public class FlightMotor2D
     public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround)
     {
         // If the player jumped from ground and is still rising, block flight until apex.
-        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyApexEngageVelocityThreshold;
+        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyUpwardEngageVelocityThreshold;
         bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld;
 
         if (shouldFlyNow)
@@ -81,9 +81,5 @@ public class FlightMotor2D
         // apply upward acceleration if below max fly speed
         if (rb.linearVelocity.y < settings.maxFlyUpSpeed)
             rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
-
-        // cap upward speed
-        if (rb.linearVelocity.y > settings.maxFlyUpSpeed)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, settings.maxFlyUpSpeed);
     }
 }

@@ -77,9 +77,9 @@ public class JumpMotor2D
         else timeSinceLastGrounded += dt;
 
         // If we had a buffered jump and are now eligible, start windup
-        bool coyoteTimerIsUp = timeSinceLastGrounded <= settings.coyoteTime;
-        bool bufferTimerIsUp = jumpBufferTimer > 0f;
-        if (groundedNow && bufferTimerIsUp && coyoteTimerIsUp)
+        bool isWithinCoyoteTime = timeSinceLastGrounded <= settings.coyoteTime;
+        bool hasBufferedJump = jumpBufferTimer > 0f;
+        if (groundedNow && hasBufferedJump && isWithinCoyoteTime)
         {
             StartWindup();
             jumpBufferTimer = 0f;
