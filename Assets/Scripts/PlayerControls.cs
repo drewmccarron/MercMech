@@ -64,6 +64,14 @@ public class PlayerControls : MonoBehaviour
     private HorizontalMotor2D horizontalMotor;
     private FlightMotor2D flightMotor;
     private QuickBoostMotor2D quickBoostMotor;
+    private AimMotor2D aimMotor;
+
+    // Expose aim state for other systems (shooting, UI, etc.)
+    public Vector2 AimWorldPosition => aimMotor != null ? aimMotor.AimWorldPosition : (Vector2)transform.position;
+    public Vector2 AimDirection => aimMotor != null ? aimMotor.AimDirection : Vector2.right;
+
+    // Origin of the ray: center of the player object.
+    public Vector2 AimOriginWorld => rb != null ? rb.worldCenterOfMass : (Vector2)transform.position;
 
     // ------------------------
     // Unity lifecycle methods
@@ -98,6 +106,7 @@ public class PlayerControls : MonoBehaviour
         flightMotor = new FlightMotor2D(rb, flightSettings);
         quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, moveSettings, flightSettings);
         jumpMotor = new JumpMotor2D(rb, jumpSettings);
+        aimMotor = new AimMotor2D();
 
         // Apply default gravity
         rb.gravityScale = flightSettings.normalGravityScale;
@@ -178,6 +187,17 @@ public class PlayerControls : MonoBehaviour
     {
         TickFixedTimers();
 
+        // Update aim (frame-based - matches mouse update rate)
+        if (aimMotor != null)
+        {
+            Vector2 pointerScreenPos = ReadPointerScreenPosition();
+            aimMotor.UpdateAim(
+                originWorld: AimOriginWorld,
+                pointerScreenPos: pointerScreenPos,
+                cam: Camera.main
+            );
+        }
+
         bool groundedNow = UpdateGroundState();
 
         // If quick boosting, QB motor fully owns velocity/gravity for this step.
@@ -252,6 +272,18 @@ public class PlayerControls : MonoBehaviour
     {
         if (rb.linearVelocity.y < -fallSettings.maxFallSpeed)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -fallSettings.maxFallSpeed);
+    }
+
+    // Read pointer position (mouse / pen / touch). Returns screen pixels.
+    private Vector2 ReadPointerScreenPosition()
+    {
+        // Prefer Pointer.current so this works with mouse, pen, and primary touch.
+        var pointer = Pointer.current;
+        if (pointer != null)
+            return pointer.position.ReadValue();
+
+        // Fallback: return center of screen if no pointer device exists.
+        return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
     }
 
     // ------------------------
