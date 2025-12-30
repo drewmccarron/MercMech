@@ -53,7 +53,6 @@ public class FlightMotor2D
             // Only restore normal gravity if we were previously in flight.
             if (flightActive)
             {
-                Debug.Log("Exiting flight mode, restoring normal gravity.");
                 rb.gravityScale = settings.normalGravityScale;
                 flightActive = false;
             }
