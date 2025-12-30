@@ -1293,7 +1293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f8496c038b1714c8424176f92d5019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAutoShooter2D
-  target: {fileID: 0}
+  target: {fileID: 646307101}
   weaponConfig: {fileID: 11400000, guid: eca96675bed93a947a197200a68420aa, type: 2}
   muzzleOrigin: {fileID: 0}
 --- !u!1 &1722338884
