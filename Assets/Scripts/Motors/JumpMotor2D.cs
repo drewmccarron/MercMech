@@ -33,7 +33,7 @@ public class JumpMotor2D
 
         [Header("Jump Windup")]
         [Tooltip("Delay after press before jump activates when held.")]
-        public float jumpWindupTime = 0.5f;
+        public float jumpWindupTime = 0.2f;
     }
 
     public JumpMotor2D(Rigidbody2D rb, Settings settings)
