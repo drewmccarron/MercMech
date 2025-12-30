@@ -8,20 +8,20 @@ public class HorizontalMotor2D
     public class Settings
     {
         [Header("Acceleration")]
-        public float groundAccel = 60f;      // ground acceleration when moving
-        public float groundDecel = 80f;      // ground deceleration when no input
-        public float groundTurnAccel = 110f; // ground reverse accel
-        public float airAccel = 40f;         // air control acceleration
-        public float airDecel = 15f;         // air drag when no input
-        public float airTurnAccel = 80f;     // air reverse accel
+        public float groundAccel = 30f;      // ground acceleration when moving
+        public float groundDecel = 15f;      // ground deceleration when no input
+        public float groundTurnAccel = 30f; // ground reverse accel
+        public float airAccel = 15f;         // air control acceleration
+        public float airDecel = 5f;         // air drag when no input
+        public float airTurnAccel = 25f;     // air reverse accel
     }
 
     [System.Serializable]
     public class MoveSettings
     {
         [Header("Move")]
-        public float maxWalkSpeed = 5f;
-        public float maxBoostSpeed = 9f;
+        public float maxWalkSpeed = 4f;
+        public float maxBoostSpeed = 8f;
     }
 
     private readonly Settings settings;
