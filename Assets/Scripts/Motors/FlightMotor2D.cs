@@ -16,7 +16,7 @@ public class FlightMotor2D
         public float maxFlyUpSpeed = 4.5f;    // upward speed cap while flying
         public float flyGravityScale = 2f;    // gravity while flying
         public float normalGravityScale = 3f; // gravity when not flying
-        public float flyApexEngageVelocityThreshold = 2.0f;    // allow flight to engage once upward speed is <= this (jump -> flight transition)
+        public float flyApexEngageVelocityThreshold = 4.0f;    // allow flight to engage once upward speed is <= this (jump -> flight transition)
     }
 
     public FlightMotor2D(Rigidbody2D rb, Settings settings)
@@ -65,8 +65,9 @@ public class FlightMotor2D
     // Apply flying forces & gravity changes.
     private void TryFly()
     {
-        // apply upward acceleration
-        rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
+        // apply upward acceleration if below max fly speed
+        if (rb.linearVelocity.y < settings.maxFlyUpSpeed)
+            rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
 
         // cap upward speed
         if (rb.linearVelocity.y > settings.maxFlyUpSpeed)
