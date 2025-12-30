@@ -21,8 +21,8 @@ public class HorizontalMotor2D
     public class MoveSettings
     {
         [Header("Move")]
-        public float maxWalkSpeed = 4f;
-        public float maxBoostSpeed = 8f;
+        public float maxUnboostedGroundSpeed = 4f;
+        public float maxGroundBoostSpeed = 8f;
     }
 
     private readonly Settings settings;
@@ -110,6 +110,6 @@ public class HorizontalMotor2D
 
     public float CurrentMaxHorizontalMoveSpeed(bool boostHeld)
     {
-        return boostHeld ? moveSettings.maxBoostSpeed : moveSettings.maxWalkSpeed;
+        return boostHeld ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
     }
 }
