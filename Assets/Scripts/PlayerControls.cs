@@ -23,11 +23,10 @@ public class PlayerControls : MonoBehaviour
     public const float MoveDeadzone = 0.2f;
     #endregion
 
-    #region Jump settings (kept here; no separate Jump motor file requested)
+    #region Jump settings (Inspector -> JumpMotor2D.Settings)
     [Header("Jump")]
-    [SerializeField] private JumpSettings jumpSettings = new JumpSettings();
-    private bool jumpedFromGround; // gates flight until apex after a ground jump
-    private float timeSinceLastGrounded;
+    [SerializeField] private JumpMotor2D.Settings jumpSettings = new JumpMotor2D.Settings();
+    private JumpMotor2D jumpMotor;
     #endregion
 
     #region Jump assist
@@ -98,6 +97,7 @@ public class PlayerControls : MonoBehaviour
         horizontalMotor = new HorizontalMotor2D(rb, horizontalSettings, moveSettings);
         flightMotor = new FlightMotor2D(rb, flightSettings);
         quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, moveSettings, flightSettings);
+        jumpMotor = new JumpMotor2D(rb, jumpSettings);
 
         // Apply default gravity
         rb.gravityScale = flightSettings.normalGravityScale;
@@ -209,7 +209,7 @@ public class PlayerControls : MonoBehaviour
             groundedNow: groundedNow,
             flyKeyHeld: flyKeyHeld,
             jumpKeyHeld: jumpKeyHeld,
-            jumpedFromGround: ref jumpedFromGround
+            jumpedFromGround: ref jumpMotor.jumpedFromGround
         );
 
         ClampFallSpeed();
@@ -224,7 +224,8 @@ public class PlayerControls : MonoBehaviour
     {
         float dt = Time.fixedDeltaTime;
 
-        if (jumpBufferTimer > 0f) jumpBufferTimer = Mathf.Max(0f, jumpBufferTimer - dt);
+        if (jumpMotor != null)
+            jumpMotor.TickFixedTimers(dt);
 
         if (quickBoostMotor != null)
             quickBoostMotor.TickFixedTimers(dt);
@@ -235,8 +236,8 @@ public class PlayerControls : MonoBehaviour
     {
         bool groundedNow = groundProbe != null && groundProbe.IsGrounded();
 
-        if (groundedNow) timeSinceLastGrounded = 0f;
-        else timeSinceLastGrounded += Time.fixedDeltaTime;
+        if (jumpMotor != null)
+            jumpMotor.UpdateGroundState(groundedNow, Time.fixedDeltaTime);
 
         return groundedNow;
     }
@@ -263,29 +264,17 @@ public class PlayerControls : MonoBehaviour
     private void OnJumpStarted(InputAction.CallbackContext ctx)
     {
         jumpKeyHeld = true;
-        jumpBufferTimer = jumpAssistSettings.jumpBufferTime;
 
-        bool canJump = timeSinceLastGrounded <= jumpSettings.coyoteTime && jumpBufferTimer > 0f;
-        if (canJump)
-        {
-            PerformJump();
-            // consume buffer + prevent immediate re-jump
-            jumpBufferTimer = 0f;
-            timeSinceLastGrounded = jumpSettings.coyoteTime + 1f;
-        }
-    }
-
-    // Execute the jump impulse and mark state to gate flight until apex.
-    private void PerformJump()
-    {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpSettings.jumpForce);
-        jumpedFromGround = true;
+        if (jumpMotor != null)
+            jumpMotor.OnJumpStarted();
     }
 
     private void OnJumpCanceled(InputAction.CallbackContext ctx)
     {
         jumpKeyHeld = false;
-        jumpedFromGround = false;
+
+        if (jumpMotor != null)
+            jumpMotor.OnJumpCanceled();
     }
 
     // ------------------------
