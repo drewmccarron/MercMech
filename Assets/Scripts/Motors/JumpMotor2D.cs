@@ -28,9 +28,6 @@ public class JumpMotor2D
         [Tooltip("Vertical jump velocity applied when the jump activates.\nSuggested range: 6 - 16")]
         public float jumpForce = 10f;
 
-        [Tooltip("Layer mask used to detect ground (assign your Ground layer).\nNo suggested numeric range.")]
-        public LayerMask groundLayer;
-
         [Tooltip("Coyote time window (seconds) - allows jumping shortly after leaving ground.\nSuggested range: 0 - 0.2")]
         public float coyoteTime = 0.1f; // allow jump shortly after leaving ground
 

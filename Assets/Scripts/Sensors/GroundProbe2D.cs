@@ -2,6 +2,13 @@ using UnityEngine;
 
 public class GroundProbe2D
 {
+    [System.Serializable]
+    public class Settings
+    {
+        [Header("Ground Probe")]
+        public LayerMask groundLayer;
+    }
+
     // Cached collider
     private readonly Collider2D col;
 
@@ -13,10 +20,14 @@ public class GroundProbe2D
     // Reusable overlap buffer to avoid allocations
     private readonly Collider2D[] m_overlapResults = new Collider2D[1];
 
-    public GroundProbe2D(Collider2D col, LayerMask groundLayer)
+    public GroundProbe2D(Collider2D col, Settings settings)
     {
         this.col = col;
 
+        if (settings == null)
+            settings = new Settings();
+
+        LayerMask groundLayer = settings.groundLayer;
         if (groundLayer == 0)
             groundLayer = LayerMask.GetMask("Ground");
 
@@ -27,6 +38,7 @@ public class GroundProbe2D
             useTriggers = false
         };
 
+        // Small downward offset so OverlapBox doesn't intersect our own collider edge.
         groundBoxOffset = Vector2.down * groundProbeOffset;
     }
 

@@ -18,11 +18,20 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] private HorizontalMotor2D.Settings horizontalSettings = new HorizontalMotor2D.Settings();
     #endregion
 
+    #region Move settings (Inspector -> HorizontalMotor2D.MoveSettings)
+    [Header("Move")]
+    [SerializeField] private HorizontalMotor2D.MoveSettings moveSettings = new HorizontalMotor2D.MoveSettings();
+    #endregion
 
     #region Jump settings (Inspector -> JumpMotor2D.Settings)
     [Header("Jump")]
     [SerializeField] private JumpMotor2D.Settings jumpSettings = new JumpMotor2D.Settings();
     private JumpMotor2D jumpMotor;
+    #endregion
+
+    #region Ground probe settings (Inspector -> GroundProbe2D.Settings)
+    [Header("Ground Probe")]
+    [SerializeField] private GroundProbe2D.Settings groundProbeSettings = new GroundProbe2D.Settings();
     #endregion
 
     #region Boost / Fly settings (Inspector -> FlightMotor2D.Settings)
@@ -84,7 +93,7 @@ public class PlayerControls : MonoBehaviour
         col = GetComponent<Collider2D>();
 
         // Build systems (plain C# classes)
-        groundProbe = new GroundProbe2D(col, jumpSettings.groundLayer);
+        groundProbe = new GroundProbe2D(col, groundProbeSettings);
         horizontalMotor = new HorizontalMotor2D(rb, horizontalSettings, moveSettings);
         flightMotor = new FlightMotor2D(rb, flightSettings);
         quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, moveSettings, flightSettings);
