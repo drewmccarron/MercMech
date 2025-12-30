@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1407656979995382435}
   - component: {fileID: 3335246214505985531}
   - component: {fileID: 418380843088254328}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,4 +172,4 @@ MonoBehaviour:
   maxLifetime: 3
   hitMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 4294967295
