@@ -29,12 +29,6 @@ public class PlayerControls : MonoBehaviour
     private JumpMotor2D jumpMotor;
     #endregion
 
-    #region Jump assist
-    [Header("Jump Assist")]
-    [SerializeField] private JumpAssistSettings jumpAssistSettings = new JumpAssistSettings();
-    private float jumpBufferTimer;
-    #endregion
-
     #region Boost / Fly settings (Inspector -> FlightMotor2D.Settings)
     [Header("Boost")]
     private bool boostHeld;
@@ -307,20 +301,6 @@ public class PlayerControls : MonoBehaviour
     // ------------------------
     // Inspector settings containers (Serializeable)
     // ------------------------
-
-    [System.Serializable]
-    private class JumpSettings
-    {
-        public float jumpForce = 10f;
-        public LayerMask groundLayer;
-        public float coyoteTime = 0.1f; // allow jump shortly after leaving ground
-    }
-
-    [System.Serializable]
-    private class JumpAssistSettings
-    {
-        public float jumpBufferTime = 0.12f; // buffer input before you land
-    }
 
     [System.Serializable]
     private class FallSettings
