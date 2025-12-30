@@ -3,10 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class Projectile2D : MonoBehaviour
 {
-    [Header("Lifetime")]
-    [SerializeField]
-    private float maxLifetime = 3f;
-
     [Header("Hit Filtering")]
     [SerializeField]
     private LayerMask hitMask = ~0; // default: everything
@@ -21,16 +17,18 @@ public class Projectile2D : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        lifeTimer = maxLifetime;
+
+        // If Init isn't called for some reason, fail-safe lifetime so we don't leak objects forever.
+        lifeTimer = 3f;
     }
 
-    public void Init(Vector2 velocity, Collider2D ownerToIgnore, float damageAmount)
+    public void Init(Vector2 velocity, Collider2D ownerToIgnore, float damageAmount, float lifetimeSeconds)
     {
         ownerCollider = ownerToIgnore;
         damage = damageAmount;
         rb.linearVelocity = velocity;
+        lifeTimer = Mathf.Max(0.01f, lifetimeSeconds);
     }
-
 
     private void Update()
     {
@@ -48,7 +46,6 @@ public class Projectile2D : MonoBehaviour
         if ((hitMask.value & otherLayerMask) == 0)
             return;
 
-        // NEW: Apply damage if the thing we hit can take it.
         IDamageable damageable = other.GetComponentInParent<IDamageable>();
         if (damageable != null)
             damageable.TakeDamage(damage);
@@ -68,7 +65,6 @@ public class Projectile2D : MonoBehaviour
         if ((hitMask.value & otherLayerMask) == 0)
             return;
 
-        // NEW: Apply damage if the thing we hit can take it.
         IDamageable damageable = other.GetComponentInParent<IDamageable>();
         if (damageable != null)
             damageable.TakeDamage(damage);

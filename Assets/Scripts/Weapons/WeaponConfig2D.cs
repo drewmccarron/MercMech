@@ -7,6 +7,9 @@ public class WeaponConfig2D : ScriptableObject
     public Projectile2D projectilePrefab;
     public float projectileSpeed = 20f;
 
+    // NEW: projectile lifetime belongs to the weapon
+    public float projectileLifetimeSeconds = 3f;
+
     [Header("Stats")]
     public float fireCooldownSeconds = 0.2f;
     public float damagePerHit = 50f;
