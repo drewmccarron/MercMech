@@ -46,10 +46,6 @@ public class FlightMotor2D
     {
         rb.gravityScale = settings.flyGravityScale;
 
-        // prevent downward velocity while flying
-        if (rb.linearVelocity.y < 0f)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-
         // apply upward acceleration
         rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
 
