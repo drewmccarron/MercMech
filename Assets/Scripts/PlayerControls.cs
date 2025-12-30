@@ -191,12 +191,16 @@ public class PlayerControls : MonoBehaviour
         float qbFlyCarryTimer = quickBoostMotor != null ? quickBoostMotor.qbFlyCarryTimer : 0f;
         float qbCarryVx = quickBoostMotor != null ? quickBoostMotor.qbCarryVx : 0f;
 
+        // Determine whether we are currently in flight (from flight motor).
+        bool inFlight = flightMotor != null && flightMotor.flightActive;
+
         horizontalMotor.ProcessHorizontalMovement(
             groundedNow: groundedNow,
             moveInputDirection: moveInputDirection,
             boostHeld: boostHeld,
             qbFlyCarryTimer: qbFlyCarryTimer,
-            qbCarryVx: qbCarryVx
+            qbCarryVx: qbCarryVx,
+            inFlight: inFlight
         );
 
         if (!jumpMotor.IsWindingUp)

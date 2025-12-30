@@ -6,7 +6,7 @@ public class FlightMotor2D
     private readonly Settings settings;
 
     // Tracks whether flight mode is currently active so we only change gravity when state transitions.
-    private bool flightActive;
+    internal bool flightActive;
 
     [System.Serializable]
     public class Settings

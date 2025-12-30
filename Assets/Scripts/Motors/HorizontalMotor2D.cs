@@ -23,6 +23,13 @@ public class HorizontalMotor2D
         [Header("Move")]
         public float maxUnboostedGroundSpeed = 4f;
         public float maxGroundBoostSpeed = 8f;
+
+        [Header("Air Horizontal Caps")]
+        [Tooltip("Maximum horizontal speed while falling (not flying).")]
+        public float maxFallingHorizontalSpeed = 3f;
+
+        [Tooltip("Maximum horizontal speed while flying.")]
+        public float maxFlyingHorizontalSpeed = 6f;
     }
 
     private readonly Settings settings;
@@ -36,9 +43,9 @@ public class HorizontalMotor2D
     }
 
     // Horizontal movement separated for clarity and testing.
-    public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx)
+    public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx, bool inFlight)
     {
-        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld);
+        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld, groundedNow, inFlight);
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
         float dt = Time.fixedDeltaTime;
@@ -108,8 +115,14 @@ public class HorizontalMotor2D
         }
     }
 
-    public float CurrentMaxHorizontalMoveSpeed(bool boostHeld)
+    // Provide a single place to decide the applicable horizontal cap.
+    // Grounded: use walk/boost speeds. Air: use falling/flying caps (ignore boost while airborne).
+    public float CurrentMaxHorizontalMoveSpeed(bool boostHeld, bool groundedNow, bool inFlight)
     {
-        return boostHeld ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
+        if (groundedNow)
+            return boostHeld ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
+
+        // In air: choose flying cap when inFlight, otherwise falling cap.
+        return inFlight ? moveSettings.maxFlyingHorizontalSpeed : moveSettings.maxFallingHorizontalSpeed;
     }
 }
