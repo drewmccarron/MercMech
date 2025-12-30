@@ -37,6 +37,12 @@ public class QuickBoostMotor2D
         public float qbChainBufferTime = 0.2f;
         [Range(0f, 1f)] public float qbChainStartPercent = 0.8f;
         public float qbChainMinInterval = 0.05f;
+
+        [Header("Quick Boost Exit -> Fly")]
+        [Range(0f, 1f)]
+        public float quickBoostFlyExitUpVelocityNonFlightMultiplier = 0.6f; // upkick strength when QB->fly but you weren't flying before QB
+        [Range(0f, 1f)]
+        public float quickBoostFlyExitUpVelocityFlightMultiplier = 1f; // uptick strength when fly(hold) -> QB -> fly. Default at 1.0 for now;
     }
 
     // Quick Boost state (kept same names)
@@ -233,8 +239,13 @@ public class QuickBoostMotor2D
             exitVx = qbCarryVx;
 
         float exitVy = 0f;
-        if (wantsFly && wasFlyingBeforeQuickBoost)
-            exitVy = settings.quickBoostFlyExitUpVelocity;
+        if (wantsFly)
+        {
+            // If we were already flying when QB started, keep full upkick.
+            // Otherwise apply a smaller upkick so QB->fly feels continuous even from ground/fall.
+            float mult = wasFlyingBeforeQuickBoost ? settings.quickBoostFlyExitUpVelocityFlightMultiplier : settings.quickBoostFlyExitUpVelocityNonFlightMultiplier;
+            exitVy = settings.quickBoostFlyExitUpVelocity * mult;
+        }
 
         rb.linearVelocity = new Vector2(exitVx, exitVy);
 
