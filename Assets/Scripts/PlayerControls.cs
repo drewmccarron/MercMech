@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MercMech.Common;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class PlayerControls : MonoBehaviour
@@ -70,7 +71,7 @@ public class PlayerControls : MonoBehaviour
         moveInputDirection = controls != null ? controls.Player.Walk.ReadValue<float>() : 0f;
 
         // Update visual/logic facing based on input
-        int dir = AxisToDir(moveInputDirection);
+        int dir = InputUtils.AxisToDir(moveInputDirection);
         if (dir != 0) facingDirection = dir;
 
         // Quick-boost cooldown reduced per-frame (smoother feel than fixedstep).
@@ -235,14 +236,6 @@ public class PlayerControls : MonoBehaviour
             jumpMotor.UpdateGroundState(groundedNow, Time.fixedDeltaTime);
 
         return groundedNow;
-    }
-
-    // Convert axis to -1/0/1 using the configured deadzone.
-    private static int AxisToDir(float axis)
-    {
-        if (axis > MoveDeadzone) return 1;
-        if (axis < -MoveDeadzone) return -1;
-        return 0;
     }
 
     // Prevent infinite falling velocity.

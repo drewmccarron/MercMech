@@ -1,3 +1,4 @@
+using MercMech.Common;
 using UnityEngine;
 
 public class HorizontalMotor2D
@@ -44,11 +45,11 @@ public class HorizontalMotor2D
 
         // Protect QB carry horizontal speed while carry timer active.
         bool protectCarry = qbFlyCarryTimer > 0f;
-        int carryDir = AxisToDir(qbCarryVx);
+        int carryDir = InputUtils.AxisToDir(qbCarryVx);
 
         if (protectCarry)
         {
-            int heldDirForCarry = AxisToDir(moveInputDirection);
+            int heldDirForCarry = InputUtils.AxisToDir(moveInputDirection);
             if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
             {
                 if (carryDir > 0) targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
@@ -110,12 +111,5 @@ public class HorizontalMotor2D
     public float CurrentMaxHorizontalMoveSpeed(bool boostHeld)
     {
         return boostHeld ? moveSettings.maxBoostSpeed : moveSettings.maxWalkSpeed;
-    }
-
-    private static int AxisToDir(float axis)
-    {
-        if (axis > 0.2f) return 1;
-        if (axis < -0.2f) return -1;
-        return 0;
     }
 }

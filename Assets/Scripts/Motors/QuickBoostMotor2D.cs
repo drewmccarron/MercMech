@@ -1,3 +1,4 @@
+using MercMech.Common;
 using UnityEngine;
 
 public class QuickBoostMotor2D
@@ -96,7 +97,7 @@ public class QuickBoostMotor2D
             // small interval prevents double-queue from one input event or weird repeats
             if (qbChainIntervalTimer > 0f) return;
 
-            int direction = AxisToDir(moveInputDirection);
+            int direction = InputUtils.AxisToDir(moveInputDirection);
             if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
 
             qbChainQueued = true;
@@ -109,7 +110,7 @@ public class QuickBoostMotor2D
 
         if (quickBoostCooldownTimer > 0f) return;
 
-        int directionStart = AxisToDir(moveInputDirection);
+        int directionStart = InputUtils.AxisToDir(moveInputDirection);
         // Safety: if somehow facingDirection is 0, default to right
         if (directionStart == 0) directionStart = facingDirection != 0 ? facingDirection : 1;
 
@@ -167,7 +168,7 @@ public class QuickBoostMotor2D
     {
         quickBoostTimer += Time.fixedDeltaTime;
 
-        int heldDir = AxisToDir(moveInputDirection);
+        int heldDir = InputUtils.AxisToDir(moveInputDirection);
         rb.gravityScale = 0f;
         float timeRemainingPercentage = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
 
@@ -217,7 +218,7 @@ public class QuickBoostMotor2D
 
         rb.gravityScale = wantsFly ? flightSettings.flyGravityScale : flightSettings.normalGravityScale;
 
-        int heldDir = AxisToDir(rb.linearVelocity.x); // direction based on actual motion is OK here
+        int heldDir = InputUtils.AxisToDir(rb.linearVelocity.x); // direction based on actual motion is OK here
         float exitVx;
 
         // If player continues holding dash direction, exit at move speed floor.
@@ -246,12 +247,5 @@ public class QuickBoostMotor2D
         // This mirrors your original: boostHeld lives in PlayerControls, so QB uses the "move speed floor"
         // as the normal (walk) floor. If you want QB floor to respect boostHeld, we can wire it in.
         return moveSettings.maxWalkSpeed;
-    }
-
-    private static int AxisToDir(float axis)
-    {
-        if (axis > 0.2f) return 1;
-        if (axis < -0.2f) return -1;
-        return 0;
     }
 }
