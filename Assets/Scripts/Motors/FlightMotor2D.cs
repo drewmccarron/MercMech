@@ -16,6 +16,7 @@ public class FlightMotor2D
         public float maxFlyUpSpeed = 4.5f;    // upward speed cap while flying
         public float flyGravityScale = 2f;    // gravity while flying
         public float normalGravityScale = 3f; // gravity when not flying
+        public float flyApexEngageVelocityThreshold = 2.0f;    // allow flight to engage once upward speed is <= this (jump -> flight transition)
     }
 
     public FlightMotor2D(Rigidbody2D rb, Settings settings)
@@ -31,7 +32,7 @@ public class FlightMotor2D
     public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround)
     {
         // If the player jumped from ground and is still rising, block flight until apex.
-        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > 0f;
+        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyApexEngageVelocityThreshold;
         bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld;
 
         if (shouldFlyNow)
