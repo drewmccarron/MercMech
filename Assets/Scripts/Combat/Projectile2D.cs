@@ -15,6 +15,9 @@ public class Projectile2D : MonoBehaviour
     [SerializeField] private LayerMask worldMask;
     [SerializeField] private bool destroyOnWorldHit = true;
 
+    [Header("Interactable")]
+    [SerializeField] private bool isInterceptable;
+
     private float lifeTimer;
     private Rigidbody2D rb;
 
@@ -52,6 +55,11 @@ public class Projectile2D : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.TryGetComponent<Projectile2D>(out var otherProj))
+        {
+            InterceptProjectile(otherProj);
+        }
+
         if (other.TryGetComponent<IDamageable>(out var damageable))
         {
             if (damageable.Team == sourceTeam)
@@ -72,5 +80,13 @@ public class Projectile2D : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public void InterceptProjectile(Projectile2D otherProj)
+    {
+        if (!isInterceptable && !otherProj.isInterceptable)
+            return;
+        Destroy(otherProj.gameObject);
+        Destroy(gameObject);
     }
 }

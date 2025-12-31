@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3335246214505985531}
   - component: {fileID: 418380843088254328}
   m_Layer: 9
-  m_Name: Projectile
+  m_Name: NonInteceptableProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 0.2
 --- !u!114 &418380843088254328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,3 +177,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2097152
   destroyOnWorldHit: 1
+  isInterceptable: 0
