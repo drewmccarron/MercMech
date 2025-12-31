@@ -10,6 +10,10 @@ public class PlayerControls : MonoBehaviour
     private Actions controls;
     private Collider2D col;
 
+    // Player stats
+    private PlayerStats playerStats;
+    private EnergyPool energyPool;
+
     // Horizontal input (-1..1)
     private float moveInputDirection;
 
@@ -108,6 +112,8 @@ public class PlayerControls : MonoBehaviour
         controls = new Actions();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+        playerStats = GetComponent<PlayerStats>();
+        energyPool = playerStats != null ? playerStats.Energy : GetComponent<EnergyPool>();
 
         // Build systems (plain C# classes)
         groundProbe = new GroundProbe2D(col, groundProbeSettings);
@@ -214,6 +220,20 @@ public class PlayerControls : MonoBehaviour
         }
 
         bool groundedNow = UpdateGroundState();
+
+        // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
+        if (energyPool != null)
+        {
+            bool isFlying = flightMotor != null && flightMotor.IsFlying;
+            bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.isQuickBoosting;
+
+            energyPool.TickEnergy(
+                groundedNow: groundedNow,
+                isFlying: isFlying,
+                isQuickBoosting: isQuickBoosting,
+                dt: Time.fixedDeltaTime
+            );
+        }
 
         // If quick boosting, QB motor fully owns velocity/gravity for this step.
         if (quickBoostMotor != null && quickBoostMotor.isQuickBoosting)
@@ -330,6 +350,10 @@ public class PlayerControls : MonoBehaviour
         if (quickBoostMotor == null) return;
 
         bool groundedNow = groundProbe != null && groundProbe.IsGrounded();
+
+        // Spend energy on QB start. If insufficient, do nothing.
+        if (energyPool != null && !energyPool.TrySpendQuickBoost())
+            return;
 
         quickBoostMotor.OnQuickBoost(
             moveInputDirection: moveInputDirection,

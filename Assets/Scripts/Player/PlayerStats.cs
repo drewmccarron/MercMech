@@ -6,6 +6,15 @@ public class PlayerStats : MonoBehaviour
 {
     [Header("Core Stats")]
     [SerializeField] private Health health;
+    [SerializeField] private EnergyPool energy;
+
+    // Events that UI / other systems can subscribe to.
+    public event Action<float, float> OnEnergyChanged; // (current, max)
+
+    public EnergyPool Energy => energy;
+
+    public float CurrentEnergy => energy != null ? energy.CurrentEnergy : 0f;
+    public float MaxEnergy => energy != null ? energy.MaxEnergy : 0f;
 
     // Events that UI / other systems can subscribe to.
     public event Action<float, float> OnHealthChanged; // (current, max)
@@ -23,12 +32,19 @@ public class PlayerStats : MonoBehaviour
     {
         // Auto-wire if possible when added.
         health = GetComponent<Health>();
+        energy = GetComponent<EnergyPool>();
     }
 
     private void Awake()
     {
         if (health == null)
             health = GetComponent<Health>();
+
+        if (energy == null)
+            energy = GetComponent<EnergyPool>();
+
+        if (energy != null)
+            energy.OnEnergyChanged += HandleEnergyChanged;
 
         // Emit initial values so UI can initialize.
         EmitHealthIfChanged(force: true);
@@ -48,6 +64,12 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (energy != null)
+            energy.OnEnergyChanged -= HandleEnergyChanged;
+    }
+
     private void EmitHealthIfChanged(bool force)
     {
         if (health == null) return;
@@ -61,5 +83,10 @@ public class PlayerStats : MonoBehaviour
             lastMaxHealth = max;
             OnHealthChanged?.Invoke(cur, max);
         }
+    }
+
+    private void HandleEnergyChanged(float current, float max)
+    {
+        OnEnergyChanged?.Invoke(current, max);
     }
 }
