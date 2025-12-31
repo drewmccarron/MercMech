@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public class Health : MonoBehaviour, IDamageable
+public class Health : MonoBehaviour
 {
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;

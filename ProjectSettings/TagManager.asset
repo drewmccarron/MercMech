@@ -19,10 +19,10 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - PlayerHurtBox
+  - EnemyHurtBox
+  - PlayerProjectile
+  - EnemyProjectile
   - 
   - 
   - 

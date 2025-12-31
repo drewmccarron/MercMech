@@ -50,6 +50,6 @@ public class EnemyAutoShooter2D : MonoBehaviour
     Vector2 spawnPos = origin + dir * weaponConfig.muzzleForwardOffset;
 
     Projectile2D proj = Instantiate(weaponConfig.projectilePrefab, spawnPos, Quaternion.identity);
-    proj.Init(dir * weaponConfig.projectileSpeed, ownerCollider, weaponConfig.damagePerHit, weaponConfig.projectileLifetimeSeconds);
+    proj.Init(Team.Enemy, gameObject, weaponConfig.damagePerHit);
   }
 }

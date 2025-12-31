@@ -1,4 +1,5 @@
 public interface IDamageable
 {
-    void TakeDamage(float amount);
+    Team Team { get; }
+    void TakeDamage(in DamageInfo info);
 }

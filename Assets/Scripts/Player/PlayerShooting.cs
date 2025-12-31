@@ -65,6 +65,6 @@ public class PlayerShooting : MonoBehaviour
         Vector2 spawnPos = origin + dir * muzzleOffset;
 
         Projectile2D proj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        proj.Init(dir * speed, playerCollider, dmg, weaponConfig.projectileLifetimeSeconds);
+        proj.Init(Team.Enemy, gameObject, dmg);
     }
 }

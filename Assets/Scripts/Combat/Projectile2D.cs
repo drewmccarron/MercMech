@@ -1,65 +1,53 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
+[RequireComponent(typeof(Collider2D))]
 public class Projectile2D : MonoBehaviour
 {
-    [Header("Hit Filtering")]
-    [SerializeField]
-    private LayerMask hitMask = ~0; // default: everything
+    [Header("Tuning")]
+    [SerializeField] private float damage = 10f;
+    [SerializeField] private float lifetime = 3f;
 
-    private Rigidbody2D rb;
+    [Header("Runtime")]
+    [SerializeField] private Team sourceTeam;
+    [SerializeField] private GameObject source;
+
     private float lifeTimer;
-    private Collider2D ownerCollider;
 
-    [SerializeField]
-    private float damage;
-
-    private void Awake()
+    public void Init(Team team, GameObject sourceObject, float damageAmount)
     {
-        rb = GetComponent<Rigidbody2D>();
-
-        // If Init isn't called for some reason, fail-safe lifetime so we don't leak objects forever.
-        lifeTimer = 3f;
+        sourceTeam = team;
+        source = sourceObject;
+        damage = damageAmount;
     }
 
-    public void Init(Vector2 velocity, Collider2D ownerToIgnore, float damageAmount, float lifetimeSeconds)
+    private void OnEnable()
     {
-        ownerCollider = ownerToIgnore;
-        damage = damageAmount;
-        rb.linearVelocity = velocity;
-        lifeTimer = Mathf.Max(0.01f, lifetimeSeconds);
+        lifeTimer = 0f;
     }
 
     private void Update()
     {
-        lifeTimer -= Time.deltaTime;
-        if (lifeTimer <= 0f)
+        lifeTimer += Time.deltaTime;
+        if (lifeTimer >= lifetime)
             Destroy(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        HandleHit(other);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision == null) return;
-        HandleHit(collision.collider);
-    }
-
-    private void HandleHit(Collider2D other)
-    {
-        if (other == null) return;
-        if (other == ownerCollider) return;
-
-        int otherLayerMask = 1 << other.gameObject.layer;
-        if ((hitMask.value & otherLayerMask) == 0)
+        // Layer matrix already prevents same-team hurtbox collisions,
+        // but keep this so the projectile also ignores same-team IDamageable
+        // if someone forgets to layer a hurtbox properly.
+        if (!other.TryGetComponent<IDamageable>(out var damageable))
             return;
 
-        IDamageable damageable = other.GetComponentInParent<IDamageable>();
-        if (damageable != null)
-            damageable.TakeDamage(damage);
+        if (damageable.Team == sourceTeam)
+            return;
+
+        var point = (Vector2)transform.position;
+        var normal = Vector2.zero; // triggers don’t provide contact normals
+
+        var info = new DamageInfo(damage, point, normal, source, sourceTeam);
+        damageable.TakeDamage(in info);
 
         Destroy(gameObject);
     }
