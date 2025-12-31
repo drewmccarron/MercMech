@@ -229,12 +229,12 @@ public class PlayerControls : MonoBehaviour
 
             energyPool.TickEnergy(
                 groundedNow: groundedNow,
+                boostHeld: boostHeld,
                 isFlying: isFlying,
                 isQuickBoosting: isQuickBoosting,
                 dt: Time.fixedDeltaTime
             );
         }
-
         // If quick boosting, QB motor fully owns velocity/gravity for this step.
         if (quickBoostMotor != null && quickBoostMotor.isQuickBoosting)
         {
@@ -256,11 +256,31 @@ public class PlayerControls : MonoBehaviour
 
         if (!jumpMotor.IsWindingUp)
         {
+            bool hasEnergyForFlight = energyPool == null || energyPool.CanStartFlight;
+                        bool wasFlyingBefore = flightMotor.IsFlying;
+
             // Flight motor
             flightMotor.ProcessFlight(
                 anyFlyInputHeld: anyFlyInputHeld,
-                jumpedFromGround: ref jumpMotor.jumpedFromGround
+                jumpedFromGround: ref jumpMotor.jumpedFromGround,
+                hasEnergyForFlight: hasEnergyForFlight
             );
+
+            // If flight just began, pay an upfront cost. If we can't pay, force flight off and drop.
+            if (energyPool != null && !wasFlyingBefore && flightMotor.IsFlying)
+            {
+                if (!energyPool.TrySpendFlightStart())
+                {
+                    bool noEnergy = false;
+
+                    // Force off; because hasEnergyForFlight=false, FlightMotor2D will also cancel upward velocity.
+                    flightMotor.ProcessFlight(
+                        anyFlyInputHeld: false,
+                        jumpedFromGround: ref jumpMotor.jumpedFromGround,
+                        hasEnergyForFlight: noEnergy
+                    );
+                }
+            }
         }
 
         horizontalMotor.ProcessHorizontalMovement(
@@ -369,7 +389,17 @@ public class PlayerControls : MonoBehaviour
     private void OnFlyStarted(InputAction.CallbackContext ctx) => flyKeyHeld = true;
     private void OnFlyCanceled(InputAction.CallbackContext ctx) => flyKeyHeld = false;
 
-    private void OnBoostStarted(InputAction.CallbackContext ctx) => boostHeld = true;
+    private void OnBoostStarted(InputAction.CallbackContext ctx)
+    {
+        // Upfront horizontal boost cost (applies whether grounded or airborne).
+        if (energyPool != null && !energyPool.TrySpendHorizontalBoostStart())
+        {
+            boostHeld = false;
+            return;
+        }
+
+        boostHeld = true;
+    }
     private void OnBoostCanceled(InputAction.CallbackContext ctx) => boostHeld = false;
 
     private void OnFireStarted(InputAction.CallbackContext ctx)

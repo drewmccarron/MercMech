@@ -42,15 +42,16 @@ public class FlightMotor2D
     // Flight logic separated from movement for easier tuning.
     // anyFlyInputHeld: true when fly or jump input is held.
     // jumpedFromGround: ref to gate used to block flight until apex after a ground jump.
-    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround)
+    // hasEnergyForFlight: when false, flight is forced off (and upward velocity is cancelled for immediate drop).
+    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround, bool hasEnergyForFlight)
     {
         // If the player jumped from ground and is still rising, block flight until apex.
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyUpwardEngageVelocityThreshold;
-        bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld;
+        bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld && hasEnergyForFlight;
 
         if (shouldFlyNow)
         {
-            // Enter flight state if not already active (only update gravity on state transition).
+            // Only change gravity on transition.
             if (!flightActive)
             {
                 rb.gravityScale = settings.flyGravityScale;
@@ -64,7 +65,7 @@ public class FlightMotor2D
         }
         else
         {
-            // Only restore normal gravity if we were previously in flight.
+            // If we were flying but we no longer should fly, restore gravity once.
             if (flightActive)
             {
                 rb.gravityScale = settings.normalGravityScale;
