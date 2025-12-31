@@ -169,7 +169,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01d4d2988d70f614b9e69eba41417124, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile2D
-  maxLifetime: 3
-  hitMask:
+  damage: 0
+  lifetime: 0
+  sourceTeam: 0
+  source: {fileID: 0}
+  worldMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2097152
+  destroyOnWorldHit: 1

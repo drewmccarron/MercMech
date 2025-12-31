@@ -11,6 +11,10 @@ public class Projectile2D : MonoBehaviour
     [SerializeField] private Team sourceTeam;
     [SerializeField] private GameObject source;
 
+    [Header("World Collision")]
+    [SerializeField] private LayerMask worldMask;
+    [SerializeField] private bool destroyOnWorldHit = true;
+
     private float lifeTimer;
     private Rigidbody2D rb;
 
@@ -48,21 +52,25 @@ public class Projectile2D : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Layer matrix already prevents same-team hurtbox collisions,
-        // but keep this so the projectile also ignores same-team IDamageable
-        // if someone forgets to layer a hurtbox properly.
-        if (!other.TryGetComponent<IDamageable>(out var damageable))
+        if (other.TryGetComponent<IDamageable>(out var damageable))
+        {
+            if (damageable.Team == sourceTeam)
+                return;
+
+            var point = (Vector2)transform.position;
+            var normal = Vector2.zero;
+
+            var info = new DamageInfo(damage, point, normal, source, sourceTeam);
+            damageable.TakeDamage(in info);
+
+            Destroy(gameObject);
             return;
+        }
 
-        if (damageable.Team == sourceTeam)
-            return;
-
-        var point = (Vector2)transform.position;
-        var normal = Vector2.zero; // triggers don’t provide contact normals
-
-        var info = new DamageInfo(damage, point, normal, source, sourceTeam);
-        damageable.TakeDamage(in info);
-
-        Destroy(gameObject);
+        // World hit
+        if (destroyOnWorldHit && ((worldMask.value & (1 << other.gameObject.layer)) != 0))
+        {
+            Destroy(gameObject);
+        }
     }
 }
