@@ -15,13 +15,11 @@ public class PlayerShooting : MonoBehaviour
 
     private PlayerControls player;
     private WeaponMotor2D weaponMotor;
-    private Collider2D playerCollider;
 
     private void Awake()
     {
         player = GetComponent<PlayerControls>();
         weaponMotor = new WeaponMotor2D();
-        playerCollider = GetComponent<Collider2D>();
     }
 
     private void Update()
@@ -65,6 +63,6 @@ public class PlayerShooting : MonoBehaviour
         Vector2 spawnPos = origin + dir * muzzleOffset;
 
         Projectile2D proj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        proj.Init(Team.Enemy, gameObject, dmg);
+        proj.Init(Team.Player, gameObject, weaponConfig, dir);
     }
 }

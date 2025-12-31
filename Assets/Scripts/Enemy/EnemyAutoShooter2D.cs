@@ -18,11 +18,9 @@ public class EnemyAutoShooter2D : MonoBehaviour
   private readonly AimMotor2D aimMotor = new AimMotor2D();
   private readonly WeaponMotor2D weaponMotor = new WeaponMotor2D();
 
-  private Collider2D ownerCollider;
 
   private void Awake()
   {
-    ownerCollider = GetComponent<Collider2D>();
     if (muzzleOrigin == null)
       muzzleOrigin = transform;
   }
@@ -50,6 +48,6 @@ public class EnemyAutoShooter2D : MonoBehaviour
     Vector2 spawnPos = origin + dir * weaponConfig.muzzleForwardOffset;
 
     Projectile2D proj = Instantiate(weaponConfig.projectilePrefab, spawnPos, Quaternion.identity);
-    proj.Init(Team.Enemy, gameObject, weaponConfig.damagePerHit);
+    proj.Init(Team.Enemy, gameObject, weaponConfig, dir);
   }
 }

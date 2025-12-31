@@ -4,20 +4,34 @@ using UnityEngine;
 public class Projectile2D : MonoBehaviour
 {
     [Header("Tuning")]
-    [SerializeField] private float damage = 10f;
-    [SerializeField] private float lifetime = 3f;
+    [SerializeField] private float damage;
+    [SerializeField] private float lifetime;
 
     [Header("Runtime")]
     [SerializeField] private Team sourceTeam;
     [SerializeField] private GameObject source;
 
     private float lifeTimer;
+    private Rigidbody2D rb;
 
-    public void Init(Team team, GameObject sourceObject, float damageAmount)
+    public void Init(
+        Team team,
+        GameObject sourceObject,
+        WeaponConfig2D weaponConfig,
+        Vector2 direction
+    )
     {
         sourceTeam = team;
         source = sourceObject;
-        damage = damageAmount;
+        damage = weaponConfig.damagePerHit;
+        lifetime = weaponConfig.projectileLifetimeSeconds;
+
+        rb.linearVelocity = direction.normalized * weaponConfig.projectileSpeed;
+    }
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void OnEnable()

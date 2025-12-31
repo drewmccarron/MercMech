@@ -1489,6 +1489,19 @@ MonoBehaviour:
   target: {fileID: 646307101}
   weaponConfig: {fileID: 11400000, guid: eca96675bed93a947a197200a68420aa, type: 2}
   muzzleOrigin: {fileID: 0}
+--- !u!114 &1481765976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481765964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fc8ecc6bceab64449e6aef4ad491a3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageReceiver
+  combatant: {fileID: 0}
 --- !u!1 &1508579923
 GameObject:
   m_ObjectHideFlags: 0
@@ -3175,6 +3188,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8167687826666786507, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1481765970}
+    - targetCorrespondingSourceObject: {fileID: 8167687826666786507, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1481765976}
   m_SourcePrefab: {fileID: 100100000, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
