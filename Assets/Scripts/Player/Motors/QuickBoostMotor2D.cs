@@ -84,6 +84,10 @@ public class QuickBoostMotor2D
 
     // Quick Boost state (kept same names)
     public bool isQuickBoosting { get; private set; }
+
+    // Added non-breaking PascalCase accessor for consistency with other motors.
+    public bool IsQuickBoosting => isQuickBoosting;
+
     private float quickBoostTimer;
     private float quickBoostCooldownTimer;
     private int quickBoostDir; // -1 or +1
@@ -168,8 +172,8 @@ public class QuickBoostMotor2D
 
         // Optionally wipe horizontal velocity for crisp dash start and lock vertical.
         rb.linearVelocity = new Vector2(
-            settings.wipeHorizontalOnQuickBoostStart ? 0f : rb.linearVelocity.x,
-            0f
+          settings.wipeHorizontalOnQuickBoostStart ? 0f : rb.linearVelocity.x,
+          0f
         );
 
         qbChainQueued = false;

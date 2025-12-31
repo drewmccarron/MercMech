@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class Health : MonoBehaviour, IDamageable
 {
     [Header("Health")]
@@ -11,6 +13,8 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField]
     private bool destroyOnDeath = true;
 
+    // Event for reactive systems (UI, PlayerStats, etc.)
+    public event Action<float, float> OnHealthChanged; // (current, max)
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth => currentHealth;
@@ -19,6 +23,9 @@ public class Health : MonoBehaviour, IDamageable
     {
         // Start full unless you want persistence later.
         currentHealth = maxHealth;
+
+        // Emit initial value so listeners can initialize.
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     public void TakeDamage(float amount)
@@ -26,6 +33,9 @@ public class Health : MonoBehaviour, IDamageable
         if (amount <= 0f) return;
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
+
+        // Emit change
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         // Optional: for quick testing.
         // Debug.Log($"{name} took {amount} damage. HP: {currentHealth}/{maxHealth}");

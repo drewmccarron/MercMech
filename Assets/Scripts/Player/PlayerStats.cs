@@ -4,89 +4,80 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Core Stats")]
-    [SerializeField] private Health health;
-    [SerializeField] private EnergyPool energy;
+  [Header("Core Stats")]
+  [SerializeField] private Health health;
+  [SerializeField] private EnergyPool energy;
 
-    // Events that UI / other systems can subscribe to.
-    public event Action<float, float> OnEnergyChanged; // (current, max)
+  // Events that UI / other systems can subscribe to.
+  public event Action<float, float> OnEnergyChanged; // (current, max)
 
-    public EnergyPool Energy => energy;
+  public EnergyPool Energy => energy;
 
-    public float CurrentEnergy => energy != null ? energy.CurrentEnergy : 0f;
-    public float MaxEnergy => energy != null ? energy.MaxEnergy : 0f;
+  public float CurrentEnergy => energy != null ? energy.CurrentEnergy : 0f;
+  public float MaxEnergy => energy != null ? energy.MaxEnergy : 0f;
 
-    // Events that UI / other systems can subscribe to.
-    public event Action<float, float> OnHealthChanged; // (current, max)
-    public event Action OnDied;
+  // Events that UI / other systems can subscribe to.
+  public event Action<float, float> OnHealthChanged; // (current, max)
+  public event Action OnDied;
 
-    public Health Health => health;
+  public Health Health => health;
 
-    public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
-    public float MaxHealth => health != null ? health.MaxHealth : 0f;
+  public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
+  public float MaxHealth => health != null ? health.MaxHealth : 0f;
 
-    private float lastCurrentHealth = -1f;
-    private float lastMaxHealth = -1f;
+  private float lastCurrentHealth = -1f;
+  private float lastMaxHealth = -1f;
 
-    private void Reset()
+  private void Reset()
+  {
+    // Auto-wire if possible when added.
+    health = GetComponent<Health>();
+    energy = GetComponent<EnergyPool>();
+  }
+
+  private void Awake()
+  {
+    if (health == null)
+      health = GetComponent<Health>();
+
+    if (energy == null)
+      energy = GetComponent<EnergyPool>();
+
+    if (energy != null)
+      energy.OnEnergyChanged += HandleEnergyChanged;
+
+    // Subscribe to health changes (reactive instead of polling).
+    if (health != null)
     {
-        // Auto-wire if possible when added.
-        health = GetComponent<Health>();
-        energy = GetComponent<EnergyPool>();
+      health.OnHealthChanged += HandleHealthChanged;
+      // Initialize cached values and emit to listeners.
+      HandleHealthChanged(health.CurrentHealth, health.MaxHealth);
     }
+  }
 
-    private void Awake()
-    {
-        if (health == null)
-            health = GetComponent<Health>();
+  private void OnDestroy()
+  {
+    if (energy != null)
+      energy.OnEnergyChanged -= HandleEnergyChanged;
 
-        if (energy == null)
-            energy = GetComponent<EnergyPool>();
+    if (health != null)
+      health.OnHealthChanged -= HandleHealthChanged;
+  }
 
-        if (energy != null)
-            energy.OnEnergyChanged += HandleEnergyChanged;
+  private void HandleHealthChanged(float cur, float max)
+  {
+    OnHealthChanged?.Invoke(cur, max);
 
-        // Emit initial values so UI can initialize.
-        EmitHealthIfChanged(force: true);
-    }
+    // Death detection (fire once when health crosses to zero)
+    if (cur <= 0f && lastCurrentHealth > 0f)
+      OnDied?.Invoke();
 
-    private void Update()
-    {
-        // Lightweight polling: avoids tight coupling and still supports any damage source.
-        EmitHealthIfChanged(force: false);
+    lastCurrentHealth = cur;
+    lastMaxHealth = max;
+  }
 
-        // Death detection (Health may destroy the object; but if you later change that, this still works)
-        if (health != null && health.CurrentHealth <= 0f)
-        {
-            // Fire once.
-            if (lastCurrentHealth > 0f)
-                OnDied?.Invoke();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (energy != null)
-            energy.OnEnergyChanged -= HandleEnergyChanged;
-    }
-
-    private void EmitHealthIfChanged(bool force)
-    {
-        if (health == null) return;
-
-        float cur = health.CurrentHealth;
-        float max = health.MaxHealth;
-
-        if (force || !Mathf.Approximately(cur, lastCurrentHealth) || !Mathf.Approximately(max, lastMaxHealth))
-        {
-            lastCurrentHealth = cur;
-            lastMaxHealth = max;
-            OnHealthChanged?.Invoke(cur, max);
-        }
-    }
-
-    private void HandleEnergyChanged(float current, float max)
-    {
-        OnEnergyChanged?.Invoke(current, max);
-    }
+  private void HandleEnergyChanged(float current, float max)
+  {
+    OnEnergyChanged?.Invoke(current, max);
+  }
 }
