@@ -39,25 +39,17 @@ public class Projectile2D : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other == null) return;
-        if (other == ownerCollider) return;
-
-        int otherLayerMask = 1 << other.gameObject.layer;
-        if ((hitMask.value & otherLayerMask) == 0)
-            return;
-
-        IDamageable damageable = other.GetComponentInParent<IDamageable>();
-        if (damageable != null)
-            damageable.TakeDamage(damage);
-
-        Destroy(gameObject);
+        HandleHit(other);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision == null) return;
+        HandleHit(collision.collider);
+    }
 
-        Collider2D other = collision.collider;
+    private void HandleHit(Collider2D other)
+    {
         if (other == null) return;
         if (other == ownerCollider) return;
 

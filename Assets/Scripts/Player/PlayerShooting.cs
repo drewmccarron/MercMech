@@ -26,6 +26,8 @@ public class PlayerShooting : MonoBehaviour
 
     private void Update()
     {
+        if (player == null) return;
+
         weaponMotor.Tick(Time.deltaTime);
 
         bool fireHeld = player.FireHeld;
@@ -45,11 +47,9 @@ public class PlayerShooting : MonoBehaviour
 
     private void TryFire()
     {
-        if (weaponConfig == null)
-            return;
+        if (weaponConfig == null) return;
         Projectile2D prefab = weaponConfig.projectilePrefab;
-        if (prefab == null)
-            return;
+        if (prefab == null) return;
 
         float cooldown = weaponConfig.fireCooldownSeconds;
         float speed = weaponConfig.projectileSpeed;
