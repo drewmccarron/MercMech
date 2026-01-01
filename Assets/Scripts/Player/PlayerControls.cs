@@ -357,7 +357,7 @@ public class PlayerControls : MonoBehaviour
     {
         jumpKeyHeld = true;
 
-        if (jumpMotor != null)
+        if (jumpMotor != null && IsGrounded)
             jumpMotor.OnJumpStarted();
     }
 
@@ -377,7 +377,7 @@ public class PlayerControls : MonoBehaviour
     {
         if (quickBoostMotor == null) return;
 
-        bool groundedNow = groundProbe != null && groundProbe.IsGrounded();
+        bool groundedNow = groundProbe != null && IsGrounded;
 
         // Spend energy on QB start. If insufficient, do nothing.
         if (energyPool != null && !energyPool.TrySpendQuickBoost())
