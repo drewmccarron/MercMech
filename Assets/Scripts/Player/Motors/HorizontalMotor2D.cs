@@ -1,6 +1,5 @@
 using MercMech.Common;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class HorizontalMotor2D
 {
