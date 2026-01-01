@@ -1,5 +1,6 @@
 using MercMech.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class HorizontalMotor2D
 {
@@ -59,9 +60,9 @@ public class HorizontalMotor2D
     }
 
     // Horizontal movement separated for clarity and testing.
-    public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx, bool inFlight)
+    public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx, bool isFlying)
     {
-        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld, groundedNow, inFlight);
+        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld, groundedNow, isFlying);
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
         float dt = Time.fixedDeltaTime;
@@ -75,8 +76,10 @@ public class HorizontalMotor2D
             int heldDirForCarry = InputUtils.AxisToDir(moveInputDirection);
             if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
             {
-                if (carryDir > 0) targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
-                else if (carryDir < 0) targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
+                if (carryDir > 0)
+                    targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
+                else if (carryDir < 0)
+                    targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
             }
         }
 
@@ -86,38 +89,19 @@ public class HorizontalMotor2D
                              Mathf.Abs(currentVelocity) > 0.1f;
         if (groundedNow)
         {
-            // Grounded: deterministic MoveTowards-style acceleration & deceleration.
-            float accelRate;
-            if (!hasInput) accelRate = settings.groundDecel;
-            else if (reversing) accelRate = settings.groundTurnAccel;
-            else accelRate = settings.groundAccel;
-
-            float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * dt);
-            rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(getGroundVelocity(hasInput, reversing, currentVelocity, targetVelocity, dt), rb.linearVelocity.y);
         }
         else
         {
             // Air: apply thrust while input, otherwise apply drag.
             if (hasInput)
             {
-                // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
-                float thrust = reversing ? settings.airTurnAccel : settings.airAccel;
-
-                // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
-                rb.AddForce(Vector2.right * moveInputDirection * thrust, ForceMode2D.Force);
-
-                // Optional: cap air top speed to your current maxSpeed (keeps things controllable).
-                float vx = rb.linearVelocity.x;
-                if (Mathf.Abs(vx) > maxSpeed)
-                    vx = Mathf.Sign(vx) * maxSpeed;
-
-                rb.linearVelocity = new Vector2(vx, rb.linearVelocity.y);
+                rb.linearVelocity = new Vector2(getAirVelocity(reversing, moveInputDirection, maxSpeed), rb.linearVelocity.y);
             }
             else
             {
                 // No input: apply air drag toward 0.
-                float vx = rb.linearVelocity.x;
-                float newVx = Mathf.MoveTowards(vx, 0f, settings.airDecel * dt);
+                float newVx = getAirDragVelocity(dt);
 
                 // If QB carry protection is active, don't drag below the carried QB speed.
                 if (protectCarry && carryDir != 0)
@@ -129,6 +113,39 @@ public class HorizontalMotor2D
                 rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
             }
         }
+    }
+
+    public float getGroundVelocity(bool hasInput, bool reversing, float currentVelocity, float targetVelocity, float dt)
+    {
+        // Grounded: deterministic MoveTowards-style acceleration & deceleration.
+        float accelRate;
+        if (!hasInput) accelRate = settings.groundDecel;
+        else if (reversing) accelRate = settings.groundTurnAccel;
+        else accelRate = settings.groundAccel;
+
+        return Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * dt);
+    }
+
+    public float getAirVelocity(bool reversing, float moveInputDirection, float maxSpeed)
+    {
+        // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
+        float thrust = reversing ? settings.airTurnAccel : settings.airAccel;
+
+        // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
+        rb.AddForce(Vector2.right * moveInputDirection * thrust, ForceMode2D.Force);
+
+        // Optional: cap air top speed to your current maxSpeed (keeps things controllable).
+        float vx = rb.linearVelocity.x;
+        if (Mathf.Abs(vx) > maxSpeed)
+            vx = Mathf.Sign(vx) * maxSpeed;
+
+        return vx;
+    }
+
+    public float getAirDragVelocity(float dt)
+    {
+        float vx = rb.linearVelocity.x;
+        return Mathf.MoveTowards(vx, 0f, settings.airDecel * dt);
     }
 
     // Provide a single place to decide the applicable horizontal cap.

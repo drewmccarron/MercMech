@@ -254,7 +254,7 @@ public class PlayerControls : MonoBehaviour
             boostHeld: boostHeld,
             qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
             qbCarryVx: quickBoostMotor.qbCarryVx,
-            inFlight: isFlying
+            isFlying: isFlying
         );
 
         // Jump motor
