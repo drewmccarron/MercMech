@@ -770,17 +770,17 @@ MonoBehaviour:
   moveSettings:
     maxUnboostedGroundSpeed: 4
     maxGroundBoostSpeed: 8
-    maxFallingHorizontalSpeed: 3
-    maxFlyingHorizontalSpeed: 6
+    maxFallingSpeed: 3
+    maxFallingBoostSpeed: 6
+    maxFlyingSpeed: 6
+    maxFlyingBoostSpeed: 9
   jumpSettings:
     jumpForce: 10
-    coyoteTime: 0.1
-    jumpBufferTime: 0.12
     jumpWindupTime: 0.5
   groundProbeSettings:
     groundLayer:
       serializedVersion: 2
-      m_Bits: 0
+      m_Bits: 2097152
   flightSettings:
     flyAcceleration: 30
     maxFlyUpSpeed: 4.5
