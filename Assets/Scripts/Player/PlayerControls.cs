@@ -111,6 +111,12 @@ public class PlayerControls : MonoBehaviour
         firePressedThisFrame = false;
     }
 
+    private void Reset()
+    {
+        if (groundProbeSettings.groundLayer == 0)
+            groundProbeSettings.groundLayer = LayerMask.GetMask("World");
+    }
+
     // Cache components and defaults.
     void Awake()
     {
