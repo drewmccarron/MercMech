@@ -220,12 +220,12 @@ public class PlayerControls : MonoBehaviour
         }
 
         bool groundedNow = UpdateGroundState();
+        bool isFlying = flightMotor != null && flightMotor.IsFlying;
+        bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.isQuickBoosting;
 
         // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
         if (energyPool != null)
         {
-            bool isFlying = flightMotor != null && flightMotor.IsFlying;
-            bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.isQuickBoosting;
 
             energyPool.TickEnergy(
                 groundedNow: groundedNow,
@@ -247,13 +247,17 @@ public class PlayerControls : MonoBehaviour
             return; // skip normal movement while dashing
         }
 
-        // Horizontal motor (uses QB carry protection values exposed by quickBoostMotor).
-        float qbFlyCarryTimer = quickBoostMotor != null ? quickBoostMotor.qbFlyCarryTimer : 0f;
-        float qbCarryVx = quickBoostMotor != null ? quickBoostMotor.qbCarryVx : 0f;
+        // Horizontal motor (uses QB carry protection values exposed by quickBoostMotor)
+        horizontalMotor.ProcessHorizontalMovement(
+            groundedNow: groundedNow,
+            moveInputDirection: moveInputDirection,
+            boostHeld: boostHeld,
+            qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
+            qbCarryVx: quickBoostMotor.qbCarryVx,
+            inFlight: isFlying
+        );
 
-        // Determine whether we are currently in flight (from flight motor).
-        bool inFlight = flightMotor != null && flightMotor.IsFlying;
-
+        // Jump motor
         if (!jumpMotor.IsWindingUp)
         {
             bool hasEnergyForFlight = energyPool == null || energyPool.CanStartFlight;
@@ -282,15 +286,6 @@ public class PlayerControls : MonoBehaviour
                 }
             }
         }
-
-        horizontalMotor.ProcessHorizontalMovement(
-            groundedNow: groundedNow,
-            moveInputDirection: moveInputDirection,
-            boostHeld: boostHeld,
-            qbFlyCarryTimer: qbFlyCarryTimer,
-            qbCarryVx: qbCarryVx,
-            inFlight: inFlight
-        );
 
         ClampFallSpeed();
     }
