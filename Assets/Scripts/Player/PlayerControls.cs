@@ -5,7 +5,7 @@ using MercMech.Common;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class PlayerControls : MonoBehaviour
 {
-  // Cached components
+    // Cached components
     private Rigidbody2D rb;
     private Actions controls;
     private Collider2D col;
@@ -84,6 +84,12 @@ public class PlayerControls : MonoBehaviour
     // Origin of the ray: center of the player object.
     public Vector2 AimOriginWorld => rb != null ? rb.worldCenterOfMass : (Vector2)transform.position;
 
+    // Expose movement state for other systems (VFX, UI, etc.)
+    public bool IsGrounded { get; private set; }
+    public bool IsFlying => flightMotor != null && flightMotor.IsFlying;
+    public bool IsBoosting => horizontalMotor != null && horizontalMotor.IsBoosting;
+    public bool IsQuickBoosting => quickBoostMotor != null && quickBoostMotor.IsQuickBoosting;
+
     // ------------------------
     // Unity lifecycle methods
     // ------------------------
@@ -130,9 +136,9 @@ public class PlayerControls : MonoBehaviour
         if (quickBoostSettings.quickBoostCurve == null || quickBoostSettings.quickBoostCurve.length == 0)
         {
             quickBoostSettings.quickBoostCurve = new AnimationCurve(
-                new Keyframe(0f, 1f),
-                new Keyframe(0.7f, 0.35f),
-                new Keyframe(1f, 0f)
+              new Keyframe(0f, 1f),
+              new Keyframe(0.7f, 0.35f),
+              new Keyframe(1f, 0f)
             );
         }
     }
@@ -213,61 +219,62 @@ public class PlayerControls : MonoBehaviour
         {
             Vector2 pointerScreenPos = ReadPointerScreenPosition();
             aimMotor.UpdateAim(
-                originWorld: AimOriginWorld,
-                pointerScreenPos: pointerScreenPos,
-                cam: Camera.main
+              originWorld: AimOriginWorld,
+              pointerScreenPos: pointerScreenPos,
+              cam: Camera.main
             );
         }
 
         bool groundedNow = UpdateGroundState();
-        bool isFlying = flightMotor != null && flightMotor.IsFlying;
-        bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.isQuickBoosting;
+        IsGrounded = groundedNow;
 
+        bool isFlying = flightMotor != null && flightMotor.IsFlying;
+        bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.IsQuickBoosting;
+        
         // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
         if (energyPool != null)
         {
-
             energyPool.TickEnergy(
-                groundedNow: groundedNow,
-                boostHeld: boostHeld,
-                isFlying: isFlying,
-                isQuickBoosting: isQuickBoosting,
-                dt: Time.fixedDeltaTime
+              groundedNow: groundedNow,
+              boostHeld: boostHeld,
+              isFlying: isFlying,
+              isQuickBoosting: isQuickBoosting,
+              dt: Time.fixedDeltaTime
             );
         }
+
         // If quick boosting, QB motor fully owns velocity/gravity for this step.
-        if (quickBoostMotor != null && quickBoostMotor.isQuickBoosting)
+        if (isQuickBoosting)
         {
             quickBoostMotor.DoQuickBoostStep(
-                moveInputDirection: moveInputDirection,
-                facingDirection: facingDirection,
-                anyFlyInputHeld: anyFlyInputHeld,
-                groundedNow: groundedNow
+              moveInputDirection: moveInputDirection,
+              facingDirection: facingDirection,
+              anyFlyInputHeld: anyFlyInputHeld,
+              groundedNow: groundedNow
             );
             return; // skip normal movement while dashing
         }
 
         // Horizontal motor (uses QB carry protection values exposed by quickBoostMotor)
         horizontalMotor.ProcessHorizontalMovement(
-            groundedNow: groundedNow,
-            moveInputDirection: moveInputDirection,
-            boostHeld: boostHeld,
-            qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
-            qbCarryVx: quickBoostMotor.qbCarryVx,
-            isFlying: isFlying
+          groundedNow: groundedNow,
+          moveInputDirection: moveInputDirection,
+          boostHeld: boostHeld,
+          qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
+          qbCarryVx: quickBoostMotor.qbCarryVx,
+          isFlying: isFlying
         );
 
-        // Jump motor
+        // Flight motor (only process when not winding up for jump)
         if (!jumpMotor.IsWindingUp)
         {
             bool hasEnergyForFlight = energyPool == null || energyPool.CanStartFlight;
-                        bool wasFlyingBefore = flightMotor.IsFlying;
+            bool wasFlyingBefore = flightMotor.IsFlying;
 
-            // Flight motor
             flightMotor.ProcessFlight(
-                anyFlyInputHeld: anyFlyInputHeld,
-                jumpedFromGround: ref jumpMotor.jumpedFromGround,
-                hasEnergyForFlight: hasEnergyForFlight
+              anyFlyInputHeld: anyFlyInputHeld,
+              jumpedFromGround: ref jumpMotor.jumpedFromGround,
+              hasEnergyForFlight: hasEnergyForFlight
             );
 
             // If flight just began, pay an upfront cost. If we can't pay, force flight off and drop.
@@ -279,9 +286,9 @@ public class PlayerControls : MonoBehaviour
 
                     // Force off; because hasEnergyForFlight=false, FlightMotor2D will also cancel upward velocity.
                     flightMotor.ProcessFlight(
-                        anyFlyInputHeld: false,
-                        jumpedFromGround: ref jumpMotor.jumpedFromGround,
-                        hasEnergyForFlight: noEnergy
+                      anyFlyInputHeld: false,
+                      jumpedFromGround: ref jumpMotor.jumpedFromGround,
+                      hasEnergyForFlight: noEnergy
                     );
                 }
             }
@@ -371,10 +378,10 @@ public class PlayerControls : MonoBehaviour
             return;
 
         quickBoostMotor.OnQuickBoost(
-            moveInputDirection: moveInputDirection,
-            facingDirection: facingDirection,
-            anyFlyInputHeld: anyFlyInputHeld,
-            groundedNow: groundedNow
+          moveInputDirection: moveInputDirection,
+          facingDirection: facingDirection,
+          anyFlyInputHeld: anyFlyInputHeld,
+          groundedNow: groundedNow
         );
     }
 

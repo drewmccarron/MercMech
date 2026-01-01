@@ -32,7 +32,7 @@ public class HorizontalMotor2D
     [System.Serializable]
     public class MoveSettings
     {
-        [Header("Move")]
+        [Header("Ground Speed")]
 
         [Tooltip("Max horizontal move speed when unboosted and on ground (walking).\nSuggested range: 2 - 5")]
         public float maxUnboostedGroundSpeed = 4f;
@@ -40,16 +40,28 @@ public class HorizontalMotor2D
         [Tooltip("Max horizontal move speed when boosted/sprinting on ground.\nSuggested range: 6 - 12")]
         public float maxGroundBoostSpeed = 8f;
 
-        [Header("Air Horizontal Caps")]
-        [Tooltip("Maximum horizontal speed while falling (not flying). This is a hard cap applied in-air when the player is not in flight.\nSuggested range: 2 - 6")]
-        public float maxFallingHorizontalSpeed = 3f;
+        [Header("Airborne Speed (Not Flying)")]
 
-        [Tooltip("Maximum horizontal speed while flying. This cap is applied during flight (can be higher than falling cap).\nSuggested range: 3 - 8")]
-        public float maxFlyingHorizontalSpeed = 6f;
+        [Tooltip("Maximum horizontal speed while falling unboosted.\nSuggested range: 2 - 6")]
+        public float maxFallingSpeed = 3f;
+
+        [Tooltip("Maximum horizontal speed while falling AND boosting.\nSuggested range: 4 - 10")]
+        public float maxFallingBoostSpeed = 6f;
+
+        [Header("Airborne Speed (Flying)")]
+
+        [Tooltip("Maximum horizontal speed while flying unboosted.\nSuggested range: 3 - 8")]
+        public float maxFlyingSpeed = 6f;
+
+        [Tooltip("Maximum horizontal speed while flying AND boosting.\nSuggested range: 6 - 12")]
+        public float maxFlyingBoostSpeed = 9f;
     }
 
     private readonly Settings settings;
     private readonly MoveSettings moveSettings;
+
+    // Expose boost state for consistency with IsFlying, IsQuickBoosting
+    public bool IsBoosting { get; private set; }
 
     public HorizontalMotor2D(Rigidbody2D rb, Settings settings, MoveSettings moveSettings)
     {
@@ -59,9 +71,18 @@ public class HorizontalMotor2D
     }
 
     // Horizontal movement separated for clarity and testing.
-    public void ProcessHorizontalMovement(bool groundedNow, float moveInputDirection, bool boostHeld, float qbFlyCarryTimer, float qbCarryVx, bool isFlying)
+    public void ProcessHorizontalMovement(
+      bool groundedNow,
+      float moveInputDirection,
+      bool boostHeld,
+      float qbFlyCarryTimer,
+      float qbCarryVx,
+      bool isFlying)
     {
-        float maxSpeed = CurrentMaxHorizontalMoveSpeed(boostHeld, groundedNow, isFlying);
+        // Update boost state based on input
+        IsBoosting = boostHeld;
+
+        float maxSpeed = GetCurrentMaxSpeed(groundedNow, isFlying);
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
         float dt = Time.fixedDeltaTime;
@@ -86,21 +107,24 @@ public class HorizontalMotor2D
         bool reversing = hasInput &&
                              Mathf.Sign(targetVelocity) != Mathf.Sign(currentVelocity) &&
                              Mathf.Abs(currentVelocity) > 0.1f;
+
         if (groundedNow)
         {
-            rb.linearVelocity = new Vector2(getGroundVelocity(hasInput, reversing, currentVelocity, targetVelocity, dt), rb.linearVelocity.y);
+            float newVx = GetGroundVelocity(hasInput, reversing, currentVelocity, targetVelocity, dt);
+            rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
         }
         else
         {
             // Air: apply thrust while input, otherwise apply drag.
             if (hasInput)
             {
-                rb.linearVelocity = new Vector2(getAirVelocity(reversing, moveInputDirection, maxSpeed), rb.linearVelocity.y);
+                float newVx = GetAirVelocity(reversing, moveInputDirection, maxSpeed);
+                rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
             }
             else
             {
                 // No input: apply air drag toward 0.
-                float newVx = getAirDragVelocity(dt);
+                float newVx = GetAirDragVelocity(dt);
 
                 // If QB carry protection is active, don't drag below the carried QB speed.
                 if (protectCarry && carryDir != 0)
@@ -114,7 +138,7 @@ public class HorizontalMotor2D
         }
     }
 
-    public float getGroundVelocity(bool hasInput, bool reversing, float currentVelocity, float targetVelocity, float dt)
+    private float GetGroundVelocity(bool hasInput, bool reversing, float currentVelocity, float targetVelocity, float dt)
     {
         // Grounded: deterministic MoveTowards-style acceleration & deceleration.
         float accelRate;
@@ -125,7 +149,7 @@ public class HorizontalMotor2D
         return Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * dt);
     }
 
-    public float getAirVelocity(bool reversing, float moveInputDirection, float maxSpeed)
+    private float GetAirVelocity(bool reversing, float moveInputDirection, float maxSpeed)
     {
         // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
         float thrust = reversing ? settings.airTurnAccel : settings.airAccel;
@@ -133,7 +157,7 @@ public class HorizontalMotor2D
         // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
         rb.AddForce(Vector2.right * moveInputDirection * thrust, ForceMode2D.Force);
 
-        // Optional: cap air top speed to your current maxSpeed (keeps things controllable).
+        // Cap air top speed to your current maxSpeed (keeps things controllable).
         float vx = rb.linearVelocity.x;
         if (Mathf.Abs(vx) > maxSpeed)
             vx = Mathf.Sign(vx) * maxSpeed;
@@ -141,20 +165,19 @@ public class HorizontalMotor2D
         return vx;
     }
 
-    public float getAirDragVelocity(float dt)
+    private float GetAirDragVelocity(float dt)
     {
         float vx = rb.linearVelocity.x;
         return Mathf.MoveTowards(vx, 0f, settings.airDecel * dt);
     }
 
-    // Provide a single place to decide the applicable horizontal cap.
-    // Grounded: use walk/boost speeds. Air: use falling/flying caps (ignore boost while airborne).
-    public float CurrentMaxHorizontalMoveSpeed(bool boostHeld, bool groundedNow, bool inFlight)
+    // Single source of truth for horizontal speed caps based on current state.
+    private float GetCurrentMaxSpeed(bool groundedNow, bool isFlying)
     {
         if (groundedNow)
-            return boostHeld ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
+            return IsBoosting ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
 
         // In air: choose flying cap when inFlight, otherwise falling cap.
-        return inFlight ? moveSettings.maxFlyingHorizontalSpeed : moveSettings.maxFallingHorizontalSpeed;
+        return isFlying ? moveSettings.maxFlyingSpeed : moveSettings.maxFallingSpeed;
     }
 }
