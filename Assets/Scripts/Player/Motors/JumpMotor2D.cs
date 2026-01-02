@@ -7,7 +7,6 @@ public class JumpMotor2D
 
     // Jump state (kept same names / intent)
     public bool jumpedFromGround; // gates flight until apex after a ground jump
-    private float timeSinceLastGrounded;
 
     // Windup state (new)
     private bool isWindingUp;
@@ -55,13 +54,6 @@ public class JumpMotor2D
                     CancelWindup();
             }
         }
-    }
-
-    // Update grounded timers (mirrors your old UpdateGroundState behavior).
-    public void UpdateGroundState(bool groundedNow, float dt)
-    {
-        if (groundedNow) timeSinceLastGrounded = 0f;
-        else timeSinceLastGrounded += dt;
     }
 
     // Called from PlayerControls.OnJumpStarted

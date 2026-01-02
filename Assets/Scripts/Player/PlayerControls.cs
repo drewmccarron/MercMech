@@ -335,9 +335,6 @@ public class PlayerControls : MonoBehaviour
         if (groundProbe != null)
             groundedNow = groundProbe.Evaluate(rb, out lastGroundProbeDebug);
 
-        if (jumpMotor != null)
-            jumpMotor.UpdateGroundState(groundedNow, Time.fixedDeltaTime);
-
         return groundedNow;
     }
 
