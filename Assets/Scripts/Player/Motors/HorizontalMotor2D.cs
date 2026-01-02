@@ -76,7 +76,7 @@ public class HorizontalMotor2D
         float currentVelocity = rb.linearVelocity.x;
         float dt = Time.fixedDeltaTime;
 
-        // Protect QB carry horizontal speed while carry timer active.
+        // Protect QB horizontal speed while carry timer active.
         bool protectCarry = qbFlyCarryTimer > 0f;
         int carryDir = InputUtils.AxisToDir(qbCarryVx);
 

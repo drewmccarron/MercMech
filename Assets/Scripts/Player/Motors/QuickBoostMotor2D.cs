@@ -226,7 +226,7 @@ public class QuickBoostMotor2D
 
         // If player holds dash direction, never drop below normal move speed during QB.
         if (heldDir != 0 && heldDir == quickBoostDir)
-            targetSpeedAbs = Mathf.Max(targetSpeedAbs, CurrentHorizontalMoveSpeed());
+            targetSpeedAbs = Mathf.Max(targetSpeedAbs, moveSettings.maxUnboostedGroundSpeed);
 
         float targetVelocity = quickBoostDir * targetSpeedAbs;
         float currentVelocity = rb.linearVelocity.x;
@@ -271,7 +271,7 @@ public class QuickBoostMotor2D
         // If player continues holding dash direction, exit at move speed floor.
         // We don't have raw input here (PlayerControls will protect carry in HorizontalMotor).
         if (currentMovingDir != 0 && currentMovingDir == quickBoostDir)
-            exitVx = quickBoostDir * CurrentHorizontalMoveSpeed();
+            exitVx = quickBoostDir * moveSettings.maxUnboostedGroundSpeed;
         else
             exitVx = quickBoostDir * settings.quickBoostNeutralExitSpeed;
 
@@ -292,12 +292,5 @@ public class QuickBoostMotor2D
 
         wasFlyingBeforeQuickBoost = false;
         isQuickBoosting = false;
-    }
-
-    private float CurrentHorizontalMoveSpeed()
-    {
-        // This mirrors your original: boostHeld lives in PlayerControls, so QB uses the "move speed floor"
-        // as the normal (walk) floor. If you want QB floor to respect boostHeld, we can wire it in.
-        return moveSettings.maxUnboostedGroundSpeed;
     }
 }
