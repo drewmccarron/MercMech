@@ -289,30 +289,11 @@ public class PlayerControls : MonoBehaviour
     // Flight motor (only process when not winding up for jump)
     if (!jumpMotor.IsWindingUp)
     {
-      bool hasEnergyForFlight = energyPool == null || energyPool.CanStartFlight;
-      bool wasFlyingBefore = flightMotor.IsFlying;
-
       flightMotor.ProcessFlight(
         anyFlyInputHeld: anyFlyInputHeld,
         jumpedFromGround: ref jumpMotor.jumpedFromGround,
-        hasEnergyForFlight: hasEnergyForFlight
+        hasEnergyForFlight: energyPool.HasMinimumEnergyForFlight()
       );
-
-      // If flight just began, pay an upfront cost. If we can't pay, force flight off and drop.
-      if (energyPool != null && !wasFlyingBefore && flightMotor.IsFlying)
-      {
-        if (!energyPool.TrySpendFlightStart())
-        {
-          bool noEnergy = false;
-
-          // Force off; because hasEnergyForFlight=false, FlightMotor2D will also cancel upward velocity.
-          flightMotor.ProcessFlight(
-            anyFlyInputHeld: false,
-            jumpedFromGround: ref jumpMotor.jumpedFromGround,
-            hasEnergyForFlight: noEnergy
-          );
-        }
-      }
     }
 
     ClampFallSpeed();
@@ -365,8 +346,6 @@ public class PlayerControls : MonoBehaviour
   {
     if (quickBoostMotor == null) return;
 
-    bool groundedNow = groundProbe != null && IsGrounded;
-
     // Spend energy on QB start. If insufficient, do nothing.
     if (energyPool != null && !energyPool.TrySpendQuickBoost())
       return;
@@ -375,7 +354,7 @@ public class PlayerControls : MonoBehaviour
       moveInputDirection: moveInputDirection,
       facingDirection: facingDirection,
       anyFlyInputHeld: anyFlyInputHeld,
-      groundedNow: groundedNow
+      groundedNow: IsGrounded
     );
   }
 
@@ -385,7 +364,7 @@ public class PlayerControls : MonoBehaviour
   private void OnBoostStarted(InputAction.CallbackContext ctx)
   {
     // Upfront horizontal boost cost (applies whether grounded or airborne).
-    if (energyPool != null && !energyPool.TrySpendHorizontalBoostStart())
+    if (energyPool != null && !energyPool.HasMinimumEnergyForBoost())
     {
       boostHeld = false;
       return;

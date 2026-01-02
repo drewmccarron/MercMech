@@ -48,19 +48,6 @@ public class EnergyPool : MonoBehaviour
     private float lastCurrent = -1f;
     private float lastMax = -1f;
 
-    public bool CanStartFlight
-    {
-        get
-        {
-            // Must have enough energy to pay the upfront cost.
-            // If cost is 0, allow starting as long as there is any energy (or even always).
-            if (flightStartCost <= 0f)
-                return HasEnergy;
-
-            return currentEnergy >= flightStartCost;
-        }
-    }
-
     private void Awake()
     {
         currentEnergy = Mathf.Clamp(currentEnergy <= 0f ? maxEnergy : currentEnergy, 0f, maxEnergy);
@@ -101,9 +88,6 @@ public class EnergyPool : MonoBehaviour
     // Returns true if energy was spent successfully.
     public bool TrySpendQuickBoost()
     {
-        if (quickBoostCost <= 0f)
-            return true;
-
         if (currentEnergy < quickBoostCost)
             return false;
 
@@ -112,31 +96,9 @@ public class EnergyPool : MonoBehaviour
         return true;
     }
 
-    public bool TrySpendHorizontalBoostStart()
-    {
-        if (horizontalBoostStartCost <= 0f)
-            return true;
+    public bool HasMinimumEnergyForBoost() => currentEnergy > horizontalBoostStartCost;
 
-        if (currentEnergy < horizontalBoostStartCost)
-            return false;
-
-        currentEnergy -= horizontalBoostStartCost;
-        EmitIfChanged(force: false);
-        return true;
-    }
-
-    public bool TrySpendFlightStart()
-    {
-        if (flightStartCost <= 0f)
-            return true;
-
-        if (currentEnergy < flightStartCost)
-            return false;
-
-        currentEnergy -= flightStartCost;
-        EmitIfChanged(force: false);
-        return true;
-    }
+    public bool HasMinimumEnergyForFlight() => currentEnergy > flightStartCost;
 
     // Utility for future systems (weapons, etc.)
     public bool TrySpend(float amount)
