@@ -11,11 +11,17 @@ public class EnergyPool : MonoBehaviour
   private float currentEnergy;
 
   [Header("Regen Rates (per second)")]
-  [Tooltip("Energy regen per second while grounded/walking.")]
-  [SerializeField] private float groundRegenRate = 25f;
+  [Tooltip("Energy regen per second while grounded/walking (not boosting).")]
+  [SerializeField] private float groundRegenRate = 30f;
 
-  [Tooltip("Energy regen per second while falling (airborne, not flying).")]
-  [SerializeField] private float fallingRegenRate = 10f;
+  [Tooltip("Energy regen per second while grounded AND boosting (slower than walking).")]
+  [SerializeField] private float groundBoostRegenRate = 15f;
+
+  [Tooltip("Energy regen per second while falling (airborne, not flying, not boosting).")]
+  [SerializeField] private float fallingRegenRate = 20f;
+
+  [Tooltip("Energy regen per second while falling AND boosting (slower than normal falling).")]
+  [SerializeField] private float fallingBoostRegenRate = 15f;
 
   [Header("Costs")]
   [Tooltip("Energy drained per second while flying (when FlightMotor IsFlying == true).")]
@@ -23,9 +29,6 @@ public class EnergyPool : MonoBehaviour
 
   [Tooltip("Flat energy cost when starting a quick boost.")]
   [SerializeField] private float quickBoostCost = 25f;
-
-  [Tooltip("Energy drained per second while holding horizontal boost (ground or air).")]
-  [SerializeField] private float horizontalBoostEnergyCostRate = 8f;
 
   [Tooltip("Flat energy cost when starting horizontal boost.")]
   [SerializeField] private float horizontalBoostStartCost = 10f;
@@ -66,22 +69,34 @@ public class EnergyPool : MonoBehaviour
       return;
     }
 
-    // Drain for horizontal boost regardless of grounded/airborne
-    if (boostHeld)
-      AddEnergy(-horizontalBoostEnergyCostRate * dt);
-
     // Drain for flying
     if (isFlying)
-      AddEnergy(-flyingEnergyCostRate * dt);
-
-    // Regen only if not flying and not boosting
-    if (!isFlying && !boostHeld)
     {
-      float regen = groundedNow ? groundRegenRate : fallingRegenRate;
+      AddEnergy(-flyingEnergyCostRate * dt);
+    }
+    else
+    {
+      // Not flying: apply regen (reduced if boosting)
+      float regen = GetRegenRate(groundedNow, boostHeld);
       AddEnergy(regen * dt);
     }
 
     EmitIfChanged(force: false);
+  }
+
+  // Determine regen rate based on grounded state and boost state
+  private float GetRegenRate(bool groundedNow, bool boostHeld)
+  {
+    if (groundedNow)
+    {
+      // Grounded: boost reduces regen but doesn't drain
+      return boostHeld ? groundBoostRegenRate : groundRegenRate;
+    }
+    else
+    {
+      // Airborne (falling): boost reduces regen but doesn't drain
+      return boostHeld ? fallingBoostRegenRate : fallingRegenRate;
+    }
   }
 
   // Called when attempting to start QuickBoost.
