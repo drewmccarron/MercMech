@@ -19,6 +19,8 @@ public class PlayerControls : MonoBehaviour
   private QuickBoostMotor2D quickBoostMotor;
   private AimMotor2D aimMotor;
 
+  public GroundProbe2D GroundProbe => groundProbe;
+  
   // Player stats
   private PlayerStats playerStats;
   private EnergyPool energyPool;
@@ -98,7 +100,7 @@ public class PlayerControls : MonoBehaviour
   public float EnergyMax => energyPool.MaxEnergy;
 
   // Expose ground probe for debug rendering
-  public GroundProbe2D GroundProbe => groundProbe;
+ 
 
   // ------------------------
   // Unity lifecycle methods
@@ -234,8 +236,6 @@ public class PlayerControls : MonoBehaviour
 
     // Update ground state   
     IsGrounded = groundProbe.Evaluate(rb, out var debugInfo);
-    bool isFlying = flightMotor.IsFlying;
-    bool isQuickBoosting = quickBoostMotor.IsQuickBoosting;
 
     // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
     if (energyPool != null)
@@ -243,14 +243,14 @@ public class PlayerControls : MonoBehaviour
       energyPool.TickEnergy(
         groundedNow: IsGrounded,
         boostHeld: boostHeld,
-        isFlying: isFlying,
-        isQuickBoosting: isQuickBoosting,
+        isFlying: flightMotor.IsFlying,
+        isQuickBoosting: quickBoostMotor.IsQuickBoosting,
         dt: Time.fixedDeltaTime
       );
     }
 
     // If quick boosting, QB motor fully owns velocity/gravity for this step.
-    if (isQuickBoosting)
+    if (quickBoostMotor.IsQuickBoosting)
     {
       quickBoostMotor.DoQuickBoostStep(
         moveInputDirection: moveInputDirection,
@@ -268,7 +268,7 @@ public class PlayerControls : MonoBehaviour
       boostHeld: boostHeld,
       qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
       qbCarryVx: quickBoostMotor.qbCarryVx,
-      isFlying: isFlying
+      isFlying: flightMotor.IsFlying
     );
 
     // Flight motor (only process when not winding up for jump)
