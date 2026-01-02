@@ -289,10 +289,12 @@ public class PlayerControls : MonoBehaviour
     // Flight motor (only process when not winding up for jump)
     if (!jumpMotor.IsWindingUp)
     {
+      bool hasEnergyForFlight = flightMotor.IsFlying ? energyPool.HasEnergy : energyPool.CanStartFlight();
+
       flightMotor.ProcessFlight(
-        anyFlyInputHeld: anyFlyInputHeld,
-        jumpedFromGround: ref jumpMotor.jumpedFromGround,
-        hasEnergyForFlight: energyPool.HasMinimumEnergyForFlight()
+      anyFlyInputHeld: anyFlyInputHeld,
+      jumpedFromGround: ref jumpMotor.jumpedFromGround,
+      hasEnergyForFlight: hasEnergyForFlight
       );
     }
 
@@ -364,7 +366,7 @@ public class PlayerControls : MonoBehaviour
   private void OnBoostStarted(InputAction.CallbackContext ctx)
   {
     // Upfront horizontal boost cost (applies whether grounded or airborne).
-    if (energyPool != null && !energyPool.HasMinimumEnergyForBoost())
+    if (!energyPool.CanStartBoost())
     {
       boostHeld = false;
       return;
