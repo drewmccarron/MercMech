@@ -55,6 +55,12 @@ public class PlayerControls : MonoBehaviour
   [Header("Fall")]
   [SerializeField, Tooltip("Maximum falling speed (vertical). This clamps downward velocity.\nSuggested range: 6 - 14")]
   private FallSettings fallSettings = new FallSettings();
+  [System.Serializable]
+  private class FallSettings
+  {
+    [Tooltip("Max downward fall speed clamp.\nSuggested range: 6 - 14")]
+    public float maxFallSpeed = 7f;
+  }
 
   // Fire input
   private bool fireHeld;
@@ -396,11 +402,4 @@ public class PlayerControls : MonoBehaviour
   }
 
   private void OnFireCanceled(InputAction.CallbackContext ctx) => fireHeld = false;
-
-  [System.Serializable]
-  private class FallSettings
-  {
-    [Tooltip("Max downward fall speed clamp.\nSuggested range: 6 - 14")]
-    public float maxFallSpeed = 7f;
-  }
 }
