@@ -47,7 +47,6 @@ public class PlayerControls : MonoBehaviour
   private bool boostHeld;
   public bool BoostHeld => boostHeld;
 
-
   [Header("Fly")]
   [SerializeField] private FlightMotor2D.Settings flightSettings = new FlightMotor2D.Settings();
   #endregion
