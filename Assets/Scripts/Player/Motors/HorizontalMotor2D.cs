@@ -82,14 +82,7 @@ public class HorizontalMotor2D
 
         if (protectCarry)
         {
-            int heldDirForCarry = InputUtils.AxisToDir(moveInputDirection);
-            if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
-            {
-                if (carryDir > 0)
-                    targetVelocity = Mathf.Max(targetVelocity, qbCarryVx);
-                else if (carryDir < 0)
-                    targetVelocity = Mathf.Min(targetVelocity, qbCarryVx);
-            }
+            targetVelocity = GetCarryVelocity(targetVelocity, carryDir, qbCarryVx);
         }
 
         bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
@@ -152,6 +145,20 @@ public class HorizontalMotor2D
             vx = Mathf.Sign(vx) * maxSpeed;
 
         return vx;
+    }
+
+    private float GetCarryVelocity(float targetVelocity, int carryDir, float qbCarryVelocity)
+    {
+        int heldDirForCarry = InputUtils.AxisToDir(carryDir);
+        if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
+        {
+            if (carryDir > 0)
+                targetVelocity = Mathf.Max(targetVelocity, qbCarryVelocity);
+            else if (carryDir < 0)
+                targetVelocity = Mathf.Min(targetVelocity, qbCarryVelocity);
+        }
+
+        return targetVelocity;
     }
 
     private float GetAirDragVelocity(float dt)
