@@ -231,7 +231,7 @@ public class PlayerControls : MonoBehaviour
         // Update aim (frame-based - matches mouse update rate)
         if (aimMotor != null)
         {
-            Vector2 pointerScreenPos = ReadPointerScreenPosition();
+            Vector2 pointerScreenPos = aimMotor.ReadPointerScreenPosition();
             aimMotor.UpdateAim(
               originWorld: AimOriginWorld,
               pointerScreenPos: pointerScreenPos,
@@ -355,16 +355,7 @@ public class PlayerControls : MonoBehaviour
     }
 
     // Read pointer position (mouse / pen / touch). Returns screen pixels.
-    private Vector2 ReadPointerScreenPosition()
-    {
-        // Prefer Pointer.current so this works with mouse, pen, and primary touch.
-        var pointer = Pointer.current;
-        if (pointer != null)
-            return pointer.position.ReadValue();
-
-        // Fallback: return center of screen if no pointer device exists.
-        return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-    }
+    
 
     // ------------------------
     // Jump callbacks & helpers

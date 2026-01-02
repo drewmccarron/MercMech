@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class AimMotor2D
 {
@@ -29,6 +30,17 @@ public class AimMotor2D
         }
 
         AimDirection = lastNonZeroDirection;
+    }
+
+    public Vector2 ReadPointerScreenPosition()
+    {
+        // Prefer Pointer.current so this works with mouse, pen, and primary touch.
+        var pointer = Pointer.current;
+        if (pointer != null)
+            return pointer.position.ReadValue();
+
+        // Fallback: return center of screen if no pointer device exists.
+        return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
     }
 
     // NEW: Update aim from a world-space target position (eg. enemy aiming at player).
