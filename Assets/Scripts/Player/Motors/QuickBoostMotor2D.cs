@@ -7,7 +7,7 @@ public class QuickBoostMotor2D
 
     // We need these to keep your existing behavior: speed floor uses move speed, QB exit picks fly gravity.
     private readonly Settings settings;
-    private readonly HorizontalMotor2D.MoveSettings moveSettings;
+    private readonly HorizontalMotor2D.Settings moveSettings;
     private readonly FlightMotor2D.Settings flightSettings;
 
     [System.Serializable]
@@ -104,7 +104,7 @@ public class QuickBoostMotor2D
     // Facing / state
     private bool wasFlyingBeforeQuickBoost;
 
-    public QuickBoostMotor2D(Rigidbody2D rb, Settings settings, HorizontalMotor2D.MoveSettings moveSettings, FlightMotor2D.Settings flightSettings)
+    public QuickBoostMotor2D(Rigidbody2D rb, Settings settings, HorizontalMotor2D.Settings moveSettings, FlightMotor2D.Settings flightSettings)
     {
         this.rb = rb;
         this.settings = settings;

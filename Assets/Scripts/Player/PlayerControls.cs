@@ -12,7 +12,6 @@ public class PlayerControls : MonoBehaviour
 
     public Rigidbody2D Rigidbody => rb;
 
-    public bool BoostHeld => boostHeld;
     public int FacingDirection => facingDirection;
 
     // Player stats
@@ -25,11 +24,6 @@ public class PlayerControls : MonoBehaviour
     #region Acceleration settings (Inspector -> HorizontalMotor2D.Settings)
     [Header("Acceleration")]
     [SerializeField] private HorizontalMotor2D.Settings horizontalSettings = new HorizontalMotor2D.Settings();
-    #endregion
-
-    #region Move settings (Inspector -> HorizontalMotor2D.MoveSettings)
-    [Header("Move")]
-    [SerializeField] private HorizontalMotor2D.MoveSettings moveSettings = new HorizontalMotor2D.MoveSettings();
     #endregion
 
     #region Jump settings (Inspector -> JumpMotor2D.Settings)
@@ -46,6 +40,8 @@ public class PlayerControls : MonoBehaviour
     #region Boost / Fly settings (Inspector -> FlightMotor2D.Settings)
     [Header("Boost")]
     private bool boostHeld;
+    public bool BoostHeld => boostHeld;
+
 
     [Header("Fly")]
     [SerializeField] private FlightMotor2D.Settings flightSettings = new FlightMotor2D.Settings();
@@ -141,9 +137,9 @@ public class PlayerControls : MonoBehaviour
 
         // Build systems (plain C# classes)
         groundProbe = new GroundProbe2D(col, groundProbeSettings);
-        horizontalMotor = new HorizontalMotor2D(rb, horizontalSettings, moveSettings);
+        horizontalMotor = new HorizontalMotor2D(rb, horizontalSettings);
         flightMotor = new FlightMotor2D(rb, flightSettings);
-        quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, moveSettings, flightSettings);
+        quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, horizontalSettings, flightSettings);
         jumpMotor = new JumpMotor2D(rb, jumpSettings);
         aimMotor = new AimMotor2D();
 

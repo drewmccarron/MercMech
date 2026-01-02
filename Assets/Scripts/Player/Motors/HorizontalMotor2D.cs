@@ -8,7 +8,7 @@ public class HorizontalMotor2D
     [System.Serializable]
     public class Settings
     {
-        [Header("Acceleration")]
+        [Header("Walk Acceleration")]
 
         [Tooltip("Ground acceleration when moving. Higher = faster reach of target horizontal speed.\nSuggested range: 30 - 150")]
         public float groundAccel = 30f;      // ground acceleration when moving
@@ -19,6 +19,11 @@ public class HorizontalMotor2D
         [Tooltip("Ground reverse acceleration (turning). Higher = faster reversal of direction on ground.\nSuggested range: 60 - 200")]
         public float groundTurnAccel = 30f; // ground reverse accel
 
+        [Tooltip("Max horizontal move speed when unboosted and on ground (walking).\nSuggested range: 2 - 5")]
+        public float maxUnboostedGroundSpeed = 4f;
+
+        [Header("Airborne Acceleration")]
+
         [Tooltip("Air control acceleration when player provides horizontal input. Higher = stronger air steering.\nSuggested range: 10 - 80")]
         public float airAccel = 15f;         // air control acceleration
 
@@ -27,47 +32,31 @@ public class HorizontalMotor2D
 
         [Tooltip("Air reverse acceleration (turning) while airborne. Higher = faster air reversals.\nSuggested range: 20 - 120")]
         public float airTurnAccel = 25f;     // air reverse accel
-    }
 
-    [System.Serializable]
-    public class MoveSettings
-    {
-        [Header("Ground Speed")]
+        [Tooltip("Maximum horizontal speed while falling unboosted.\nSuggested range: 2 - 6")]
+        public float maxFallingSpeed = 4f;
 
-        [Tooltip("Max horizontal move speed when unboosted and on ground (walking).\nSuggested range: 2 - 5")]
-        public float maxUnboostedGroundSpeed = 4f;
+        [Header("Boost Settings")]
 
         [Tooltip("Max horizontal move speed when boosted/sprinting on ground.\nSuggested range: 6 - 12")]
         public float maxGroundBoostSpeed = 8f;
 
-        [Header("Airborne Speed (Not Flying)")]
-
-        [Tooltip("Maximum horizontal speed while falling unboosted.\nSuggested range: 2 - 6")]
-        public float maxFallingSpeed = 3f;
-
         [Tooltip("Maximum horizontal speed while falling AND boosting.\nSuggested range: 4 - 10")]
         public float maxFallingBoostSpeed = 6f;
 
-        [Header("Airborne Speed (Flying)")]
-
         [Tooltip("Maximum horizontal speed while flying unboosted.\nSuggested range: 3 - 8")]
         public float maxFlyingSpeed = 6f;
-
-        [Tooltip("Maximum horizontal speed while flying AND boosting.\nSuggested range: 6 - 12")]
-        public float maxFlyingBoostSpeed = 9f;
     }
 
     private readonly Settings settings;
-    private readonly MoveSettings moveSettings;
 
     // Expose boost state for consistency with IsFlying, IsQuickBoosting
     public bool IsBoosting { get; private set; }
 
-    public HorizontalMotor2D(Rigidbody2D rb, Settings settings, MoveSettings moveSettings)
+    public HorizontalMotor2D(Rigidbody2D rb, Settings settings)
     {
         this.rb = rb;
         this.settings = settings;
-        this.moveSettings = moveSettings;
     }
 
     // Horizontal movement separated for clarity and testing.
@@ -175,9 +164,9 @@ public class HorizontalMotor2D
     private float GetCurrentMaxSpeed(bool groundedNow, bool isFlying)
     {
         if (groundedNow)
-            return IsBoosting ? moveSettings.maxGroundBoostSpeed : moveSettings.maxUnboostedGroundSpeed;
+            return IsBoosting ? settings.maxGroundBoostSpeed : settings.maxUnboostedGroundSpeed;
 
         // In air: choose flying cap when inFlight, otherwise falling cap.
-        return isFlying ? moveSettings.maxFlyingSpeed : moveSettings.maxFallingSpeed;
+        return isFlying ? settings.maxFlyingSpeed : settings.maxFallingSpeed;
     }
 }
