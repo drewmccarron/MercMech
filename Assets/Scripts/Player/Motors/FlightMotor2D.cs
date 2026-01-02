@@ -6,7 +6,7 @@ public class FlightMotor2D
     private readonly Settings settings;
 
     // Tracks whether flight mode is currently active so we only change gravity when state transitions.
-    private bool flightActive;
+    private bool flightActive = false;
 
     // Expose read-only flight state
     public bool IsFlying => flightActive;
@@ -36,7 +36,6 @@ public class FlightMotor2D
     {
         this.rb = rb;
         this.settings = settings;
-        flightActive = false;
     }
 
     // Flight logic separated from movement for easier tuning.
