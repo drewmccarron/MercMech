@@ -45,7 +45,7 @@ public class GroundProbeDebugRendererURP : MonoBehaviour
 
         foreach (var p in players)
         {
-            if (!p.TryGetGroundProbeDebug(out var info))
+            if (!p.GroundProbe.TryGetGroundProbeDebug(out var info))
                 continue;
 
             // Probe box

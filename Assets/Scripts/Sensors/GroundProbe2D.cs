@@ -105,6 +105,10 @@ public class GroundProbe2D
         return grounded;
     }
 
-    /// <summary>Get the most recent debug info without re-evaluating.</summary>
-    public DebugInfo GetLastDebugInfo() => lastDebug;
+    // Get the most recent debug info without re-evaluating
+    public bool TryGetGroundProbeDebug(out DebugInfo debugInfo)
+    {
+        debugInfo = lastDebug;
+        return col != null;
+    }
 }
