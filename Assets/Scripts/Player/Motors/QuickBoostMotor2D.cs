@@ -128,6 +128,7 @@ public class QuickBoostMotor2D
         if (qbChainBufferTimer > 0f) qbChainBufferTimer = Mathf.Max(0f, qbChainBufferTimer - dt);
         if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
         if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
+        if (quickBoostCooldownTimer > 0f) quickBoostCooldownTimer = Mathf.Max(0f, quickBoostCooldownTimer - dt);
     }
 
     public void ForceStopQuickBoost()

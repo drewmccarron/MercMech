@@ -112,10 +112,6 @@ public class PlayerControls : MonoBehaviour
         int dir = InputUtils.AxisToDir(moveInputDirection);
         if (dir != 0) facingDirection = dir;
 
-        // Quick-boost cooldown reduced per-frame (smoother feel than fixedstep).
-        if (quickBoostMotor != null)
-            quickBoostMotor.TickQuickBoostCooldown(Time.deltaTime);
-
         firePressedThisFrame = false;
     }
 
