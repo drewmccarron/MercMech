@@ -17,7 +17,7 @@ public class DebugHUD : MonoBehaviour
     private void Awake()
     {
         if (text == null) text = GetComponent<TMP_Text>();
-        if (player == null) player = FindObjectOfType<PlayerControls>();
+        if (player == null) player = FindFirstObjectByType<PlayerControls>();
 
         // Hide by default if debug is off
         SetVisible(DebugSettings.Enabled);
