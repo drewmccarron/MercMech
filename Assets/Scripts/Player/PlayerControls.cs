@@ -10,6 +10,11 @@ public class PlayerControls : MonoBehaviour
     private Actions controls;
     private Collider2D col;
 
+    public Rigidbody2D Rigidbody => rb;
+
+    public bool BoostHeld => boostHeld;
+    public int FacingDirection => facingDirection;
+
     // Player stats
     private PlayerStats playerStats;
     private EnergyPool energyPool;
@@ -89,6 +94,10 @@ public class PlayerControls : MonoBehaviour
     public bool IsFlying => flightMotor != null && flightMotor.IsFlying;
     public bool IsBoosting => horizontalMotor != null && horizontalMotor.IsBoosting;
     public bool IsQuickBoosting => quickBoostMotor != null && quickBoostMotor.IsQuickBoosting;
+
+    // Expose energy state for other systems (UI, VFX, etc.)
+    public float EnergyCurrent => energyPool.CurrentEnergy;
+    public float EnergyMax => energyPool.MaxEnergy;
 
     // ------------------------
     // Unity lifecycle methods
