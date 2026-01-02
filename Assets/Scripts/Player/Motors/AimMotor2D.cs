@@ -11,14 +11,15 @@ public class AimMotor2D
     private Vector2 lastNonZeroDirection = Vector2.right;
 
     // Update aim from a screen-space pointer position.
-    public void UpdateAim(Vector2 originWorld, Vector2 pointerScreenPos, Camera cam)
+    public void UpdateAim(Vector2 originWorld, Camera cam)
     {
         if (cam == null)
             return;
 
         // Convert pointer screen pos to world.
         // For ortho cameras, the Z doesn't really matter, but we set it safely anyway.
-        Vector3 screen = new Vector3(pointerScreenPos.x, pointerScreenPos.y, -cam.transform.position.z);
+        Vector2 mousePos = ReadPointerScreenPosition();
+        Vector3 screen = new Vector3(mousePos.x, mousePos.y, -cam.transform.position.z);
         Vector3 world = cam.ScreenToWorldPoint(screen);
 
         AimWorldPosition = new Vector2(world.x, world.y);

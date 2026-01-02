@@ -9,10 +9,15 @@ public class PlayerControls : MonoBehaviour
   private Rigidbody2D rb;
   private Actions controls;
   private Collider2D col;
-
+  
   public Rigidbody2D Rigidbody => rb;
 
-  public int FacingDirection => facingDirection;
+  // Motors / systems
+  private GroundProbe2D groundProbe;
+  private HorizontalMotor2D horizontalMotor;
+  private FlightMotor2D flightMotor;
+  private QuickBoostMotor2D quickBoostMotor;
+  private AimMotor2D aimMotor;
 
   // Player stats
   private PlayerStats playerStats;
@@ -71,31 +76,23 @@ public class PlayerControls : MonoBehaviour
 
   // Facing / state
   private int facingDirection = 1;
+  public int FacingDirection => facingDirection;
 
   // Input tracking
   private bool flyKeyHeld;
   private bool jumpKeyHeld;
   private bool anyFlyInputHeld => jumpKeyHeld || flyKeyHeld;
 
-  // Motors / systems
-  private GroundProbe2D groundProbe;
-  private HorizontalMotor2D horizontalMotor;
-  private FlightMotor2D flightMotor;
-  private QuickBoostMotor2D quickBoostMotor;
-  private AimMotor2D aimMotor;
-
   // Expose aim state for other systems (shooting, UI, etc.)
   public Vector2 AimWorldPosition => aimMotor != null ? aimMotor.AimWorldPosition : (Vector2)transform.position;
   public Vector2 AimDirection => aimMotor != null ? aimMotor.AimDirection : Vector2.right;
-
-  // Origin of the ray: center of the player object.
   public Vector2 AimOriginWorld => rb != null ? rb.worldCenterOfMass : (Vector2)transform.position;
 
   // Expose movement state for other systems (VFX, UI, etc.)
   public bool IsGrounded { get; private set; }
-  public bool IsFlying => flightMotor != null && flightMotor.IsFlying;
-  public bool IsBoosting => horizontalMotor != null && horizontalMotor.IsBoosting;
-  public bool IsQuickBoosting => quickBoostMotor != null && quickBoostMotor.IsQuickBoosting;
+  public bool IsFlying => flightMotor.IsFlying;
+  public bool IsBoosting => horizontalMotor.IsBoosting;
+  public bool IsQuickBoosting => quickBoostMotor.IsQuickBoosting;
 
   // Expose energy state for other systems (UI, VFX, etc.)
   public float EnergyCurrent => energyPool.CurrentEnergy;
@@ -231,32 +228,21 @@ public class PlayerControls : MonoBehaviour
     TickFixedTimers();
 
     // Update aim (frame-based - matches mouse update rate)
-    if (aimMotor != null)
-    {
-      Vector2 pointerScreenPos = aimMotor.ReadPointerScreenPosition();
-      aimMotor.UpdateAim(
-        originWorld: AimOriginWorld,
-        pointerScreenPos: pointerScreenPos,
-        cam: Camera.main
-      );
-    }
+    aimMotor.UpdateAim(
+      originWorld: AimOriginWorld,
+      cam: Camera.main
+    );
 
     // Update ground state   
-    bool groundedNow = IsGrounded;
-    if (groundProbe != null)
-    {
-      groundedNow = groundProbe.Evaluate(rb, out var debugInfo);
-    }
-    IsGrounded = groundedNow;
-
-    bool isFlying = flightMotor != null && flightMotor.IsFlying;
-    bool isQuickBoosting = quickBoostMotor != null && quickBoostMotor.IsQuickBoosting;
+    IsGrounded = groundProbe.Evaluate(rb, out var debugInfo);
+    bool isFlying = flightMotor.IsFlying;
+    bool isQuickBoosting = quickBoostMotor.IsQuickBoosting;
 
     // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
     if (energyPool != null)
     {
       energyPool.TickEnergy(
-        groundedNow: groundedNow,
+        groundedNow: IsGrounded,
         boostHeld: boostHeld,
         isFlying: isFlying,
         isQuickBoosting: isQuickBoosting,
@@ -271,14 +257,14 @@ public class PlayerControls : MonoBehaviour
         moveInputDirection: moveInputDirection,
         facingDirection: facingDirection,
         anyFlyInputHeld: anyFlyInputHeld,
-        groundedNow: groundedNow
+        groundedNow: IsGrounded
       );
       return; // skip normal movement while dashing
     }
 
     // Horizontal motor (uses QB carry protection values exposed by quickBoostMotor)
     horizontalMotor.ProcessHorizontalMovement(
-      groundedNow: groundedNow,
+      groundedNow: IsGrounded,
       moveInputDirection: moveInputDirection,
       boostHeld: boostHeld,
       qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
@@ -292,9 +278,9 @@ public class PlayerControls : MonoBehaviour
       bool hasEnergyForFlight = flightMotor.IsFlying ? energyPool.HasEnergy : energyPool.CanStartFlight();
 
       flightMotor.ProcessFlight(
-      anyFlyInputHeld: anyFlyInputHeld,
-      jumpedFromGround: ref jumpMotor.jumpedFromGround,
-      hasEnergyForFlight: hasEnergyForFlight
+        anyFlyInputHeld: anyFlyInputHeld,
+        jumpedFromGround: ref jumpMotor.jumpedFromGround,
+        hasEnergyForFlight: hasEnergyForFlight
       );
     }
 
