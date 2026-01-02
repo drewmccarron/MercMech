@@ -347,11 +347,8 @@ public class PlayerControls : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -fallSettings.maxFallSpeed);
     }
 
-    // Read pointer position (mouse / pen / touch). Returns screen pixels.
-    
-
     // ------------------------
-    // Jump callbacks & helpers
+    // Input callbacks
     // ------------------------
 
     private void OnJumpStarted(InputAction.CallbackContext ctx)
@@ -369,10 +366,6 @@ public class PlayerControls : MonoBehaviour
         if (jumpMotor != null)
             jumpMotor.OnJumpCanceled();
     }
-
-    // ------------------------
-    // Quick Boost (dash) input
-    // ------------------------
 
     private void OnQuickBoost(InputAction.CallbackContext ctx)
     {
@@ -392,9 +385,6 @@ public class PlayerControls : MonoBehaviour
         );
     }
 
-    // ------------------------
-    // Input callbacks
-    // ------------------------
     private void OnFlyStarted(InputAction.CallbackContext ctx) => flyKeyHeld = true;
     private void OnFlyCanceled(InputAction.CallbackContext ctx) => flyKeyHeld = false;
 
@@ -418,10 +408,6 @@ public class PlayerControls : MonoBehaviour
     }
 
     private void OnFireCanceled(InputAction.CallbackContext ctx) => fireHeld = false;
-
-    // ------------------------
-    // Inspector settings containers (Serializeable)
-    // ------------------------
 
     [System.Serializable]
     private class FallSettings
