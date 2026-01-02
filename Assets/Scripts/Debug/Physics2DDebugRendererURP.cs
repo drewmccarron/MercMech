@@ -87,7 +87,6 @@ public class Physics2DDebugRendererURP : MonoBehaviour
 
     private void DrawProjectileVelocities()
     {
-        FindObjectsSortMode sortMode = FindObjectsSortMode.None;
         var projectiles = Object.FindObjectsByType<Projectile2D>(FindObjectsSortMode.None);
 
         GL.Begin(GL.LINES);

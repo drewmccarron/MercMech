@@ -7,51 +7,104 @@ public class GroundProbe2D
     {
         [Header("Ground Probe")]
         public LayerMask groundLayer;
+
+        [Tooltip("Vertical offset applied to the probe center (usually slightly downward).")]
+        public Vector2 groundBoxOffset = new Vector2(0f, -0.01f);
+
+        [Tooltip("Width multiplier relative to collider bounds.")]
+        [Range(0.1f, 1f)] public float widthMultiplier = 0.9f;
+
+        [Tooltip("Probe box height in world units.")]
+        public float probeHeight = 0.08f;
+
+        [Tooltip("Max number of contacts to capture for debug.")]
+        public int maxContacts = 8;
     }
 
-    // Cached collider
+    public struct DebugInfo
+    {
+        public bool grounded;
+        public Vector2 centerWorld;
+        public Vector2 sizeWorld;
+        public float angleDeg;
+
+        public int contactCount;
+        public ContactPoint2D[] contacts; // reference to internal buffer (no alloc)
+    }
+
     private readonly Collider2D col;
+    private readonly ContactFilter2D groundFilter;
 
-    // Ground probing
-    private ContactFilter2D groundFilter;
-    private float groundProbeOffset = 0.01f;
-    private Vector2 groundBoxOffset;
+    private readonly Collider2D[] overlapResults = new Collider2D[1];
 
-    // Reusable overlap buffer to avoid allocations
-    private readonly Collider2D[] m_overlapResults = new Collider2D[1];
+    private readonly ContactPoint2D[] contactBuffer;
+    private DebugInfo lastDebug;
+
+    private readonly Settings settings;
 
     public GroundProbe2D(Collider2D col, Settings settings)
     {
         this.col = col;
+        this.settings = settings ?? new Settings();
 
-        if (settings == null)
-            settings = new Settings();
+        groundFilter = new ContactFilter2D();
+        groundFilter.useLayerMask = true;
+        groundFilter.layerMask = this.settings.groundLayer;
+        groundFilter.useTriggers = false;
 
-        LayerMask groundLayer = settings.groundLayer;
-        if (groundLayer == 0)
-            groundLayer = LayerMask.GetMask("Ground");
+        int n = Mathf.Max(1, this.settings.maxContacts);
+        contactBuffer = new ContactPoint2D[n];
 
-        groundFilter = new ContactFilter2D
+        lastDebug = new DebugInfo
         {
-            useLayerMask = true,
-            layerMask = groundLayer,
-            useTriggers = false
+            grounded = false,
+            contacts = contactBuffer
         };
-
-        // Small downward offset so OverlapBox doesn't intersect our own collider edge.
-        groundBoxOffset = Vector2.down * groundProbeOffset;
     }
 
-    // Ground probe: OverlapBox with a small downward offset to avoid false positives.
-    public bool IsGrounded()
+    /// <summary>
+    /// Evaluate ground state. Also caches debug info that can be rendered.
+    /// Pass rb if you want real contact normals/points.
+    /// </summary>
+    public bool Evaluate(Rigidbody2D rb, out DebugInfo info)
     {
-        if (col == null) return false;
+        info = default;
 
-        Vector2 bottomCenterPoint =
-            (Vector2)col.bounds.center + Vector2.down * (col.bounds.extents.y) + groundBoxOffset;
+        if (col == null)
+        {
+            lastDebug.grounded = false;
+            lastDebug.contactCount = 0;
+            info = lastDebug;
+            return false;
+        }
 
-        Vector2 groundBoxSize = new Vector2(col.bounds.size.x * 0.9f, 0.08f);
+        Bounds b = col.bounds;
 
-        return Physics2D.OverlapBox(bottomCenterPoint, groundBoxSize, 0f, groundFilter, m_overlapResults) > 0;
+        Vector2 size = new Vector2(b.size.x * settings.widthMultiplier, settings.probeHeight);
+        Vector2 center = new Vector2(b.center.x, b.min.y) + settings.groundBoxOffset;
+
+        bool grounded =
+            Physics2D.OverlapBox(center, size, 0f, groundFilter, overlapResults) > 0;
+
+        int contactCount = 0;
+        if (rb != null)
+        {
+            // Layer-filtered contact points (helps show normals)
+            contactCount = rb.GetContacts(groundFilter, contactBuffer);
+            if (contactCount > contactBuffer.Length) contactCount = contactBuffer.Length;
+        }
+
+        lastDebug.grounded = grounded;
+        lastDebug.centerWorld = center;
+        lastDebug.sizeWorld = size;
+        lastDebug.angleDeg = 0f;
+        lastDebug.contactCount = contactCount;
+        lastDebug.contacts = contactBuffer;
+
+        info = lastDebug;
+        return grounded;
     }
+
+    /// <summary>Get the most recent debug info without re-evaluating.</summary>
+    public DebugInfo GetLastDebugInfo() => lastDebug;
 }

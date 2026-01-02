@@ -99,6 +99,9 @@ public class PlayerControls : MonoBehaviour
     public float EnergyCurrent => energyPool.CurrentEnergy;
     public float EnergyMax => energyPool.MaxEnergy;
 
+    // Debug info cache
+    private GroundProbe2D.DebugInfo lastGroundProbeDebug;
+
     // ------------------------
     // Unity lifecycle methods
     // ------------------------
@@ -331,12 +334,21 @@ public class PlayerControls : MonoBehaviour
     // Update grounded timers and return current grounded state.
     private bool UpdateGroundState()
     {
-        bool groundedNow = groundProbe != null && groundProbe.IsGrounded();
+        bool groundedNow = false;
+
+        if (groundProbe != null)
+            groundedNow = groundProbe.Evaluate(rb, out lastGroundProbeDebug);
 
         if (jumpMotor != null)
             jumpMotor.UpdateGroundState(groundedNow, Time.fixedDeltaTime);
 
         return groundedNow;
+    }
+
+    public bool TryGetGroundProbeDebug(out GroundProbe2D.DebugInfo info)
+    {
+        info = lastGroundProbeDebug;
+        return groundProbe != null;
     }
 
     // Prevent infinite falling velocity.
