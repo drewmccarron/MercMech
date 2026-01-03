@@ -222,7 +222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -988983, guid: dcc940b6df003b3439463b971d66fe19, type: 3}
+  m_Sprite: {fileID: -4862892664025405353, guid: 4d2acc069f32ad146aa4ce0a8e813f11, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -796,16 +796,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControls
   horizontalSettings:
-    groundAccel: 30
-    groundDecel: 15
+    groundWalkAccel: 30
+    groundBrakeDecel: 15
     groundTurnAccel: 30
     maxUnboostedGroundSpeed: 5
     airAccel: 15
     airDecel: 5
     airTurnAccel: 25
-    maxFallingSpeed: 4
+    airBrakeDecel: 35
+    maxFallingHorizontalSpeed: 4
     maxGroundBoostSpeed: 10
     maxFallingBoostSpeed: 8
+    boostAccelMultiplier: 1.6
+    boostTurnAccelMultiplier: 1.9
     maxFlyingSpeed: 6
   jumpSettings:
     jumpForce: 15
@@ -824,6 +827,8 @@ MonoBehaviour:
     flyGravityScale: 2
     normalGravityScale: 3
     flyUpwardEngageVelocityThreshold: 4
+    thrustRampUpSpeed: 12
+    thrustRampDownSpeed: 18
   quickBoostSettings:
     quickBoostStartSpeed: 20
     quickBoostDuration: 0.5
@@ -1000,7 +1005,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 100
-  currentHealth: 0
+  currentHealth: 100
   destroyOnDeath: 0
 --- !u!114 &646307109
 MonoBehaviour:
@@ -1705,7 +1710,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -84653699, guid: dcc940b6df003b3439463b971d66fe19, type: 3}
+  m_Sprite: {fileID: -3678714046423366850, guid: df64a4b61b3c3ab45837ee775fcb7a43, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1873,7 +1878,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1646172202, guid: dcc940b6df003b3439463b971d66fe19, type: 3}
+  m_Sprite: {fileID: 4667461294790462905, guid: cfe909b886a498349ba0104f408b8b2a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1925,6 +1930,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerEnergyBarUI
   playerStats: {fileID: 646307109}
   fillImage: {fileID: 1414603265}
+  barContainer: {fileID: 0}
+  widthPerEnergyUnit: 3
 --- !u!1 &1722338884
 GameObject:
   m_ObjectHideFlags: 0
