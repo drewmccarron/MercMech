@@ -782,16 +782,14 @@ MonoBehaviour:
     groundAccel: 30
     groundDecel: 15
     groundTurnAccel: 30
+    maxUnboostedGroundSpeed: 4
     airAccel: 15
     airDecel: 5
     airTurnAccel: 25
-  moveSettings:
-    maxUnboostedGroundSpeed: 4
+    maxFallingSpeed: 4
     maxGroundBoostSpeed: 8
-    maxFallingSpeed: 3
     maxFallingBoostSpeed: 6
     maxFlyingSpeed: 6
-    maxFlyingBoostSpeed: 9
   jumpSettings:
     jumpForce: 10
     jumpWindupTime: 0.5
@@ -799,6 +797,10 @@ MonoBehaviour:
     groundLayer:
       serializedVersion: 2
       m_Bits: 2097152
+    groundBoxOffset: {x: 0, y: -0.01}
+    widthMultiplier: 0.9
+    probeHeight: 0.08
+    maxContacts: 8
   flightSettings:
     flyAcceleration: 30
     maxFlyUpSpeed: 4.5
@@ -815,14 +817,13 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     quickBoostCooldown: 0.4
-    quickBoostFlyExitUpVelocity: 10
-    quickBoostNeutralExitSpeed: 2
+    quickBoostCost: 25
     quickBoostAccel: 200
     quickBoostDecel: 260
-    quickBoostMinMultiplier: 0.18
-    wipeHorizontalOnQuickBoostStart: 1
     qbFlyCarryTime: 0.18
     qbFlyReleasePercent: 0.85
+    quickBoostFlyExitUpVelocity: 10
+    quickBoostNeutralExitSpeed: 2
     qbChainBufferTime: 0.2
     qbChainStartPercent: 0.8
     qbChainMinInterval: 0.05
@@ -1013,13 +1014,12 @@ MonoBehaviour:
   maxEnergy: 100
   currentEnergy: 0
   groundRegenRate: 25
+  groundBoostRegenRate: 10
   fallingRegenRate: 10
+  fallingBoostRegenRate: 5
   flyingEnergyCostRate: 20
-  quickBoostCost: 25
-  horizontalBoostEnergyCostRate: 8
   horizontalBoostStartCost: 10
   flightStartCost: 8
-  freezeRegenDuringQuickBoost: 1
 --- !u!114 &646307111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1390,67 +1390,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthBarUI
   playerStats: {fileID: 646307109}
   fillImage: {fileID: 352474392}
---- !u!1001 &1256664249
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 77620100358782737, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_Name
-      value: InterceptableProjectile
-      objectReference: {fileID: 0}
-    - target: {fileID: 3335246214505985531, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_Radius
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.0425472
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3.9296517
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4010180046615042307, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
 --- !u!1 &1269452251
 GameObject:
   m_ObjectHideFlags: 0
@@ -3634,4 +3573,3 @@ SceneRoots:
   - {fileID: 1147847152}
   - {fileID: 1104073620}
   - {fileID: 1087126016}
-  - {fileID: 1256664249}
