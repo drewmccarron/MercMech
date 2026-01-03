@@ -320,8 +320,6 @@ public class PlayerControls : MonoBehaviour
 
   private void OnQuickBoost(InputAction.CallbackContext ctx)
   {
-    if (quickBoostMotor == null) return;
-
     quickBoostMotor.OnQuickBoost(
       moveInputDirection: moveInputDirection,
       facingDirection: facingDirection,
