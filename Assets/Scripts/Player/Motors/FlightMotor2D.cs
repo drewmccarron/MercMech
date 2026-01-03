@@ -2,89 +2,84 @@ using UnityEngine;
 
 public class FlightMotor2D
 {
-    private readonly Rigidbody2D rb;
-    private readonly Settings settings;
+  private readonly Rigidbody2D rb;
+  private readonly Settings settings;
 
-    // Tracks whether flight mode is currently active so we only change gravity when state transitions.
-    private bool flightActive = false;
-    private float flyThrottle01;
+  // Tracks whether flight mode is currently active (only change gravity on transitions).
+  private bool flightActive = false;
+  private float flyThrottle01;
 
-    // Expose read-only flight state
-    public bool IsFlying => flightActive;
+  // Expose read-only flight state
+  public bool IsFlying => flightActive;
 
-    [System.Serializable]
-    public class Settings
+  [System.Serializable]
+  public class Settings
+  {
+    [Header("Flight Mechanics")]
+
+    [Tooltip("Upward acceleration applied while flying. Higher = faster climb.\nSuggested range: 20-50")]
+    public float flyAcceleration = 30f;
+
+    [Tooltip("Upward speed cap while flying. Limits vertical climb rate.\nSuggested range: 3-6")]
+    public float maxFlyUpSpeed = 7f;
+
+    [Tooltip("Gravity scale while flying (lower = floatier feel).\nSuggested range: 1.5-3.0")]
+    public float flyGravityScale = 2f;
+
+    [Tooltip("Gravity scale when not flying (normal physics).\nSuggested range: 2.5-4.0")]
+    public float normalGravityScale = 3f;
+
+    [Tooltip("Upward velocity threshold to block flight after ground jump (prevents instant fly after jump).\nSuggested range: 3-6")]
+    public float flyUpwardEngageVelocityThreshold = 4.0f;
+
+    [Tooltip("Time taken to reach max upward acceleration (not velocity)")]
+    public float thrustRampUpSpeed = 12f;     // how fast throttle reaches 1
+
+    [Tooltip("Time taken to fall to zero upward acceleration")]
+    public float thrustRampDownSpeed = 18f;   // how fast throttle falls to 0
+    
+  }
+
+  public FlightMotor2D(Rigidbody2D rb, Settings settings)
+  {
+    this.rb = rb;
+    this.settings = settings;
+  }
+
+  // Process flight state and apply upward thrust. Respects jump-rise blocking and energy gates.
+  public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround, bool hasEnergyForFlight, float dt)
+  {
+    // If player jumped from ground and is still rising fast, block flight until apex (prevents jump -> instant fly).
+    bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyUpwardEngageVelocityThreshold;
+    bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld && hasEnergyForFlight;
+
+    if (shouldFlyNow)
     {
-        [Header("Fly")]
+      // Only change gravity on transition (avoid redundant assignments).
+      if (!flightActive)
+      {
+        rb.gravityScale = settings.flyGravityScale;
+        flightActive = true;
+      }
 
-        [Tooltip("Upward acceleration applied while flying. Higher = faster climb.\nSuggested range: 10 - 80")]
-        public float flyAcceleration = 30f;
+      ApplyFlyThrust(dt);
 
-        [Tooltip("Upward speed cap while flying.\nSuggested range: 2 - 8")]
-        public float maxFlyUpSpeed = 7f;
-
-        [Tooltip("Gravity scale while flying (lower -> floatier).\nSuggested range: 0.5 - 3")]
-        public float flyGravityScale = 2f;
-
-        [Tooltip("Gravity scale normally (when not flying).\nSuggested range: 1 - 6")]
-        public float normalGravityScale = 3f;
-
-        [Tooltip("Upward velocity threshold used to block flight until achieved when jumping from ground.\nSuggested range: 0.5 - 6 (units/sec)")]
-        public float flyUpwardEngageVelocityThreshold = 4.0f;
-
-        [Tooltip("Time taken to reach max upward acceleration (not velocity)")]
-        public float thrustRampUpSpeed = 12f;     // how fast throttle reaches 1
-
-        [Tooltip("Time taken to fall to zero upward acceleration")]
-        public float thrustRampDownSpeed = 18f;   // how fast throttle falls to 0
-
+      // Clear jump gate once flight begins (apex-check no longer blocks).
+      jumpedFromGround = false;
     }
-
-    public FlightMotor2D(Rigidbody2D rb, Settings settings)
+    else
     {
-        this.rb = rb;
-        this.settings = settings;
+      // Transition out of flight: restore normal gravity.
+      if (flightActive)
+      {
+        rb.gravityScale = settings.normalGravityScale;
+        flightActive = false;
+      }
     }
+  }
 
-    // Flight logic separated from movement for easier tuning.
-    // anyFlyInputHeld: true when fly or jump input is held.
-    // jumpedFromGround: ref to gate used to block flight until apex after a ground jump.
-    // hasEnergyForFlight: when false, flight is forced off (and upward velocity is cancelled for immediate drop).
-    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround, bool hasEnergyForFlight, float dt)
-    {
-        // If the player jumped from ground and is still rising, block flight until apex.
-        bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyUpwardEngageVelocityThreshold;
-        bool shouldFlyNow = !isInJumpRisePhase && anyFlyInputHeld && hasEnergyForFlight;
-
-        if (shouldFlyNow)
-        {
-            // Only change gravity on transition.
-            if (!flightActive)
-            {
-                rb.gravityScale = settings.flyGravityScale;
-                flightActive = true;
-            }
-
-            TryFly(dt);
-
-            // Once flight begins, clear the gate so apex-check won't block subsequent flight.
-            jumpedFromGround = false;
-        }
-        else
-        {
-            // If we were flying but we no longer should fly, restore gravity once.
-            if (flightActive)
-            {
-                rb.gravityScale = settings.normalGravityScale;
-                flightActive = false;
-            }
-
-            // If not flying and flight not active, do nothing (avoid setting gravity each FixedUpdate).
-        }
-    }
-
-    // Apply flying forces & gravity changes.
-    private void TryFly(float dt)
+    // Apply upward thrust if below max fly speed cap.
+    private void ApplyFlyThrust(float dt)
     {
         float targetThrottle = IsFlying ? 1f : 0f;
 
