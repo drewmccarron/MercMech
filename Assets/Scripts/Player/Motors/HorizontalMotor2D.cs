@@ -33,6 +33,9 @@ public class HorizontalMotor2D
         [Tooltip("Air reverse acceleration (turning) while airborne. Higher = faster air reversals.\nSuggested range: 20 - 120")]
         public float airTurnAccel = 25f;     // air reverse accel
 
+        [Tooltip("Extra deceleration applied in-air when there is no horizontal input AND boost is not held.\nSuggested range: 10 - 80")]
+        public float airBrakeDecel = 35f;
+
         [Tooltip("Maximum horizontal speed while falling unboosted.\nSuggested range: 2 - 6")]
         public float maxFallingSpeed = 4f;
 
@@ -106,7 +109,7 @@ public class HorizontalMotor2D
             else
             {
                 // No input: apply air drag toward 0.
-                float newVx = GetAirDragVelocity(dt);
+                float newVx = GetAirDragVelocity(dt, isFlying);
 
                 // If QB carry protection is active, don't drag below the carried QB speed.
                 if (protectCarry && carryDir != 0)
@@ -161,10 +164,15 @@ public class HorizontalMotor2D
         return targetVelocity;
     }
 
-    private float GetAirDragVelocity(float dt)
+    private float GetAirDragVelocity(float dt, bool isFlying)
     {
+        float dragDecel = settings.airDecel;
+        bool canAirBrake = !IsBoosting && !isFlying;
+        if (canAirBrake)
+            dragDecel = settings.airBrakeDecel;
+
         float vx = rb.linearVelocity.x;
-        return Mathf.MoveTowards(vx, 0f, settings.airDecel * dt);
+        return Mathf.MoveTowards(vx, 0f, dragDecel * dt);
     }
 
     // Single source of truth for horizontal speed caps based on current state.
