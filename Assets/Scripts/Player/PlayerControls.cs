@@ -263,6 +263,7 @@ public class PlayerControls : MonoBehaviour
     // Flight motor (only process when not winding up for jump)
     if (!jumpMotor.IsWindingUp)
     {
+      // If we're already flying, drain energy. If not flying, check if we can start flight.
       bool hasEnergyForFlight = flightMotor.IsFlying ? energyPool.HasEnergy : energyPool.CanStartFlight();
 
       flightMotor.ProcessFlight(
