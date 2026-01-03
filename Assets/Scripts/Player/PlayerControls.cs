@@ -29,19 +29,22 @@ public class PlayerControls : MonoBehaviour
   private float moveInputDirection;
 
   #region Acceleration settings (Inspector -> HorizontalMotor2D.Settings)
-  [Header("Acceleration")]
-  [SerializeField] private HorizontalMotor2D.Settings horizontalSettings = new HorizontalMotor2D.Settings();
+  [Header("Horizontal Movement")]
+  [SerializeField, Tooltip("Horizontal acceleration and speed settings (walk, boost, air control).")]
+  private HorizontalMotor2D.Settings horizontalSettings = new HorizontalMotor2D.Settings();
   #endregion
 
   #region Jump settings (Inspector -> JumpMotor2D.Settings)
   [Header("Jump")]
-  [SerializeField] private JumpMotor2D.Settings jumpSettings = new JumpMotor2D.Settings();
+  [SerializeField, Tooltip("Jump mechanics (force, coyote time, buffer, windup).")]
+  private JumpMotor2D.Settings jumpSettings = new JumpMotor2D.Settings();
   private JumpMotor2D jumpMotor;
   #endregion
 
   #region Ground probe settings (Inspector -> GroundProbe2D.Settings)
-  [Header("Ground Probe")]
-  [SerializeField] private GroundProbe2D.Settings groundProbeSettings = new GroundProbe2D.Settings();
+  [Header("Ground Detection")]
+  [SerializeField, Tooltip("Ground detection settings (layer mask, probe dimensions).")]
+  private GroundProbe2D.Settings groundProbeSettings = new GroundProbe2D.Settings();
   #endregion
 
   #region Boost / Fly settings (Inspector -> FlightMotor2D.Settings)
@@ -49,23 +52,25 @@ public class PlayerControls : MonoBehaviour
   private bool boostHeld;
   public bool BoostHeld => boostHeld;
 
-  [Header("Fly")]
-  [SerializeField] private FlightMotor2D.Settings flightSettings = new FlightMotor2D.Settings();
+  [Header("Flight")]
+  [SerializeField, Tooltip("Flight mechanics (upward thrust, gravity, speed caps).")]
+  private FlightMotor2D.Settings flightSettings = new FlightMotor2D.Settings();
   #endregion
 
   #region Quick boost (dash) settings (Inspector -> QuickBoostMotor2D.Settings)
-  [Header("Quick Boost")]
-  [SerializeField] private QuickBoostMotor2D.Settings quickBoostSettings = new QuickBoostMotor2D.Settings();
+  [Header("Quick Boost (Dash)")]
+  [SerializeField, Tooltip("Quick boost/dash mechanics (speed, duration, chaining, energy cost).")]
+  private QuickBoostMotor2D.Settings quickBoostSettings = new QuickBoostMotor2D.Settings();
   #endregion
 
-  [Header("Fall")]
-  [SerializeField, Tooltip("Maximum falling speed (vertical). This clamps downward velocity.\nSuggested range: 6 - 14")]
+  [Header("Fall Speed Limit")]
+  [SerializeField, Tooltip("Maximum falling speed (vertical terminal velocity).\nArmored Core feel: 10-16")]
   private FallSettings fallSettings = new FallSettings();
   [System.Serializable]
   private class FallSettings
   {
-    [Tooltip("Max downward fall speed clamp.\nSuggested range: 6 - 14")]
-    public float maxFallSpeed = 7f;
+    [Tooltip("Max downward fall speed clamp (terminal velocity).\nArmored Core feel: 10-16")]
+    public float maxFallSpeed = 12f;
   }
 
   // Fire input
