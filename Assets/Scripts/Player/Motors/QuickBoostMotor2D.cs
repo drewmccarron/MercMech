@@ -27,14 +27,6 @@ public class QuickBoostMotor2D
         [Tooltip("Cooldown between dashes in seconds.\nSuggested range: 0.1 - 1.0")]
         public float quickBoostCooldown = 0.4f;
 
-        [Header("Quick Boost Exit Tuning")]
-
-        [Tooltip("Upward velocity applied when exiting QB into flight if conditions meet.\nSuggested range: 4 - 14")]
-        public float quickBoostFlyExitUpVelocity = 10f;
-
-        [Tooltip("Neutral horizontal exit speed used when no input on dash exit.\nSuggested range: 0 - 4")]
-        public float quickBoostNeutralExitSpeed = 2f;
-
         [Header("Quick Boost Acceleration")]
 
         [Tooltip("Ramps up toward the target QB speed. Higher = snappier accelerate.\nSuggested range: 50 - 400")]
@@ -47,9 +39,6 @@ public class QuickBoostMotor2D
         [Range(0f, 1f)]
         public float quickBoostMinMultiplier = 0.18f; // prevents near-zero tail
 
-        [Tooltip("If true, horizontal velocity is wiped at QB start for a crisp dash.")]
-        public bool wipeHorizontalOnQuickBoostStart = true;
-
         [Header("QB -> Fly Carry")]
 
         [Tooltip("How long to protect QB horizontal momentum after QB ends (seconds).\nSuggested range: 0.05 - 0.4")]
@@ -58,6 +47,12 @@ public class QuickBoostMotor2D
         [Tooltip("If QB -> Fly behavior is allowed early (percentage of dash completed).\n0..1")]
         [Range(0f, 1f)]
         public float qbFlyReleasePercent = 0.85f;
+
+        [Tooltip("Upward velocity applied when exiting QB into flight if conditions meet.\nSuggested range: 4 - 14")]
+        public float quickBoostFlyExitUpVelocity = 10f;
+
+        [Tooltip("Neutral horizontal exit speed used when no input on dash exit.\nSuggested range: 0 - 4")]
+        public float quickBoostNeutralExitSpeed = 2f;
 
         [Header("QB Chaining")]
 
@@ -124,13 +119,14 @@ public class QuickBoostMotor2D
     // Called from PlayerControls input callback.
     public void OnQuickBoost(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, bool groundedNow)
     {
+        int direction = InputUtils.AxisToDir(moveInputDirection);
+
         // Queue a chain if already QBing.
         if (isQuickBoosting)
         {
             // small interval prevents double-queue from one input event or weird repeats
             if (qbChainIntervalTimer > 0f) return;
 
-            int direction = InputUtils.AxisToDir(moveInputDirection);
             if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
 
             qbChainQueued = true;
@@ -143,24 +139,19 @@ public class QuickBoostMotor2D
 
         if (quickBoostCooldownTimer > 0f) return;
 
-        int directionStart = InputUtils.AxisToDir(moveInputDirection);
         // Safety: if somehow facingDirection is 0, default to right
-        if (directionStart == 0) directionStart = facingDirection != 0 ? facingDirection : 1;
+        if (direction == 0) direction = facingDirection != 0 ? facingDirection : 1;
 
-        quickBoostDir = directionStart;
+        quickBoostDir = direction;
         quickBoostTimer = 0f;
         isQuickBoosting = true;
         quickBoostCooldownTimer = settings.quickBoostCooldown;
-
         wasFlyingBeforeQuickBoost = (!groundedNow && anyFlyInputHeld);
 
         rb.gravityScale = 0f;
 
         // Optionally wipe horizontal velocity for crisp dash start and lock vertical.
-        rb.linearVelocity = new Vector2(
-          settings.wipeHorizontalOnQuickBoostStart ? 0f : rb.linearVelocity.x,
-          0f
-        );
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x,0f);
 
         qbChainQueued = false;
         qbChainBufferTimer = 0f;
@@ -253,7 +244,8 @@ public class QuickBoostMotor2D
 
         rb.gravityScale = wantsFly ? flightSettings.flyGravityScale : flightSettings.normalGravityScale;
 
-        int currentMovingDir = InputUtils.AxisToDir(rb.linearVelocity.x); // direction based on actual motion is OK here
+        // direction based on actual motion is OK here
+        int currentMovingDir = InputUtils.AxisToDir(rb.linearVelocity.x);
         float exitVx;
 
         // If player continues holding dash direction, exit at move speed floor.
