@@ -23,9 +23,7 @@ public class JumpMotor2D
         [Header("Jump")]
 
         [Tooltip("Vertical jump velocity applied when the jump activates.\nSuggested range: 6 - 16")]
-        public float jumpForce = 10f;
-
-
+        public float jumpForce = 15f;
 
         [Header("Jump Windup")]
         [Tooltip("Delay after press before jump activates when held (seconds). This creates the 'wind-up' feel.\nSuggested range: 0.1 - 1.0")]

@@ -13,10 +13,10 @@ public class QuickBoostMotor2D
   {
     [Header("Quick Boost")]
     [Tooltip("Configured initial dash speed (units/sec).\nSuggested range: 8 - 32")]
-    public float quickBoostStartSpeed = 16f;
+    public float quickBoostStartSpeed = 20f;
 
     [Tooltip("Dash duration in seconds.\nSuggested range: 0.18 - 0.6")]
-    public float quickBoostDuration = 0.35f;
+    public float quickBoostDuration = 0.5f;
 
     [Tooltip("Speed-over-time curve (evaluated 0->1 across the dash).")]
     public AnimationCurve quickBoostCurve = null;
