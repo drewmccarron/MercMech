@@ -33,10 +33,6 @@ public class EnergyPool : MonoBehaviour
   [Tooltip("Minimum energy required to START flight. Flight can continue draining below this threshold.")]
   [SerializeField] private float flightStartCost = 8f;
 
-  [Header("Rules")]
-  [Tooltip("If true, regen does not occur while quick boosting.")]
-  [SerializeField] private bool freezeRegenDuringQuickBoost = true;
-
   // Events for UI / other systems
   public event Action<float, float> OnEnergyChanged; // (current, max)
 
@@ -60,7 +56,7 @@ public class EnergyPool : MonoBehaviour
     if (dt <= 0f) return;
 
     // Freeze regen during QB if enabled (spec requirement).
-    if (freezeRegenDuringQuickBoost && isQuickBoosting)
+    if (isQuickBoosting)
     {
       EmitIfChanged(force: false);
       return;
