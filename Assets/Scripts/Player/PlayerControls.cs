@@ -268,7 +268,8 @@ public class PlayerControls : MonoBehaviour
       flightMotor.ProcessFlight(
         anyFlyInputHeld: anyFlyInputHeld,
         jumpedFromGround: ref jumpMotor.jumpedFromGround,
-        hasEnergyForFlight: hasEnergyForFlight
+        hasEnergyForFlight: hasEnergyForFlight,
+        dt: dt
       );
     }
 

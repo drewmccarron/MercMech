@@ -7,6 +7,7 @@ public class FlightMotor2D
 
     // Tracks whether flight mode is currently active so we only change gravity when state transitions.
     private bool flightActive = false;
+    private float flyThrottle01;
 
     // Expose read-only flight state
     public bool IsFlying => flightActive;
@@ -20,7 +21,7 @@ public class FlightMotor2D
         public float flyAcceleration = 30f;
 
         [Tooltip("Upward speed cap while flying.\nSuggested range: 2 - 8")]
-        public float maxFlyUpSpeed = 4.5f;
+        public float maxFlyUpSpeed = 7f;
 
         [Tooltip("Gravity scale while flying (lower -> floatier).\nSuggested range: 0.5 - 3")]
         public float flyGravityScale = 2f;
@@ -30,6 +31,13 @@ public class FlightMotor2D
 
         [Tooltip("Upward velocity threshold used to block flight until achieved when jumping from ground.\nSuggested range: 0.5 - 6 (units/sec)")]
         public float flyUpwardEngageVelocityThreshold = 4.0f;
+
+        [Tooltip("Time taken to reach max upward acceleration (not velocity)")]
+        public float thrustRampUpSpeed = 12f;     // how fast throttle reaches 1
+
+        [Tooltip("Time taken to fall to zero upward acceleration")]
+        public float thrustRampDownSpeed = 18f;   // how fast throttle falls to 0
+
     }
 
     public FlightMotor2D(Rigidbody2D rb, Settings settings)
@@ -42,7 +50,7 @@ public class FlightMotor2D
     // anyFlyInputHeld: true when fly or jump input is held.
     // jumpedFromGround: ref to gate used to block flight until apex after a ground jump.
     // hasEnergyForFlight: when false, flight is forced off (and upward velocity is cancelled for immediate drop).
-    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround, bool hasEnergyForFlight)
+    public void ProcessFlight(bool anyFlyInputHeld, ref bool jumpedFromGround, bool hasEnergyForFlight, float dt)
     {
         // If the player jumped from ground and is still rising, block flight until apex.
         bool isInJumpRisePhase = jumpedFromGround && rb.linearVelocity.y > settings.flyUpwardEngageVelocityThreshold;
@@ -57,7 +65,7 @@ public class FlightMotor2D
                 flightActive = true;
             }
 
-            TryFly();
+            TryFly(dt);
 
             // Once flight begins, clear the gate so apex-check won't block subsequent flight.
             jumpedFromGround = false;
@@ -76,10 +84,24 @@ public class FlightMotor2D
     }
 
     // Apply flying forces & gravity changes.
-    private void TryFly()
+    private void TryFly(float dt)
     {
-        // apply upward acceleration if below max fly speed
+        float targetThrottle = IsFlying ? 1f : 0f;
+
+        float rampSpeed = IsFlying
+            ? settings.thrustRampUpSpeed
+            : settings.thrustRampDownSpeed;
+
+        flyThrottle01 = Mathf.MoveTowards(
+            flyThrottle01,
+            targetThrottle,
+            rampSpeed * dt
+        );
+
         if (rb.linearVelocity.y < settings.maxFlyUpSpeed)
-            rb.AddForce(Vector2.up * settings.flyAcceleration, ForceMode2D.Force);
+        {
+            float accel = settings.flyAcceleration * flyThrottle01;
+            rb.AddForce(Vector2.up * accel, ForceMode2D.Force);
+        }
     }
 }
