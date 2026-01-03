@@ -230,16 +230,13 @@ public class PlayerControls : MonoBehaviour
     IsGrounded = groundProbe.Evaluate(rb, out var debugInfo);
 
     // Energy tick: regen/drain depends on grounded, flying, and quick boost state.
-    if (energyPool != null)
-    {
-      energyPool.TickEnergy(
-        groundedNow: IsGrounded,
-        boostHeld: boostHeld,
-        isFlying: flightMotor.IsFlying,
-        isQuickBoosting: quickBoostMotor.IsQuickBoosting,
-        dt: Time.fixedDeltaTime
-      );
-    }
+    energyPool.TickEnergy(
+      groundedNow: IsGrounded,
+      boostHeld: boostHeld,
+      isFlying: flightMotor.IsFlying,
+      isQuickBoosting: quickBoostMotor.IsQuickBoosting,
+      dt: Time.fixedDeltaTime
+    );
 
     // If quick boosting, QB motor fully owns velocity/gravity for this step.
     if (quickBoostMotor.IsQuickBoosting)
