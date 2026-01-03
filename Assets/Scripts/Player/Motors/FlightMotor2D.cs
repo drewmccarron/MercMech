@@ -6,11 +6,11 @@ public class FlightMotor2D
   private readonly Settings settings;
 
   // Tracks whether flight mode is currently active (only change gravity on transitions).
-  private bool flightActive = false;
+  private bool isFlying = false;
   private float flyThrottle01;
 
   // Expose read-only flight state
-  public bool IsFlying => flightActive;
+  public bool IsFlying => isFlying;
 
   [System.Serializable]
   public class Settings
@@ -56,10 +56,10 @@ public class FlightMotor2D
     if (shouldFlyNow)
     {
       // Only change gravity on transition (avoid redundant assignments).
-      if (!flightActive)
+      if (!isFlying)
       {
         rb.gravityScale = settings.flyGravityScale;
-        flightActive = true;
+        isFlying = true;
       }
 
       ApplyFlyThrust(dt);
@@ -70,10 +70,10 @@ public class FlightMotor2D
     else
     {
       // Transition out of flight: restore normal gravity.
-      if (flightActive)
+      if (isFlying)
       {
         rb.gravityScale = settings.normalGravityScale;
-        flightActive = false;
+        isFlying = false;
       }
     }
   }
