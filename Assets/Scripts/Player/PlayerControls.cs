@@ -18,6 +18,8 @@ public class PlayerControls : MonoBehaviour
   private FlightMotor2D flightMotor;
   private QuickBoostMotor2D quickBoostMotor;
   private AimMotor2D aimMotor;
+  private MovementDebugSamples movementDebug;
+  public MovementDebugSamples MovementDebug => movementDebug;
 
   public GroundProbe2D GroundProbe => groundProbe;
   
@@ -147,6 +149,8 @@ public class PlayerControls : MonoBehaviour
     quickBoostMotor = new QuickBoostMotor2D(rb, quickBoostSettings, horizontalSettings, flightSettings);
     jumpMotor = new JumpMotor2D(rb, jumpSettings);
     aimMotor = new AimMotor2D();
+    movementDebug = new MovementDebugSamples();
+
 
     // Apply default gravity
     rb.gravityScale = flightSettings.normalGravityScale;
@@ -250,6 +254,8 @@ public class PlayerControls : MonoBehaviour
         anyFlyInputHeld: anyFlyInputHeld,
         currentMaxSpeed: currentMaxSpeed
       );
+      movementDebug.Sample(rb, Time.fixedDeltaTime);
+
       return; // skip normal movement while dashing
     }
 
@@ -287,6 +293,9 @@ public class PlayerControls : MonoBehaviour
     );
 
     ClampFallSpeed();
+
+    movementDebug.Sample(rb, Time.fixedDeltaTime);
+
   }
 
   // ------------------------
