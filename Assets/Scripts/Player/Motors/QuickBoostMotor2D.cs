@@ -129,7 +129,7 @@ public class QuickBoostMotor2D
     StartQuickBoost(direction, anyFlyInputHeld, groundedNow);
   }
 
-  public void DoQuickBoostStep(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, bool groundedNow)
+  public void DoQuickBoostStep(float moveInputDirection, int facingDirection, bool anyFlyInputHeld)
   {
     // Try to execute queued chain first
     if (TryExecuteQueuedChain())
@@ -139,7 +139,7 @@ public class QuickBoostMotor2D
     ApplyQuickBoostVelocity(moveInputDirection);
 
     // Check for exit conditions
-    CheckQuickBoostEnd(anyFlyInputHeld, groundedNow);
+    CheckQuickBoostEnd(anyFlyInputHeld);
   }
 
   // -------------------------
@@ -234,22 +234,21 @@ public class QuickBoostMotor2D
     rb.linearVelocity = new Vector2(newVx, 0f);
   }
 
-  private void CheckQuickBoostEnd(bool anyFlyInputHeld, bool groundedNow)
+  private void CheckQuickBoostEnd(bool anyFlyInputHeld)
   {
     float dashProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
-    bool wantsFly = anyFlyInputHeld && !groundedNow;
 
     // Early exit into flight if conditions met
-    if (wantsFly && dashProgress >= settings.qbFlyReleasePercent)
+    if (anyFlyInputHeld && dashProgress >= settings.qbFlyReleasePercent)
     {
-      EndQuickBoost(wantsFly: true);
+      EndQuickBoost(true);
       return;
     }
 
     // Normal exit when duration complete
     if (dashProgress >= 1f)
     {
-      EndQuickBoost(wantsFly);
+      EndQuickBoost(anyFlyInputHeld);
     }
   }
 

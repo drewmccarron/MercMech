@@ -235,8 +235,7 @@ public class PlayerControls : MonoBehaviour
       quickBoostMotor.DoQuickBoostStep(
         moveInputDirection: moveInputDirection,
         facingDirection: facingDirection,
-        anyFlyInputHeld: anyFlyInputHeld,
-        groundedNow: IsGrounded
+        anyFlyInputHeld: anyFlyInputHeld
       );
       return; // skip normal movement while dashing
     }
