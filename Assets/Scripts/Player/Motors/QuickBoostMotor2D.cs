@@ -129,14 +129,14 @@ public class QuickBoostMotor2D
     StartQuickBoost(direction, anyFlyInputHeld, groundedNow);
   }
 
-  public void DoQuickBoostStep(float moveInputDirection, int facingDirection, bool anyFlyInputHeld)
+  public void DoQuickBoostStep(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, float currentMaxSpeed)
   {
     // Try to execute queued chain first
     if (TryExecuteQueuedChain())
       return;
 
-    // Apply velocity
-    ApplyQuickBoostVelocity(moveInputDirection);
+    // Apply velocity (pass the max speed)
+    ApplyQuickBoostVelocity(moveInputDirection, currentMaxSpeed);
 
     // Check for exit conditions
     CheckQuickBoostEnd(anyFlyInputHeld);
@@ -204,7 +204,7 @@ public class QuickBoostMotor2D
     return true;
   }
 
-  private void ApplyQuickBoostVelocity(float moveInputDirection)
+  private void ApplyQuickBoostVelocity(float moveInputDirection, float currentMaxSpeed)
   {
     quickBoostTimer += Time.fixedDeltaTime;
 
@@ -216,10 +216,10 @@ public class QuickBoostMotor2D
     float curveMultiplier = settings.quickBoostCurve.Evaluate(dashProgress);
     float targetSpeedAbs = settings.quickBoostStartSpeed * curveMultiplier;
 
-    // If player holds dash direction, floor speed at walk speed
+    // If player holds dash direction, floor speed at current movement speed
     bool holdingDashDirection = heldDir != 0 && heldDir == dashDirection;
     if (holdingDashDirection)
-      targetSpeedAbs = Mathf.Max(targetSpeedAbs, moveSettings.maxUnboostedGroundSpeed);
+      targetSpeedAbs = Mathf.Max(targetSpeedAbs, currentMaxSpeed); // CHANGED: use passed max speed
 
     float targetVelocity = dashDirection * targetSpeedAbs;
     float currentVelocity = rb.linearVelocity.x;

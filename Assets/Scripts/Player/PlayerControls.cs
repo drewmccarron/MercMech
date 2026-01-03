@@ -232,10 +232,17 @@ public class PlayerControls : MonoBehaviour
     // If quick boosting, QB motor fully owns velocity/gravity for this step.
     if (quickBoostMotor.IsQuickBoosting)
     {
+      // Calculate what the max speed would be for current state
+      float currentMaxSpeed = horizontalMotor.GetCurrentMaxSpeed(
+        IsGrounded,
+        flightMotor.IsFlying
+      );
+
       quickBoostMotor.DoQuickBoostStep(
         moveInputDirection: moveInputDirection,
         facingDirection: facingDirection,
-        anyFlyInputHeld: anyFlyInputHeld
+        anyFlyInputHeld: anyFlyInputHeld,
+        currentMaxSpeed: currentMaxSpeed  // PASS the current max speed
       );
       return; // skip normal movement while dashing
     }

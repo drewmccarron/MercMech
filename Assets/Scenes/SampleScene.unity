@@ -332,6 +332,7 @@ GameObject:
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
   - component: {fileID: 519420034}
+  - component: {fileID: 519420035}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -506,6 +507,22 @@ MonoBehaviour:
   projectileVelocityColor: {r: 0.11949679, g: 0.7169812, b: 0.36100614, a: 1}
   circleSegments: 20
   projectileVelocityScale: 0.15
+--- !u!114 &519420035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4643b80ba3d65c469dc6d1a7fd5d2e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundProbeDebugRendererURP
+  groundedColor: {r: 0, g: 1, b: 0, a: 1}
+  notGroundedColor: {r: 1, g: 0, b: 0, a: 1}
+  normalColor: {r: 1, g: 1, b: 0, a: 1}
+  normalLength: 0.35
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,17 +799,17 @@ MonoBehaviour:
     groundAccel: 30
     groundDecel: 15
     groundTurnAccel: 30
-    maxUnboostedGroundSpeed: 4
+    maxUnboostedGroundSpeed: 5
     airAccel: 15
     airDecel: 5
     airTurnAccel: 25
     maxFallingSpeed: 4
-    maxGroundBoostSpeed: 8
-    maxFallingBoostSpeed: 6
+    maxGroundBoostSpeed: 10
+    maxFallingBoostSpeed: 8
     maxFlyingSpeed: 6
   jumpSettings:
-    jumpForce: 10
-    jumpWindupTime: 0.5
+    jumpForce: 15
+    jumpWindupTime: 0.2
   groundProbeSettings:
     groundLayer:
       serializedVersion: 2
@@ -808,8 +825,8 @@ MonoBehaviour:
     normalGravityScale: 3
     flyUpwardEngageVelocityThreshold: 4
   quickBoostSettings:
-    quickBoostStartSpeed: 16
-    quickBoostDuration: 0.35
+    quickBoostStartSpeed: 20
+    quickBoostDuration: 0.5
     quickBoostCurve:
       serializedVersion: 2
       m_Curve: []
@@ -1011,15 +1028,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6e44e53aa755b43b11779f3cc4aa57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnergyPool
-  maxEnergy: 100
+  maxEnergy: 120
   currentEnergy: 0
-  groundRegenRate: 25
-  groundBoostRegenRate: 10
-  fallingRegenRate: 10
-  fallingBoostRegenRate: 5
+  groundRegenRate: 30
+  groundBoostRegenRate: 15
+  fallingRegenRate: 20
+  fallingBoostRegenRate: 10
   flyingEnergyCostRate: 20
-  horizontalBoostStartCost: 10
-  flightStartCost: 8
+  horizontalBoostStartCost: 5
+  flightStartCost: 10
 --- !u!114 &646307111
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -168,7 +168,7 @@ public class HorizontalMotor2D
     }
 
     // Single source of truth for horizontal speed caps based on current state.
-    private float GetCurrentMaxSpeed(bool groundedNow, bool isFlying)
+    public float GetCurrentMaxSpeed(bool groundedNow, bool isFlying)
     {
         if (groundedNow)
             return IsBoosting ? settings.maxGroundBoostSpeed : settings.maxUnboostedGroundSpeed;
