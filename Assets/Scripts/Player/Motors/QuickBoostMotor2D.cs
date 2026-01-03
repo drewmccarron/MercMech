@@ -180,7 +180,9 @@ public class QuickBoostMotor2D
     private bool HandleQBChaining()
     {
         float dashPercentProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
-        if (qbChainQueued && qbChainBufferTimer > 0f && dashPercentProgress >= settings.qbChainStartPercent)
+        bool canChainNow = dashPercentProgress >= settings.qbChainStartPercent;
+        bool qbChainBufferIsReady = qbChainIntervalTimer <= 0f;
+        if (qbChainQueued && canChainNow && qbChainBufferIsReady)
         {
             quickBoostDir = qbQueuedDir;
             quickBoostTimer = 0f;
