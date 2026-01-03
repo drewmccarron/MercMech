@@ -102,9 +102,12 @@ public class PlayerControls : MonoBehaviour
   public bool IsBoosting => horizontalMotor.IsBoosting;
   public bool IsQuickBoosting => quickBoostMotor.IsQuickBoosting;
 
-  // Expose energy state for other systems (UI, VFX, etc.)
+  // Expose resource state for other systems (UI, VFX, etc.)
   public float EnergyCurrent => energyPool.CurrentEnergy;
   public float EnergyMax => energyPool.MaxEnergy;
+
+  public float HealthCurrent => playerStats.Health.CurrentHealth;
+  public float HealthMax => playerStats.Health.MaxHealth;
 
   // Expose ground probe for debug rendering
  

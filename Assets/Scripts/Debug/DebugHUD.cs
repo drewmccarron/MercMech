@@ -74,8 +74,9 @@ public class DebugHUD : MonoBehaviour
 
         sb.AppendLine();
 
-        sb.Append("<b>Energy</b>\n");
+        sb.Append("<b>Resources</b>\n");
         sb.Append("Energy: ").Append(Format(player.EnergyCurrent)).Append(" / ").Append(Format(player.EnergyMax)).AppendLine();
+        sb.Append("Health: ").Append(Format(player.HealthCurrent)).Append(" / ").Append(Format(player.HealthMax)).AppendLine();
 
         text.text = sb.ToString();
     }

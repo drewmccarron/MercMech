@@ -197,10 +197,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1239459462}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 20}
+  m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &352474392
 MonoBehaviour:
@@ -538,6 +538,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
   player: {fileID: 646307104}
   enabledDebug: 1
+  requireDebugSettingsEnabled: 1
+  origin: {x: 10, y: 10}
+  graphWidth: 120
+  graphHeight: 25
+  spacing: 4
+  maxSpeed: 30
+  maxAccel: 120
+  speedMagColor: {r: 1, g: 1, b: 1, a: 1}
+  speedXColor: {r: 0, g: 1, b: 1, a: 1}
+  speedYColor: {r: 0, g: 1, b: 0, a: 1}
+  accelColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  zeroLineColor: {r: 1, g: 1, b: 1, a: 0.15}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1395,7 +1407,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1646172202, guid: dcc940b6df003b3439463b971d66fe19, type: 3}
+  m_Sprite: {fileID: 4667461294790462905, guid: cfe909b886a498349ba0104f408b8b2a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1427,6 +1439,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthBarUI
   playerStats: {fileID: 646307109}
   fillImage: {fileID: 352474392}
+  barContainer: {fileID: 0}
+  widthPerUnit: 4
 --- !u!1 &1269452251
 GameObject:
   m_ObjectHideFlags: 0
@@ -1946,7 +1960,7 @@ MonoBehaviour:
   playerStats: {fileID: 646307109}
   fillImage: {fileID: 1414603265}
   barContainer: {fileID: 0}
-  widthPerEnergyUnit: 3
+  widthPerUnit: 3
 --- !u!1 &1722338884
 GameObject:
   m_ObjectHideFlags: 0
