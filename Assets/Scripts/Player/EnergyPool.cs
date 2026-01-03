@@ -27,9 +27,6 @@ public class EnergyPool : MonoBehaviour
   [Tooltip("Energy drained per second while flying (when FlightMotor IsFlying == true).")]
   [SerializeField] private float flyingEnergyCostRate = 20f;
 
-  [Tooltip("Flat energy cost when starting a quick boost.")]
-  [SerializeField] private float quickBoostCost = 25f;
-
   [Tooltip("Flat energy cost when starting horizontal boost.")]
   [SerializeField] private float horizontalBoostStartCost = 10f;
 
@@ -97,18 +94,6 @@ public class EnergyPool : MonoBehaviour
       // Airborne (falling): boost reduces regen but doesn't drain
       return boostHeld ? fallingBoostRegenRate : fallingRegenRate;
     }
-  }
-
-  // Called when attempting to start QuickBoost.
-  // Returns true if energy was spent successfully.
-  public bool TrySpendQuickBoost()
-  {
-    if (currentEnergy < quickBoostCost)
-      return false;
-
-    currentEnergy -= quickBoostCost;
-    EmitIfChanged(force: false);
-    return true;
   }
 
   // Check if player has minimum energy to START horizontal boost

@@ -24,6 +24,9 @@ public class QuickBoostMotor2D
     [Tooltip("Cooldown between dashes in seconds.\nSuggested range: 0.1 - 1.0")]
     public float quickBoostCooldown = 0.4f;
 
+    [Tooltip("Flat energy cost when starting a quick boost.")]
+    public float quickBoostCost = 25f;
+
     [Header("Quick Boost Acceleration")]
     [Tooltip("Ramps up toward the target QB speed. Higher = snappier accelerate.\nSuggested range: 50 - 400")]
     public float quickBoostAccel = 200f;
@@ -104,8 +107,12 @@ public class QuickBoostMotor2D
       qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
   }
 
-  public void OnQuickBoost(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, bool groundedNow)
+  public void OnQuickBoost(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, bool groundedNow, EnergyPool energyPool)
   {
+    // Try to spend energy first - if we can't afford it, don't start QB
+    if (energyPool != null && !energyPool.TrySpend(settings.quickBoostCost))
+      return;
+    
     int direction = DetermineDirection(moveInputDirection, facingDirection);
 
     // If already boosting, queue a chain

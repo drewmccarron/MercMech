@@ -325,15 +325,12 @@ public class PlayerControls : MonoBehaviour
   {
     if (quickBoostMotor == null) return;
 
-    // Spend energy on QB start. If insufficient, do nothing.
-    if (energyPool != null && !energyPool.TrySpendQuickBoost())
-      return;
-
     quickBoostMotor.OnQuickBoost(
       moveInputDirection: moveInputDirection,
       facingDirection: facingDirection,
       anyFlyInputHeld: anyFlyInputHeld,
-      groundedNow: IsGrounded
+      groundedNow: IsGrounded,
+      energyPool: energyPool
     );
   }
 
