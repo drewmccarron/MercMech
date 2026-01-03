@@ -20,7 +20,7 @@ public class HorizontalMotor2D
         public float groundTurnAccel = 30f; // ground reverse accel
 
         [Tooltip("Max horizontal move speed when unboosted and on ground (walking).\nSuggested range: 2 - 5")]
-        public float maxUnboostedGroundSpeed = 4f;
+        public float maxUnboostedGroundSpeed = 5f;
 
         [Header("Airborne Acceleration")]
 
@@ -39,10 +39,10 @@ public class HorizontalMotor2D
         [Header("Boost Settings")]
 
         [Tooltip("Max horizontal move speed when boosted/sprinting on ground.\nSuggested range: 6 - 12")]
-        public float maxGroundBoostSpeed = 8f;
+        public float maxGroundBoostSpeed = 10f;
 
         [Tooltip("Maximum horizontal speed while falling AND boosting.\nSuggested range: 4 - 10")]
-        public float maxFallingBoostSpeed = 6f;
+        public float maxFallingBoostSpeed = 8f;
 
         [Tooltip("Maximum horizontal speed while flying unboosted.\nSuggested range: 3 - 8")]
         public float maxFlyingSpeed = 6f;
