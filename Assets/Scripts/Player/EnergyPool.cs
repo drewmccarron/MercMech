@@ -51,16 +51,9 @@ public class EnergyPool : MonoBehaviour
   }
 
   // Called by PlayerControls (or another orchestrator) once per frame.
-  public void TickEnergy(bool groundedNow, bool boostHeld, bool isFlying, bool isQuickBoosting, float dt)
+  public void TickEnergy(bool groundedNow, bool boostHeld, bool isFlying, float dt)
   {
     if (dt <= 0f) return;
-
-    // Freeze regen during QB if enabled (spec requirement).
-    if (isQuickBoosting)
-    {
-      EmitIfChanged(force: false);
-      return;
-    }
 
     // Drain for flying
     if (isFlying)
