@@ -139,7 +139,7 @@ public class QuickBoostMotor2D
     ApplyQuickBoostVelocity(moveInputDirection, currentMaxSpeed);
 
     // Check for exit conditions
-    CheckQuickBoostEnd(anyFlyInputHeld);
+    CheckQuickBoostEnd(anyFlyInputHeld, currentMaxSpeed);
   }
 
   // -------------------------
@@ -219,7 +219,7 @@ public class QuickBoostMotor2D
     // If player holds dash direction, floor speed at current movement speed
     bool holdingDashDirection = heldDir != 0 && heldDir == dashDirection;
     if (holdingDashDirection)
-      targetSpeedAbs = Mathf.Max(targetSpeedAbs, currentMaxSpeed); // CHANGED: use passed max speed
+      targetSpeedAbs = Mathf.Max(targetSpeedAbs, currentMaxSpeed);
 
     float targetVelocity = dashDirection * targetSpeedAbs;
     float currentVelocity = rb.linearVelocity.x;
@@ -234,25 +234,25 @@ public class QuickBoostMotor2D
     rb.linearVelocity = new Vector2(newVx, 0f);
   }
 
-  private void CheckQuickBoostEnd(bool anyFlyInputHeld)
+  private void CheckQuickBoostEnd(bool anyFlyInputHeld, float currentMaxSpeed)
   {
     float dashProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
 
     // Early exit into flight if conditions met
     if (anyFlyInputHeld && dashProgress >= settings.qbFlyReleasePercent)
     {
-      EndQuickBoost(true);
+      EndQuickBoost(true, currentMaxSpeed);
       return;
     }
 
     // Normal exit when duration complete
     if (dashProgress >= 1f)
     {
-      EndQuickBoost(anyFlyInputHeld);
+      EndQuickBoost(anyFlyInputHeld, currentMaxSpeed);
     }
   }
 
-  private void EndQuickBoost(bool wantsFly)
+  private void EndQuickBoost(bool wantsFly, float currentMaxSpeed)
   {
     // Capture current velocity for carry protection
     qbCarryVx = rb.linearVelocity.x;
@@ -268,7 +268,7 @@ public class QuickBoostMotor2D
     bool stillMovingInDashDirection = currentMovingDir != 0 && currentMovingDir == dashDirection;
 
     float exitVx = stillMovingInDashDirection
-      ? dashDirection * moveSettings.maxUnboostedGroundSpeed
+      ? dashDirection * currentMaxSpeed
       : dashDirection * settings.quickBoostNeutralExitSpeed;
 
     // Keep stronger of carried speed vs exit speed (prevents hitching)
