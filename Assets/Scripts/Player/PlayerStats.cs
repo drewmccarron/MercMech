@@ -9,7 +9,7 @@ public class PlayerStats : MonoBehaviour
   [SerializeField] private EnergyPool energy;
 
   // Events that UI / other systems can subscribe to.
-  public event Action<float, float> OnEnergyChanged; // (current, max)
+  public event Action<float> OnEnergyChanged;
 
   public EnergyPool Energy => energy;
 
@@ -17,7 +17,7 @@ public class PlayerStats : MonoBehaviour
   public float MaxEnergy => energy != null ? energy.MaxEnergy : 0f;
 
   // Events that UI / other systems can subscribe to.
-  public event Action<float, float> OnHealthChanged; // (current, max)
+  public event Action<float> OnHealthChanged;
   public event Action OnDied;
 
   public Health Health => health;
@@ -26,7 +26,6 @@ public class PlayerStats : MonoBehaviour
   public float MaxHealth => health != null ? health.MaxHealth : 0f;
 
   private float lastCurrentHealth = -1f;
-  private float lastMaxHealth = -1f;
 
   private void Reset()
   {
@@ -44,9 +43,11 @@ public class PlayerStats : MonoBehaviour
       energy = GetComponent<EnergyPool>();
 
     if (energy != null)
+    {
       energy.OnEnergyChanged += HandleEnergyChanged;
+      HandleEnergyChanged(energy.CurrentEnergy, energy.MaxEnergy);
+    }  
 
-    // Subscribe to health changes (reactive instead of polling).
     if (health != null)
     {
       health.OnHealthChanged += HandleHealthChanged;
@@ -66,18 +67,19 @@ public class PlayerStats : MonoBehaviour
 
   private void HandleHealthChanged(float cur, float max)
   {
-    OnHealthChanged?.Invoke(cur, max);
+    float percentage = max > 0f ? cur / max : 0f;
+    OnHealthChanged?.Invoke(percentage);
 
     // Death detection (fire once when health crosses to zero)
     if (cur <= 0f && lastCurrentHealth > 0f)
       OnDied?.Invoke();
 
     lastCurrentHealth = cur;
-    lastMaxHealth = max;
   }
 
-  private void HandleEnergyChanged(float current, float max)
+  private void HandleEnergyChanged(float cur, float max)
   {
-    OnEnergyChanged?.Invoke(current, max);
+    float percentage = max > 0f ? cur / max : 0f;
+    OnEnergyChanged?.Invoke(percentage);
   }
 }
