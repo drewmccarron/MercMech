@@ -213,14 +213,6 @@ public class PlayerControls : MonoBehaviour
 
       controls.Player.Disable();
     }
-
-    // Safety: restore physics state if we get disabled mid-dash.
-    if (rb != null)
-    {
-      rb.gravityScale = flightSettings.normalGravityScale;
-      if (quickBoostMotor != null)
-        quickBoostMotor.ForceStopQuickBoost();
-    }
   }
 
   // Physics loop: timers, ground state, movement, flight, clamps.

@@ -112,16 +112,6 @@ public class QuickBoostMotor2D
         this.flightSettings = flightSettings;
     }
 
-    // Called from PlayerControls.Update (frame-based for smoother cooldown feel).
-    public void TickQuickBoostCooldown(float dt)
-    {
-        if (quickBoostCooldownTimer > 0f)
-        {
-            quickBoostCooldownTimer -= dt;
-            if (quickBoostCooldownTimer < 0f) quickBoostCooldownTimer = 0f;
-        }
-    }
-
     // Called from PlayerControls.FixedUpdate timer tick.
     public void TickFixedTimers(float dt)
     {
@@ -129,11 +119,6 @@ public class QuickBoostMotor2D
         if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
         if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
         if (quickBoostCooldownTimer > 0f) quickBoostCooldownTimer = Mathf.Max(0f, quickBoostCooldownTimer - dt);
-    }
-
-    public void ForceStopQuickBoost()
-    {
-        isQuickBoosting = false;
     }
 
     // Called from PlayerControls input callback.
