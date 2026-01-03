@@ -66,7 +66,8 @@ public class HorizontalMotor2D
       bool boostHeld,
       float qbFlyCarryTimer,
       float qbCarryVx,
-      bool isFlying)
+      bool isFlying,
+      float dt)
     {
         // Update boost state based on input
         IsBoosting = boostHeld;
@@ -74,7 +75,6 @@ public class HorizontalMotor2D
         float maxSpeed = GetCurrentMaxSpeed(groundedNow, isFlying);
         float targetVelocity = moveInputDirection * maxSpeed;
         float currentVelocity = rb.linearVelocity.x;
-        float dt = Time.fixedDeltaTime;
 
         // Protect QB horizontal speed while carry timer active.
         bool protectCarry = qbFlyCarryTimer > 0f;

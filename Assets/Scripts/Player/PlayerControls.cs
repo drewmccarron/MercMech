@@ -218,7 +218,8 @@ public class PlayerControls : MonoBehaviour
   // Physics loop: timers, ground state, movement, flight, clamps.
   private void FixedUpdate()
   {
-    TickFixedTimers();
+    float dt = Time.fixedDeltaTime;
+    TickFixedTimers(dt);
 
     // Update aim (frame-based - matches mouse update rate)
     aimMotor.UpdateAim(
@@ -242,7 +243,7 @@ public class PlayerControls : MonoBehaviour
         moveInputDirection: moveInputDirection,
         facingDirection: facingDirection,
         anyFlyInputHeld: anyFlyInputHeld,
-        currentMaxSpeed: currentMaxSpeed  // PASS the current max speed
+        currentMaxSpeed: currentMaxSpeed
       );
       return; // skip normal movement while dashing
     }
@@ -254,7 +255,8 @@ public class PlayerControls : MonoBehaviour
       boostHeld: boostHeld,
       qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
       qbCarryVx: quickBoostMotor.qbCarryVx,
-      isFlying: flightMotor.IsFlying
+      isFlying: flightMotor.IsFlying,
+      dt: dt
     );
 
     // Flight motor (only process when not winding up for jump)
@@ -286,10 +288,8 @@ public class PlayerControls : MonoBehaviour
   // ------------------------
 
   // Centralized fixed-timestep timer updates to avoid duplication.
-  private void TickFixedTimers()
+  private void TickFixedTimers(float dt)
   {
-    float dt = Time.fixedDeltaTime;
-
     if (jumpMotor != null)
       jumpMotor.TickFixedTimers(dt);
 
