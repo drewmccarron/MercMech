@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnergyPool : MonoBehaviour
 {
   [Header("Energy")]
-  [SerializeField] private float maxEnergy = 100f;
+  [SerializeField] private float maxEnergy = 120f;
 
   [SerializeField, Tooltip("Current energy at runtime (read-only in inspector).")]
   private float currentEnergy;
@@ -21,17 +21,17 @@ public class EnergyPool : MonoBehaviour
   [SerializeField] private float fallingRegenRate = 20f;
 
   [Tooltip("Energy regen per second while falling AND boosting (slower than normal falling).")]
-  [SerializeField] private float fallingBoostRegenRate = 15f;
+  [SerializeField] private float fallingBoostRegenRate = 10f;
 
   [Header("Costs")]
   [Tooltip("Energy drained per second while flying (when FlightMotor IsFlying == true).")]
   [SerializeField] private float flyingEnergyCostRate = 20f;
 
   [Tooltip("Flat energy cost when starting horizontal boost.")]
-  [SerializeField] private float horizontalBoostStartCost = 10f;
+  [SerializeField] private float horizontalBoostStartCost = 5f;
 
   [Tooltip("Minimum energy required to START flight. Flight can continue draining below this threshold.")]
-  [SerializeField] private float flightStartCost = 8f;
+  [SerializeField] private float flightStartCost = 10f;
 
   // Events for UI / other systems
   public event Action<float, float> OnEnergyChanged; // (current, max)
