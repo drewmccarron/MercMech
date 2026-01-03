@@ -32,10 +32,10 @@ public class FlightMotor2D
     [Tooltip("Upward velocity threshold to block flight after ground jump (prevents instant fly after jump).\nSuggested range: 3-6")]
     public float flyUpwardEngageVelocityThreshold = 4.0f;
 
-    [Tooltip("Time taken to reach max upward acceleration (not velocity)")]
+    [Tooltip("Time taken to reach max upward acceleration when activating flight (lower = snappier).\nSuggested range: 8-15")]
     public float thrustRampUpSpeed = 12f;     // how fast throttle reaches 1
 
-    [Tooltip("Time taken to fall to zero upward acceleration")]
+    [Tooltip("Time taken to fall to zero upward acceleration when releasing flight (lower = drops faster).\nSuggested range: 12-20")]
     public float thrustRampDownSpeed = 18f;   // how fast throttle falls to 0
     
   }
