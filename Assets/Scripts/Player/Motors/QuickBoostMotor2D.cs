@@ -91,7 +91,6 @@ public class QuickBoostMotor2D
     public float qbFlyCarryTimer { get; private set; }
     public float qbCarryVx { get; private set; }
 
-    private float qbChainBufferTimer;
     private bool qbChainQueued;
     private int qbQueuedDir;
     private float qbChainIntervalTimer;
@@ -110,7 +109,6 @@ public class QuickBoostMotor2D
     // Called from PlayerControls.FixedUpdate timer tick.
     public void TickFixedTimers(float dt)
     {
-        if (qbChainBufferTimer > 0f) qbChainBufferTimer = Mathf.Max(0f, qbChainBufferTimer - dt);
         if (qbChainIntervalTimer > 0f) qbChainIntervalTimer = Mathf.Max(0f, qbChainIntervalTimer - dt);
         if (qbFlyCarryTimer > 0f) qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
         if (quickBoostCooldownTimer > 0f) quickBoostCooldownTimer = Mathf.Max(0f, quickBoostCooldownTimer - dt);
@@ -131,7 +129,6 @@ public class QuickBoostMotor2D
 
             qbChainQueued = true;
             qbQueuedDir = direction;
-            qbChainBufferTimer = settings.qbChainBufferTime;
             qbChainIntervalTimer = settings.qbChainMinInterval;
 
             return;
@@ -154,7 +151,6 @@ public class QuickBoostMotor2D
         rb.linearVelocity = new Vector2(rb.linearVelocity.x,0f);
 
         qbChainQueued = false;
-        qbChainBufferTimer = 0f;
         qbChainIntervalTimer = settings.qbChainMinInterval;
     }
 
@@ -180,7 +176,6 @@ public class QuickBoostMotor2D
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
             qbChainQueued = false;
-            qbChainBufferTimer = 0f;
             qbChainIntervalTimer = settings.qbChainMinInterval;
 
             return true;
