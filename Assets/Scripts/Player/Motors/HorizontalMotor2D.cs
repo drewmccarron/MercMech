@@ -11,10 +11,10 @@ public class HorizontalMotor2D
         [Header("Walk Acceleration")]
 
         [Tooltip("Ground acceleration when moving. Higher = faster reach of target horizontal speed.\nSuggested range: 30 - 150")]
-        public float groundAccel = 30f;      // ground acceleration when moving
+        public float groundWalkAccel = 30f;      // ground acceleration when moving
 
         [Tooltip("Ground deceleration when no input. Higher = stops quicker when releasing input.\nSuggested range: 30 - 150")]
-        public float groundDecel = 15f;      // ground deceleration when no input
+        public float groundBrakeDecel = 15f;      // ground deceleration when no input
 
         [Tooltip("Ground reverse acceleration (turning). Higher = faster reversal of direction on ground.\nSuggested range: 60 - 200")]
         public float groundTurnAccel = 30f; // ground reverse accel
@@ -37,7 +37,7 @@ public class HorizontalMotor2D
         public float airBrakeDecel = 35f;
 
         [Tooltip("Maximum horizontal speed while falling unboosted.\nSuggested range: 2 - 6")]
-        public float maxFallingSpeed = 4f;
+        public float maxFallingHorizontalSpeed = 4f;
 
         [Header("Boost Settings")]
 
@@ -46,6 +46,14 @@ public class HorizontalMotor2D
 
         [Tooltip("Maximum horizontal speed while falling AND boosting.\nSuggested range: 4 - 10")]
         public float maxFallingBoostSpeed = 8f;
+
+        [Header("Boost Acceleration")]
+
+        [Tooltip("Multiplier applied to acceleration/thrust while boost is held.\nSuggested range: 1.1 - 2.5")]
+        public float boostAccelMultiplier = 1.6f;
+
+        [Tooltip("Multiplier applied while reversing direction with boost held.\nSuggested range: 1.1 - 3.0")]
+        public float boostTurnAccelMultiplier = 1.9f;
 
         [Tooltip("Maximum horizontal speed while flying unboosted.\nSuggested range: 3 - 8")]
         public float maxFlyingSpeed = 6f;
@@ -125,11 +133,13 @@ public class HorizontalMotor2D
 
     private float GetGroundVelocity(bool hasInput, bool reversing, float currentVelocity, float targetVelocity, float dt)
     {
-        // Grounded: deterministic MoveTowards-style acceleration & deceleration.
         float accelRate;
-        if (!hasInput) accelRate = settings.groundDecel;
+        if (!hasInput) accelRate = settings.groundBrakeDecel;
         else if (reversing) accelRate = settings.groundTurnAccel;
-        else accelRate = settings.groundAccel;
+        else accelRate = settings.groundWalkAccel;
+
+        if (IsBoosting)
+            accelRate *= reversing ? settings.boostTurnAccelMultiplier : settings.boostAccelMultiplier;
 
         return Mathf.MoveTowards(currentVelocity, targetVelocity, accelRate * dt);
     }
@@ -138,6 +148,9 @@ public class HorizontalMotor2D
     {
         // Thrust amount. Use airTurnAccel when reversing, otherwise airAccel.
         float thrust = reversing ? settings.airTurnAccel : settings.airAccel;
+
+        if (IsBoosting)
+            thrust *= reversing ? settings.boostTurnAccelMultiplier : settings.boostAccelMultiplier;
 
         // Apply horizontal thrust (ForceMode2D.Force acts like "acceleration" for a given mass).
         rb.AddForce(Vector2.right * moveInputDirection * thrust, ForceMode2D.Force);
@@ -181,7 +194,9 @@ public class HorizontalMotor2D
         if (groundedNow)
             return IsBoosting ? settings.maxGroundBoostSpeed : settings.maxUnboostedGroundSpeed;
 
-        // In air: choose flying cap when inFlight, otherwise falling cap.
-        return isFlying ? settings.maxFlyingSpeed : settings.maxFallingSpeed;
+        if (isFlying)
+            return settings.maxFlyingSpeed;
+
+        return IsBoosting ? settings.maxFallingBoostSpeed : settings.maxFallingHorizontalSpeed;
     }
 }
