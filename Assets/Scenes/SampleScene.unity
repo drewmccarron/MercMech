@@ -1064,8 +1064,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8558087cd44845345bbea9ef944a9bd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
-  targetCamera: {fileID: 0}
-  player: {fileID: 0}
+  targetCamera: {fileID: 519420031}
+  player: {fileID: 646307104}
   enabledDebug: 1
   requireDebugSettingsEnabled: 1
   origin: {x: 10, y: 10}
