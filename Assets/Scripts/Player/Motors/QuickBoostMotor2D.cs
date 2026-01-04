@@ -219,7 +219,6 @@ public class QuickBoostMotor2D
       ? flightSettings.flyGravityScale
       : flightSettings.normalGravityScale;
 
-
     // Reset state.
     IsQuickBoosting = false;
   }
