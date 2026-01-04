@@ -165,6 +165,7 @@ public class QuickBoostMotor2D
     dashDirection = queuedChainDirection;
     quickBoostTimer = 0f;
     rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+    cooldownTimer = settings.quickBoostCooldown;
 
     hasQueuedChain = false;
     return true;
@@ -218,15 +219,6 @@ public class QuickBoostMotor2D
       ? flightSettings.flyGravityScale
       : flightSettings.normalGravityScale;
 
-    // Determine exit horizontal velocity.
-    int currentMovingDir = InputUtils.AxisToDir(rb.linearVelocity.x);
-    bool stillMovingInDashDirection = currentMovingDir != 0 && currentMovingDir == dashDirection;
-
-    float exitVx = stillMovingInDashDirection
-      ? dashDirection * currentMaxSpeed
-      : dashDirection * settings.quickBoostNeutralExitSpeed;
-
-    rb.linearVelocity = new Vector2(exitVx, rb.linearVelocityY);
 
     // Reset state.
     IsQuickBoosting = false;
