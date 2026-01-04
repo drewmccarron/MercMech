@@ -38,9 +38,6 @@ public class QuickBoostMotor2D
 
     [Header("QB -> Fly Transition")]
 
-    [Tooltip("How long to protect QB horizontal momentum after QB ends (carry window).\nSuggested range: 0.12-0.25")]
-    public float qbFlyCarryTime = 0.18f;
-
     [Tooltip("Percentage of dash completed before QB->fly early exit is allowed (0-1).\nSuggested range: 0.75-0.9")]
     [Range(0f, 1f)]
     public float qbFlyReleasePercent = 0.85f;
@@ -80,10 +77,6 @@ public class QuickBoostMotor2D
   private float cooldownTimer;
   private int dashDirection; // -1 or +1
 
-  // QB -> Fly carry protection
-  public float qbFlyCarryTimer { get; private set; }
-  public float qbCarryVx { get; private set; }
-
   // Chaining
   private int queuedChainDirection;
   private float lastChainRequestTime;
@@ -108,9 +101,6 @@ public class QuickBoostMotor2D
 
     if (cooldownTimer > 0f)
       cooldownTimer = Mathf.Max(0f, cooldownTimer - dt);
-
-    if (qbFlyCarryTimer > 0f)
-      qbFlyCarryTimer = Mathf.Max(0f, qbFlyCarryTimer - dt);
   }
 
   public void OnQuickBoost(float moveInputDirection, int facingDirection, bool anyFlyInputHeld, bool groundedNow, EnergyPool energyPool)
@@ -261,10 +251,6 @@ public class QuickBoostMotor2D
 
   private void EndQuickBoost(bool wantsFly, float currentMaxSpeed)
   {
-    // Capture current velocity for carry protection
-    qbCarryVx = rb.linearVelocity.x;
-    qbFlyCarryTimer = settings.qbFlyCarryTime;
-
     // Set gravity based on flight intent.
     rb.gravityScale = wantsFly
       ? flightSettings.flyGravityScale
@@ -277,10 +263,6 @@ public class QuickBoostMotor2D
     float exitVx = stillMovingInDashDirection
       ? dashDirection * currentMaxSpeed
       : dashDirection * settings.quickBoostNeutralExitSpeed;
-
-    // Keep stronger of carried speed vs exit speed (prevents hitching)
-    if (Mathf.Abs(qbCarryVx) > Mathf.Abs(exitVx))
-      exitVx = qbCarryVx;
 
     // Calculate vertical exit velocity if transitioning to flight.
     float exitVy = 0f;

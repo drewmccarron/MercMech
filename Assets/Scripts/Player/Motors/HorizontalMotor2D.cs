@@ -72,13 +72,11 @@ public class HorizontalMotor2D
     this.settings = settings;
   }
 
-  // Process horizontal movement: applies acceleration, caps speed, handles QB carry protection.
+  // Process horizontal movement: applies acceleration, caps speed
   public void ProcessHorizontalMovement(
     bool groundedNow,
     float moveInputDirection,
     bool boostHeld,
-    float qbFlyCarryTimer,
-    float qbCarryVx,
     bool isFlying,
     float dt)
   {
@@ -88,15 +86,6 @@ public class HorizontalMotor2D
     float maxSpeed = GetCurrentMaxSpeed(groundedNow, isFlying);
     float targetVelocity = moveInputDirection * maxSpeed;
     float currentVelocity = rb.linearVelocity.x;
-
-    // Protect QB carry: prevent normal movement from overriding QB exit momentum.
-    bool protectCarry = qbFlyCarryTimer > 0f;
-    int carryDir = InputUtils.AxisToDir(qbCarryVx);
-
-    if (protectCarry)
-    {
-      targetVelocity = GetCarryVelocity(targetVelocity, carryDir, qbCarryVx);
-    }
 
     bool hasInput = Mathf.Abs(moveInputDirection) > 0.001f;
     bool reversing = hasInput &&
@@ -120,13 +109,6 @@ public class HorizontalMotor2D
       {
         // No input: apply air drag toward 0.
         float newVx = GetAirDragVelocity(dt, isFlying);
-
-        // QB carry protection: don't drag below carried QB speed.
-        if (protectCarry && carryDir != 0)
-        {
-          if (carryDir > 0) newVx = Mathf.Max(newVx, qbCarryVx);
-          else newVx = Mathf.Min(newVx, qbCarryVx);
-        }
 
         rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
       }
@@ -165,21 +147,6 @@ public class HorizontalMotor2D
       vx = Mathf.Sign(vx) * maxSpeed;
 
     return vx;
-  }
-
-  // QB carry protection: floor/ceiling target velocity to preserve QB exit momentum.
-  private float GetCarryVelocity(float targetVelocity, int carryDir, float qbCarryVelocity)
-  {
-    int heldDirForCarry = InputUtils.AxisToDir(carryDir);
-    if (heldDirForCarry == 0 || heldDirForCarry == carryDir)
-    {
-      if (carryDir > 0)
-        targetVelocity = Mathf.Max(targetVelocity, qbCarryVelocity);
-      else if (carryDir < 0)
-        targetVelocity = Mathf.Min(targetVelocity, qbCarryVelocity);
-    }
-
-    return targetVelocity;
   }
 
   // Air drag: passive slowdown when no input. Faster if not boosting/flying (active air brake).

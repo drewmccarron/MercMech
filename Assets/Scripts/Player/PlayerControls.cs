@@ -262,13 +262,11 @@ public class PlayerControls : MonoBehaviour
       return; // skip normal movement while dashing
     }
 
-    // Horizontal motor (uses QB carry protection values exposed by quickBoostMotor)
+    // Horizontal motor
     horizontalMotor.ProcessHorizontalMovement(
       groundedNow: IsGrounded,
       moveInputDirection: moveInputDirection,
       boostHeld: boostHeld,
-      qbFlyCarryTimer: quickBoostMotor.qbFlyCarryTimer,
-      qbCarryVx: quickBoostMotor.qbCarryVx,
       isFlying: flightMotor.IsFlying,
       dt: dt
     );
