@@ -111,7 +111,7 @@ public class QuickBoostMotor2D
     ApplyQuickBoostVelocity(moveInputDirection, currentMaxSpeed);
 
     // Check for exit conditions
-    CheckQuickBoostEnd(anyFlyInputHeld, currentMaxSpeed);
+    CheckQuickBoostEnd(anyFlyInputHeld);
   }
 
   // -------------------------
@@ -201,18 +201,16 @@ public class QuickBoostMotor2D
     rb.linearVelocity = new Vector2(newVx, 0f);
   }
 
-  private void CheckQuickBoostEnd(bool anyFlyInputHeld, float currentMaxSpeed)
+  private void CheckQuickBoostEnd(bool anyFlyInputHeld)
   {
     float dashProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
 
     // Normal exit when duration complete
     if (dashProgress >= 1f)
-    {
-      EndQuickBoost(anyFlyInputHeld, currentMaxSpeed);
-    }
+      EndQuickBoost(anyFlyInputHeld);
   }
 
-  private void EndQuickBoost(bool wantsFly, float currentMaxSpeed)
+  private void EndQuickBoost(bool wantsFly)
   {
     // Set gravity based on flight intent.
     rb.gravityScale = wantsFly
