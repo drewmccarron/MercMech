@@ -31,7 +31,7 @@ public class EnemyAutoShooter2D : MonoBehaviour
     weaponMotor.Tick(Time.deltaTime);
 
     // Quick guards: config, prefab, target required.
-    if (weaponConfig == null || weaponConfig.projectilePrefab == null || target == null)
+    if (weaponConfig == null || weaponConfig.ProjectilePrefabTyped == null || target == null)
       return;
 
     // If not ready to fire, skip aim/calculation.
@@ -47,7 +47,7 @@ public class EnemyAutoShooter2D : MonoBehaviour
 
     Vector2 spawnPos = origin + dir * weaponConfig.muzzleForwardOffset;
 
-    Projectile2D proj = Instantiate(weaponConfig.projectilePrefab, spawnPos, Quaternion.identity);
+    Projectile2D proj = Instantiate(weaponConfig.ProjectilePrefabTyped, spawnPos, Quaternion.identity);
     proj.Init(Team.Enemy, gameObject, weaponConfig, dir);
   }
 }

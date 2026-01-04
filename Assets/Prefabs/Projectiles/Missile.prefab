@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3335246214505985531}
   - component: {fileID: 418380843088254328}
   m_Layer: 9
-  m_Name: NonInteceptableProjectile
+  m_Name: Missile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -3978481475507189030, guid: 6e79ae1ce7a17e74aa2a804fcf4f1b8a, type: 3}
+  m_Sprite: {fileID: 6312680922665464312, guid: 93e4a0efe1586ce4aa9b7118425b98f3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -175,4 +175,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2097152
   destroyOnWorldHit: 1
-  isInterceptable: 0
+  isInterceptable: 1

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df4492a72c63c8e4786147f11ba46efc, type: 3}
-  m_Name: WPN_TestRifle
+  m_Name: MissileTurret
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig2D
-  projectilePrefab: {fileID: 418380843088254328, guid: c5fd1cbaca784474391e05768b401b89, type: 3}
-  projectileSpeed: 20
-  projectileLifetimeSeconds: 60
-  fireCooldownSeconds: 0.3
-  damagePerHit: 50
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  projectileLifetimeSeconds: 20
+  fireCooldownSeconds: 1
+  damagePerHit: 25
   muzzleForwardOffset: 0.15

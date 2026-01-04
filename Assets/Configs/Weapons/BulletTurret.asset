@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df4492a72c63c8e4786147f11ba46efc, type: 3}
-  m_Name: WPN_TestTurretInterceptable
+  m_Name: BulletTurret
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig2D
   projectilePrefab: {fileID: 418380843088254328, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
   projectileSpeed: 10
