@@ -1064,14 +1064,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8558087cd44845345bbea9ef944a9bd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
-  targetCamera: {fileID: 519420031}
-  player: {fileID: 646307104}
+  targetCamera: {fileID: 0}
+  player: {fileID: 0}
   enabledDebug: 1
   requireDebugSettingsEnabled: 1
   origin: {x: 10, y: 10}
-  graphWidth: 120
-  graphHeight: 25
-  spacing: 4
+  graphWidth: 360
+  graphHeight: 50
+  spacing: 6
   maxSpeed: 30
   maxAccel: 120
   speedMagColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1123,7 +1123,7 @@ Transform:
   m_GameObject: {fileID: 792569299}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 622.72845, y: 505.53122, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
