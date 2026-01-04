@@ -30,6 +30,7 @@ public class Projectile2D : MonoBehaviour
         weaponConfig = weaponConfig2D;
 
         rb.linearVelocity = direction.normalized * weaponConfig.projectileSpeed;
+        OrientSpriteToDirection(direction);
     }
 
     private void Awake()
@@ -84,5 +85,39 @@ public class Projectile2D : MonoBehaviour
             return;
         Destroy(otherProj.gameObject);
         Destroy(gameObject);
+    }
+
+    private void OrientSpriteToDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            return;
+
+        // Calculate angle in degrees (assumes sprite faces right by default at 0°)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Determine if we need to flip based on direction
+        bool facingLeft = direction.x < 0;
+
+        if (facingLeft)
+        {
+            // Flip sprite on X-axis (horizontally) for left-facing
+            spriteRenderer.flipX = true;
+
+            // When flipped horizontally, angles need to be mirrored
+            // The formula is: 180° - angle (which mirrors across vertical axis)
+            angle -= 180;
+        }
+        else
+        {
+            // No flip needed for right-facing
+            spriteRenderer.flipX = false;
+        }
+
+        // Apply rotation
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }
