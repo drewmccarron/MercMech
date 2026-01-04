@@ -3,10 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class Projectile2D : MonoBehaviour
 {
-    [Header("Tuning")]
-    [SerializeField] private float damage;
-    [SerializeField] private float lifetime;
-
     [Header("Runtime")]
     [SerializeField] private Team sourceTeam;
     [SerializeField] private GameObject source;
@@ -20,20 +16,21 @@ public class Projectile2D : MonoBehaviour
 
     private float lifeTimer;
     private Rigidbody2D rb;
+    private WeaponConfig2D weaponConfig;
 
     public void Init(
         Team team,
         GameObject sourceObject,
-        WeaponConfig2D weaponConfig,
+        WeaponConfig2D weaponConfig2D,
         Vector2 direction
     )
     {
         sourceTeam = team;
         source = sourceObject;
-        damage = weaponConfig.damagePerHit;
-        lifetime = weaponConfig.projectileLifetimeSeconds;
+        weaponConfig = weaponConfig2D;
 
         rb.linearVelocity = direction.normalized * weaponConfig.projectileSpeed;
+        OrientSpriteToDirection(direction);
     }
 
     private void Awake()
@@ -49,7 +46,7 @@ public class Projectile2D : MonoBehaviour
     private void Update()
     {
         lifeTimer += Time.deltaTime;
-        if (lifeTimer >= lifetime)
+        if (lifeTimer >= weaponConfig.projectileLifetimeSeconds)
             Destroy(gameObject);
     }
 
@@ -68,7 +65,7 @@ public class Projectile2D : MonoBehaviour
             var point = (Vector2)transform.position;
             var normal = Vector2.zero;
 
-            var info = new DamageInfo(damage, point, normal, source, sourceTeam);
+            var info = new DamageInfo(weaponConfig.damagePerHit, point, normal, source, sourceTeam);
             damageable.TakeDamage(in info);
 
             Destroy(gameObject);
@@ -88,5 +85,39 @@ public class Projectile2D : MonoBehaviour
             return;
         Destroy(otherProj.gameObject);
         Destroy(gameObject);
+    }
+
+    private void OrientSpriteToDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            return;
+
+        // Calculate angle in degrees (assumes sprite faces right by default at 0°)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Determine if we need to flip based on direction
+        bool facingLeft = direction.x < 0;
+
+        if (facingLeft)
+        {
+            // Flip sprite on X-axis (horizontally) for left-facing
+            spriteRenderer.flipX = true;
+
+            // When flipped horizontally, angles need to be mirrored
+            // The formula is: 180° - angle (which mirrors across vertical axis)
+            angle -= 180;
+        }
+        else
+        {
+            // No flip needed for right-facing
+            spriteRenderer.flipX = false;
+        }
+
+        // Apply rotation
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }

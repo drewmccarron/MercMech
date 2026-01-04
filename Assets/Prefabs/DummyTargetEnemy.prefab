@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1822378991763779865}
   - component: {fileID: 2529023670997382494}
   m_Layer: 10
-  m_Name: DummyTarget
+  m_Name: DummyTargetEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

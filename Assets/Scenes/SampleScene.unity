@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAutoShooter2D
   target: {fileID: 646307101}
-  weaponConfig: {fileID: 11400000, guid: eca96675bed93a947a197200a68420aa, type: 2}
+  weaponConfig: {fileID: 11400000, guid: 739178ff8255b8443a83b67549625b57, type: 2}
   muzzleOrigin: {fileID: 0}
 --- !u!1 &352474390
 GameObject:
@@ -638,7 +638,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.0371429, y: 0.91}
+    oldSize: {x: 1.0338461, y: 0.89692307}
     newSize: {x: 15.36, y: 10.24}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -738,7 +738,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7047269236928598810, guid: 7f8889265a507964087430c40b97ee08, type: 3}
+  m_Sprite: {fileID: -1002710392940450733, guid: fa2b1b0569251e2428cffba8bf0d7467, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1142,6 +1142,10 @@ PrefabInstance:
       propertyPath: destroyOnDeath
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3398938988709937656, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1861437052075601702, guid: 13f8ae29d7eb8354ab1e1e537d03ca77, type: 3}
     - target: {fileID: 6220666561996162156, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.02
@@ -3589,6 +3593,10 @@ PrefabInstance:
       propertyPath: destroyOnDeath
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3398938988709937656, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1861437052075601702, guid: 13f8ae29d7eb8354ab1e1e537d03ca77, type: 3}
     - target: {fileID: 6220666561996162156, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.05

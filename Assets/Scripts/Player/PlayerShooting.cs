@@ -46,7 +46,7 @@ public class PlayerShooting : MonoBehaviour
     private void TryFire()
     {
         if (weaponConfig == null) return;
-        Projectile2D prefab = weaponConfig.projectilePrefab;
+        Projectile2D prefab = weaponConfig.ProjectilePrefabTyped;
         if (prefab == null) return;
 
         float cooldown = weaponConfig.fireCooldownSeconds;

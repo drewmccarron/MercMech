@@ -4,7 +4,7 @@ using UnityEngine;
 public class WeaponConfig2D : ScriptableObject
 {
     [Header("Projectile")]
-    public Projectile2D projectilePrefab;
+    public GameObject projectilePrefab;
     public float projectileSpeed = 20f;
 
     // NEW: projectile lifetime belongs to the weapon
@@ -16,4 +16,18 @@ public class WeaponConfig2D : ScriptableObject
 
     [Header("Spawn")]
     public float muzzleForwardOffset = 0.15f;
+
+    public Projectile2D ProjectilePrefabTyped
+    {
+        get
+        {
+            if (projectilePrefab == null) return null;
+
+            // Prefer root, but allow child so prefab structure stays flexible
+            var p = projectilePrefab.GetComponent<Projectile2D>();
+            if (p != null) return p;
+
+            return projectilePrefab.GetComponentInChildren<Projectile2D>();
+        }
+    }
 }

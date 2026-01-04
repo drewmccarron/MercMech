@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 4010180046615042307}
   - component: {fileID: 8416405415357416861}
   - component: {fileID: 1407656979995382435}
-  - component: {fileID: 3335246214505985531}
+  - component: {fileID: 5503418686746447239}
   - component: {fileID: 418380843088254328}
   m_Layer: 9
-  m_Name: NonInteceptableProjectile
+  m_Name: Missile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -3510971827413770192, guid: 3ab7e5729171e554b9a5891bfa41113a, type: 3}
+  m_Sprite: {fileID: 6312680922665464312, guid: 93e4a0efe1586ce4aa9b7118425b98f3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -121,8 +121,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!58 &3335246214505985531
-CircleCollider2D:
+--- !u!61 &5503418686746447239
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -155,8 +155,18 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.2
+  m_Offset: {x: 0.15, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.992, y: 1.3653333}
+    newSize: {x: 0.32, y: 0.32}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.7, y: 0.2}
+  m_EdgeRadius: 0
 --- !u!114 &418380843088254328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,12 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01d4d2988d70f614b9e69eba41417124, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile2D
-  damage: 0
-  lifetime: 0
   sourceTeam: 0
   source: {fileID: 0}
   worldMask:
     serializedVersion: 2
     m_Bits: 2097152
   destroyOnWorldHit: 1
-  isInterceptable: 0
+  isInterceptable: 1
