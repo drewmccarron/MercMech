@@ -2,9 +2,11 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 [DefaultExecutionOrder(10000)]
-[RequireComponent(typeof(Camera))]
 public class VelocityAccelDebugRendererURP : MonoBehaviour
 {
+    [Header("Target")]
+    [SerializeField] private Camera targetCamera;
+
     [Header("Refs")]
     [SerializeField] private PlayerControls player;
 
@@ -28,13 +30,18 @@ public class VelocityAccelDebugRendererURP : MonoBehaviour
     [SerializeField] private Color speedYColor = Color.green;
     [SerializeField] private Color accelColor = Color.yellow;
     [SerializeField] private Color zeroLineColor = new Color(1f, 1f, 1f, 0.15f);
-
     private Camera cam;
     private Material lineMaterial;
 
     private void Awake()
     {
-        cam = GetComponent<Camera>();
+        cam = targetCamera != null ? targetCamera : Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning($"{nameof(VelocityAccelDebugRendererURP)}: No target camera set and no Camera.main found.");
+            enabled = false;
+            return;
+        }
 
         Shader shader = Shader.Find("Hidden/Internal-Colored");
         lineMaterial = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
@@ -44,15 +51,8 @@ public class VelocityAccelDebugRendererURP : MonoBehaviour
         lineMaterial.SetInt("_ZWrite", 0);
     }
 
-    private void OnEnable()
-    {
-        RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
-    }
-
-    private void OnDisable()
-    {
-        RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
-    }
+    private void OnEnable() => RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
+    private void OnDisable() => RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
 
     private void OnEndCameraRendering(ScriptableRenderContext context, Camera renderingCamera)
     {

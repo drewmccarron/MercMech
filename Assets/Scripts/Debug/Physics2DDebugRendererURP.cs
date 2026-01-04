@@ -4,6 +4,9 @@ using UnityEngine.Rendering;
 [DefaultExecutionOrder(10000)]
 public class Physics2DDebugRendererURP : MonoBehaviour
 {
+    [Header("Target")]
+    [SerializeField] private Camera targetCamera;
+
     [Header("Toggle")]
     [SerializeField] private bool requireDebugSettingsEnabled = true;
 
@@ -20,25 +23,24 @@ public class Physics2DDebugRendererURP : MonoBehaviour
 
     private void Awake()
     {
-        cam = GetComponent<Camera>();
+        cam = targetCamera != null ? targetCamera : Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning($"{nameof(Physics2DDebugRendererURP)}: No target camera set and no Camera.main found.");
+            enabled = false;
+            return;
+        }
 
         Shader shader = Shader.Find("Hidden/Internal-Colored");
         lineMaterial = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
-        lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        lineMaterial.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+        lineMaterial.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+        lineMaterial.SetInt("_Cull", (int)CullMode.Off);
         lineMaterial.SetInt("_ZWrite", 0);
     }
 
-    private void OnEnable()
-    {
-        RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
-    }
-
-    private void OnDisable()
-    {
-        RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
-    }
+    private void OnEnable() => RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
+    private void OnDisable() => RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
 
     private void OnEndCameraRendering(ScriptableRenderContext context, Camera renderingCamera)
     {
@@ -52,8 +54,6 @@ public class Physics2DDebugRendererURP : MonoBehaviour
         lineMaterial.SetPass(0);
 
         GL.PushMatrix();
-
-        // IMPORTANT: set matrices so your vertices are world-space
         GL.modelview = cam.worldToCameraMatrix;
         GL.LoadProjectionMatrix(cam.projectionMatrix);
 

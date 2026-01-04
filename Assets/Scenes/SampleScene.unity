@@ -331,9 +331,6 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
-  - component: {fileID: 519420034}
-  - component: {fileID: 519420035}
-  - component: {fileID: 519420036}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -491,65 +488,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
---- !u!114 &519420034
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37917012ee127614f9547b9d7fa6c9d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Physics2DDebugRenderer
-  requireDebugSettingsEnabled: 1
-  colliderColor: {r: 1, g: 0.44236317, b: 0.18553454, a: 1}
-  projectileVelocityColor: {r: 0.11949679, g: 0.7169812, b: 0.36100614, a: 1}
-  circleSegments: 20
-  projectileVelocityScale: 0.15
---- !u!114 &519420035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4643b80ba3d65c469dc6d1a7fd5d2e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GroundProbeDebugRendererURP
-  groundedColor: {r: 0, g: 1, b: 0, a: 1}
-  notGroundedColor: {r: 1, g: 0, b: 0, a: 1}
-  normalColor: {r: 1, g: 1, b: 0, a: 1}
-  normalLength: 0.35
---- !u!114 &519420036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8558087cd44845345bbea9ef944a9bd9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
-  player: {fileID: 646307104}
-  enabledDebug: 1
-  requireDebugSettingsEnabled: 1
-  origin: {x: 10, y: 10}
-  graphWidth: 120
-  graphHeight: 25
-  spacing: 4
-  maxSpeed: 30
-  maxAccel: 120
-  speedMagColor: {r: 1, g: 1, b: 1, a: 1}
-  speedXColor: {r: 0, g: 1, b: 1, a: 1}
-  speedYColor: {r: 0, g: 1, b: 0, a: 1}
-  accelColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  zeroLineColor: {r: 1, g: 1, b: 1, a: 0.15}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1095,6 +1033,102 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageReceiver
   combatant: {fileID: 646307111}
+--- !u!1 &792569299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 792569305}
+  - component: {fileID: 792569303}
+  - component: {fileID: 792569301}
+  - component: {fileID: 792569300}
+  m_Layer: 0
+  m_Name: DebugUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &792569300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792569299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8558087cd44845345bbea9ef944a9bd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
+  targetCamera: {fileID: 519420031}
+  player: {fileID: 646307104}
+  enabledDebug: 1
+  requireDebugSettingsEnabled: 1
+  origin: {x: 10, y: 10}
+  graphWidth: 120
+  graphHeight: 25
+  spacing: 4
+  maxSpeed: 30
+  maxAccel: 120
+  speedMagColor: {r: 1, g: 1, b: 1, a: 1}
+  speedXColor: {r: 0, g: 1, b: 1, a: 1}
+  speedYColor: {r: 0, g: 1, b: 0, a: 1}
+  accelColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  zeroLineColor: {r: 1, g: 1, b: 1, a: 0.15}
+--- !u!114 &792569301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792569299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37917012ee127614f9547b9d7fa6c9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Physics2DDebugRendererURP
+  targetCamera: {fileID: 519420031}
+  requireDebugSettingsEnabled: 1
+  colliderColor: {r: 0, g: 1, b: 1, a: 1}
+  projectileVelocityColor: {r: 1, g: 0.8, b: 0, a: 1}
+  circleSegments: 20
+  projectileVelocityScale: 0.15
+--- !u!114 &792569303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792569299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4643b80ba3d65c469dc6d1a7fd5d2e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundProbeDebugRendererURP
+  targetCamera: {fileID: 519420031}
+  groundedColor: {r: 0, g: 1, b: 0, a: 1}
+  notGroundedColor: {r: 1, g: 0, b: 0, a: 1}
+  normalColor: {r: 1, g: 1, b: 0, a: 1}
+  normalLength: 0.35
+--- !u!4 &792569305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792569299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 622.72845, y: 505.53122, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1087126016
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3626,3 +3660,4 @@ SceneRoots:
   - {fileID: 1147847152}
   - {fileID: 1104073620}
   - {fileID: 1087126016}
+  - {fileID: 792569305}

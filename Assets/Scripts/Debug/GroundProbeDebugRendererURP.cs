@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-[RequireComponent(typeof(Camera))]
 public class GroundProbeDebugRendererURP : MonoBehaviour
 {
+    [Header("Target")]
+    [SerializeField] private Camera targetCamera;
+
     [SerializeField] private Color groundedColor = new Color(0f, 1f, 0f, 1f);
     [SerializeField] private Color notGroundedColor = new Color(1f, 0f, 0f, 1f);
     [SerializeField] private Color normalColor = new Color(1f, 1f, 0f, 1f);
-
     [SerializeField] private float normalLength = 0.35f;
 
     private Camera cam;
@@ -15,7 +16,13 @@ public class GroundProbeDebugRendererURP : MonoBehaviour
 
     private void Awake()
     {
-        cam = GetComponent<Camera>();
+        cam = targetCamera != null ? targetCamera : Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning($"{nameof(GroundProbeDebugRendererURP)}: No target camera set and no Camera.main found.");
+            enabled = false;
+            return;
+        }
 
         Shader shader = Shader.Find("Hidden/Internal-Colored");
         lineMaterial = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
