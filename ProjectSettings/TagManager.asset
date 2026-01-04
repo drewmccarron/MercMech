@@ -13,20 +13,20 @@ TagManager:
   - UI
   - Ground
   - Walls
+  - Player
+  - Projectile
+  - Enemies
   - 
   - 
   - 
+  - PlayerHurtBox
+  - EnemyHurtBox
+  - PlayerProjectile
+  - EnemyProjectile
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - World
   - 
   - 
   - 
