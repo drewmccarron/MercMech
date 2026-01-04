@@ -16,9 +16,9 @@ public class VelocityAccelDebugRendererURP : MonoBehaviour
 
     [Header("Layout (pixels)")]
     [SerializeField] private Vector2 origin = new Vector2(10f, 10f);
-    [SerializeField] private float graphWidth = 120f;
-    [SerializeField] private float graphHeight = 25f;
-    [SerializeField] private float spacing = 4f;
+    [SerializeField] private float graphWidth = 360f;
+    [SerializeField] private float graphHeight = 50f;
+    [SerializeField] private float spacing = 6f;
 
     [Header("Ranges")]
     [SerializeField] private float maxSpeed = 30f;
