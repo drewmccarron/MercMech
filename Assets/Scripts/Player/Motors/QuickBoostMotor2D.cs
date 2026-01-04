@@ -42,9 +42,6 @@ public class QuickBoostMotor2D
     [Range(0f, 1f)]
     public float qbFlyReleasePercent = 0.85f;
 
-    [Tooltip("Upward velocity applied when exiting QB into flight (upkick).\nSuggested range: 8-14")]
-    public float quickBoostFlyExitUpVelocity = 10f;
-
     [Tooltip("Horizontal exit speed when no input on dash exit (neutral exit).\nSuggested range: 1-4")]
     public float quickBoostNeutralExitSpeed = 2f;
 
@@ -59,16 +56,6 @@ public class QuickBoostMotor2D
 
     [Tooltip("Minimum interval between chain requests (prevents double-queue spam).\nSuggested range: 0.03-0.08")]
     public float qbChainMinInterval = 0.05f;
-
-    [Header("QB -> Fly Upkick Multipliers")]
-
-    [Tooltip("Upkick multiplier when QB->fly from ground/falling (not flying before QB).\nSuggested range feel: 0.5-0.8")]
-    [Range(0f, 1f)]
-    public float quickBoostFlyExitUpVelocityNonFlightMultiplier = 0.6f;
-
-    [Tooltip("Upkick multiplier when QB->fly and already flying before QB.\nSuggested range: 0.8-1.0")]
-    [Range(0f, 1f)]
-    public float quickBoostFlyExitUpVelocityFlightMultiplier = 1f;
   }
 
   // State
@@ -264,18 +251,7 @@ public class QuickBoostMotor2D
       ? dashDirection * currentMaxSpeed
       : dashDirection * settings.quickBoostNeutralExitSpeed;
 
-    // Calculate vertical exit velocity if transitioning to flight.
-    float exitVy = 0f;
-    if (wantsFly)
-    {
-      float upkickMultiplier = wasFlyingBeforeQuickBoost
-        ? settings.quickBoostFlyExitUpVelocityFlightMultiplier
-        : settings.quickBoostFlyExitUpVelocityNonFlightMultiplier;
-
-      exitVy = settings.quickBoostFlyExitUpVelocity * upkickMultiplier;
-    }
-
-    rb.linearVelocity = new Vector2(exitVx, exitVy);
+    rb.linearVelocity = new Vector2(exitVx, rb.linearVelocityY);
 
     // Reset state.
     IsQuickBoosting = false;
