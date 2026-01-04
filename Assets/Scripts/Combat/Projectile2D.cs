@@ -3,10 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class Projectile2D : MonoBehaviour
 {
-    [Header("Tuning")]
-    [SerializeField] private float damage;
-    [SerializeField] private float lifetime;
-
     [Header("Runtime")]
     [SerializeField] private Team sourceTeam;
     [SerializeField] private GameObject source;
@@ -20,18 +16,18 @@ public class Projectile2D : MonoBehaviour
 
     private float lifeTimer;
     private Rigidbody2D rb;
+    private WeaponConfig2D weaponConfig;
 
     public void Init(
         Team team,
         GameObject sourceObject,
-        WeaponConfig2D weaponConfig,
+        WeaponConfig2D weaponConfig2D,
         Vector2 direction
     )
     {
         sourceTeam = team;
         source = sourceObject;
-        damage = weaponConfig.damagePerHit;
-        lifetime = weaponConfig.projectileLifetimeSeconds;
+        weaponConfig = weaponConfig2D;
 
         rb.linearVelocity = direction.normalized * weaponConfig.projectileSpeed;
     }
@@ -49,7 +45,7 @@ public class Projectile2D : MonoBehaviour
     private void Update()
     {
         lifeTimer += Time.deltaTime;
-        if (lifeTimer >= lifetime)
+        if (lifeTimer >= weaponConfig.projectileLifetimeSeconds)
             Destroy(gameObject);
     }
 
@@ -68,7 +64,7 @@ public class Projectile2D : MonoBehaviour
             var point = (Vector2)transform.position;
             var normal = Vector2.zero;
 
-            var info = new DamageInfo(damage, point, normal, source, sourceTeam);
+            var info = new DamageInfo(weaponConfig.damagePerHit, point, normal, source, sourceTeam);
             damageable.TakeDamage(in info);
 
             Destroy(gameObject);
