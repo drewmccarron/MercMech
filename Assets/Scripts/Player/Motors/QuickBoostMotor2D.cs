@@ -23,7 +23,7 @@ public class QuickBoostMotor2D
     public AnimationCurve quickBoostCurve = null;
 
     [Tooltip("Cooldown between dashes in seconds.\nSuggested range: 0.3-0.6")]
-    public float quickBoostCooldown = 0.4f;
+    public float quickBoostCooldown = 0.6f;
 
     [Tooltip("Flat energy cost when starting a quick boost.\nSuggested range: 20-35")]
     public float quickBoostCost = 25f;
@@ -37,10 +37,6 @@ public class QuickBoostMotor2D
     public float quickBoostDecel = 260f;
 
     [Header("QB -> Fly Transition")]
-
-    [Tooltip("Percentage of dash completed before QB->fly early exit is allowed (0-1).\nSuggested range: 0.75-0.9")]
-    [Range(0f, 1f)]
-    public float qbFlyReleasePercent = 0.85f;
 
     [Tooltip("Horizontal exit speed when no input on dash exit (neutral exit).\nSuggested range: 1-4")]
     public float quickBoostNeutralExitSpeed = 2f;
@@ -66,12 +62,8 @@ public class QuickBoostMotor2D
 
   // Chaining
   private int queuedChainDirection;
-  private float lastChainRequestTime;
   private bool hasQueuedChain;
   private float qbChainBufferTimer;
-
-  // Flight state tracking
-  private bool wasFlyingBeforeQuickBoost;
 
   public QuickBoostMotor2D(Rigidbody2D rb, Settings settings, HorizontalMotor2D.Settings moveSettings, FlightMotor2D.Settings flightSettings)
   {
@@ -139,15 +131,12 @@ public class QuickBoostMotor2D
 
   private void TryQueueChain(int direction)
   {
-    // Prevent double-queue via minimum interval.
-    float timeSinceLastRequest = Time.fixedTime - lastChainRequestTime;
-    bool bufferActive = qbChainBufferTimer > 0f;
-    if (timeSinceLastRequest < settings.qbChainMinInterval && bufferActive)
+    bool isBufferActive = qbChainBufferTimer > 0f;
+    if (isBufferActive)
       return;
 
     queuedChainDirection = direction;
     hasQueuedChain = true;
-    lastChainRequestTime = Time.fixedTime;
     qbChainBufferTimer = settings.qbChainBufferTime;
   }
 
@@ -157,7 +146,6 @@ public class QuickBoostMotor2D
     quickBoostTimer = 0f;
     IsQuickBoosting = true;
     cooldownTimer = settings.quickBoostCooldown;
-    wasFlyingBeforeQuickBoost = !groundedNow && anyFlyInputHeld;
 
     // Lock gravity and vertical velocity.
     rb.gravityScale = 0f;
@@ -165,7 +153,6 @@ public class QuickBoostMotor2D
 
     // Clear chain state.
     hasQueuedChain = false;
-    lastChainRequestTime = Time.fixedTime;
   }
 
   private bool TryExecuteQueuedChain()
@@ -183,8 +170,6 @@ public class QuickBoostMotor2D
     rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
     hasQueuedChain = false;
-    lastChainRequestTime = Time.fixedTime;
-
     return true;
   }
 
@@ -222,13 +207,6 @@ public class QuickBoostMotor2D
   {
     float dashProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
 
-    // Early exit into flight if conditions met
-    if (anyFlyInputHeld && dashProgress >= settings.qbFlyReleasePercent)
-    {
-      EndQuickBoost(true, currentMaxSpeed);
-      return;
-    }
-
     // Normal exit when duration complete
     if (dashProgress >= 1f)
     {
@@ -255,6 +233,5 @@ public class QuickBoostMotor2D
 
     // Reset state.
     IsQuickBoosting = false;
-    wasFlyingBeforeQuickBoost = false;
   }
 }
