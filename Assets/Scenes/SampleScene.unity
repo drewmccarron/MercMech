@@ -1142,6 +1142,10 @@ PrefabInstance:
       propertyPath: destroyOnDeath
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3398938988709937656, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1861437052075601702, guid: 13f8ae29d7eb8354ab1e1e537d03ca77, type: 3}
     - target: {fileID: 6220666561996162156, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.02
@@ -3589,6 +3593,10 @@ PrefabInstance:
       propertyPath: destroyOnDeath
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3398938988709937656, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1861437052075601702, guid: 13f8ae29d7eb8354ab1e1e537d03ca77, type: 3}
     - target: {fileID: 6220666561996162156, guid: 05bd8a2bf0068de418407f1fbbd07d32, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.05
