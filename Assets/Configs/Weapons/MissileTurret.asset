@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df4492a72c63c8e4786147f11ba46efc, type: 3}
   m_Name: MissileTurret
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig2D
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 77620100358782737, guid: d4f26f1b64862304ea7a4387fc27c512, type: 3}
   projectileSpeed: 10
   projectileLifetimeSeconds: 20
   fireCooldownSeconds: 1
