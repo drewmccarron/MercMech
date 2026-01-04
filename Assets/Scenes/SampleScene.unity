@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAutoShooter2D
   target: {fileID: 646307101}
-  weaponConfig: {fileID: 11400000, guid: eca96675bed93a947a197200a68420aa, type: 2}
+  weaponConfig: {fileID: 11400000, guid: 739178ff8255b8443a83b67549625b57, type: 2}
   muzzleOrigin: {fileID: 0}
 --- !u!1 &352474390
 GameObject:
