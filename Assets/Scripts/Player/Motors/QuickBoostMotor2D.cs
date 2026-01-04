@@ -49,9 +49,6 @@ public class QuickBoostMotor2D
     [Tooltip("Earliest percent of dash where chaining into new QB is allowed (0-1).\nSuggested range: 0.7-0.85")]
     [Range(0f, 1f)]
     public float qbChainStartPercent = 0.8f;
-
-    [Tooltip("Minimum interval between chain requests (prevents double-queue spam).\nSuggested range: 0.03-0.08")]
-    public float qbChainMinInterval = 0.05f;
   }
 
   // State
