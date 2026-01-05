@@ -242,7 +242,7 @@ public class PlayerControls : MonoBehaviour
     // Update ground state   
     IsGrounded = groundProbe.Evaluate(rb, out var debugInfo);
 
-    // If quick boosting, QB motor fully owns velocity/gravity for this step.
+    // If quick boosting, QB motor controls horizontal velocity only.
     if (quickBoostMotor.IsQuickBoosting)
     {
       // Calculate what the max speed would be for current state
@@ -257,12 +257,26 @@ public class PlayerControls : MonoBehaviour
         anyFlyInputHeld: anyFlyInputHeld,
         currentMaxSpeed: currentMaxSpeed
       );
-      movementDebug.Sample(rb, Time.fixedDeltaTime);
 
-      return; // skip normal movement while dashing
+      // Allow flight to work during quick boost (vertical movement).
+      if (!jumpMotor.IsWindingUp)
+      {
+        bool hasEnergyForFlight = flightMotor.IsFlying ? energyPool.HasEnergy : energyPool.CanStartFlight();
+
+        flightMotor.ProcessFlight(
+          anyFlyInputHeld: anyFlyInputHeld,
+          jumpedFromGround: ref jumpMotor.jumpedFromGround,
+          hasEnergyForFlight: hasEnergyForFlight,
+          dt: dt
+        );
+      }
+
+      movementDebug.Sample(rb, Time.fixedDeltaTime);
+      ClampFallSpeed();
+      return; // skip normal horizontal movement and energy drain while dashing
     }
 
-    // Horizontal motor
+    // Normal movement (not quick boosting)
     horizontalMotor.ProcessHorizontalMovement(
       groundedNow: IsGrounded,
       moveInputDirection: moveInputDirection,

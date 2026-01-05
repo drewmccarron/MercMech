@@ -144,8 +144,7 @@ public class QuickBoostMotor2D
     IsQuickBoosting = true;
     cooldownTimer = settings.quickBoostCooldown;
 
-    // Lock gravity and vertical velocity.
-    rb.gravityScale = 0f;
+    // Kill vertical momentum on start only.
     rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
     // Clear chain state.
@@ -161,7 +160,7 @@ public class QuickBoostMotor2D
     if (dashProgress < settings.qbChainStartPercent)
       return false;
 
-    // Execute chain: restart dash in queued direction.
+    // Execute chain: restart dash in queued direction and kill vertical momentum again.
     dashDirection = queuedChainDirection;
     quickBoostTimer = 0f;
     rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
@@ -176,7 +175,6 @@ public class QuickBoostMotor2D
     quickBoostTimer += Time.fixedDeltaTime;
 
     int heldDir = InputUtils.AxisToDir(moveInputDirection);
-    rb.gravityScale = 0f;
 
     // Calculate target speed from curve.
     float dashProgress = Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
@@ -198,7 +196,9 @@ public class QuickBoostMotor2D
       : settings.quickBoostDecel;
 
     float newVx = Mathf.MoveTowards(currentVelocity, targetVelocity, rate * Time.fixedDeltaTime);
-    rb.linearVelocity = new Vector2(newVx, 0f);
+    
+    // Only modify horizontal velocity - preserve vertical movement.
+    rb.linearVelocity = new Vector2(newVx, rb.linearVelocity.y);
   }
 
   private void CheckQuickBoostEnd(bool anyFlyInputHeld)
@@ -207,17 +207,6 @@ public class QuickBoostMotor2D
 
     // Normal exit when duration complete
     if (dashProgress >= 1f)
-      EndQuickBoost(anyFlyInputHeld);
-  }
-
-  private void EndQuickBoost(bool wantsFly)
-  {
-    // Set gravity based on flight intent.
-    rb.gravityScale = wantsFly
-      ? flightSettings.flyGravityScale
-      : flightSettings.normalGravityScale;
-
-    // Reset state.
-    IsQuickBoosting = false;
-  }
+        IsQuickBoosting = false;
+    }
 }
