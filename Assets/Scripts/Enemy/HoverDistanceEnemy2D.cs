@@ -7,18 +7,18 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
     [Header("Distance")]
     [SerializeField] float preferredHorizontalDistance = 6f;
-    [SerializeField] float horizontalDeadband = 0.75f;
+    [SerializeField] float horizontalDeadband = 2.5f;
 
     [Header("Movement")]
-    [SerializeField] float approachAccel = 20f;
-    [SerializeField] float retreatAccel = 35f;
+    [SerializeField] float approachAccel = 12.5f;
+    [SerializeField] float retreatAccel = 25f;
     [SerializeField] float maxSpeed = 8f;
     [SerializeField] float damping = 8f;
 
     [Header("Vertical Hover")]
     [SerializeField] float preferredVerticalOffset = 7f;
     [SerializeField] float verticalDeadband = 0.5f;
-    [SerializeField] float verticalAccel = 18f;
+    [SerializeField] float verticalAccel = 15f;
     [SerializeField] float maxVerticalSpeed = 6f;
 
     [Header("Ground Clearance")]
@@ -95,12 +95,12 @@ public class HoverDistanceEnemy2D : MonoBehaviour
         float targetY = player.position.y + preferredVerticalOffset;
         float targetVerticalOffset = targetY - rb.position.y;
 
+        // Maintain minimum ground clearance
         float groundDistance = GetGroundDistance();
-        // Priority 1: Maintain minimum ground clearance
         if (groundDistance < minGroundClearance)
         {
-            // Too close to ground - error is how much we need to climb
-            targetVerticalOffset = minGroundClearance - groundDistance;
+            // Too close to ground - how much we need to climb
+            targetVerticalOffset = Mathf.Max(targetVerticalOffset, minGroundClearance - groundDistance);
         }
 
         float targetAccelY;

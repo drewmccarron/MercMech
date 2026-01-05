@@ -214,15 +214,15 @@ MonoBehaviour:
   player: {fileID: 646307101}
   preferredHorizontalDistance: 6
   horizontalDeadband: 0.75
-  approachAccel: 20
-  retreatAccel: 35
+  approachAccel: 12.5
+  retreatAccel: 25
   maxSpeed: 8
   damping: 8
-  preferredVerticalOffset: 8
+  preferredVerticalOffset: 7
   verticalDeadband: 0.5
   verticalAccel: 18
   maxVerticalSpeed: 6
-  minGroundClearance: 6
+  minGroundClearance: 7
   groundProbeSettings:
     groundLayer:
       serializedVersion: 2
