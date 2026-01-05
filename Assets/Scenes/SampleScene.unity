@@ -218,11 +218,11 @@ MonoBehaviour:
   retreatAccel: 35
   maxSpeed: 8
   damping: 8
-  preferredVerticalOffset: 2
+  preferredVerticalOffset: 8
   verticalDeadband: 0.5
   verticalAccel: 18
   maxVerticalSpeed: 6
-  minGroundClearance: 7
+  minGroundClearance: 6
   groundProbeSettings:
     groundLayer:
       serializedVersion: 2
@@ -3513,7 +3513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6870247985186119032, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
       propertyPath: m_Constraints
-      value: 7
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6870247985186119032, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
       propertyPath: m_AngularDamping

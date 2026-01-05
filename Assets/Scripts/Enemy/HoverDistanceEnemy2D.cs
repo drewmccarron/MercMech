@@ -16,7 +16,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
     [SerializeField] float damping = 8f;
 
     [Header("Vertical Hover")]
-    [SerializeField] float preferredVerticalOffset = 2f;
+    [SerializeField] float preferredVerticalOffset = 7f;
     [SerializeField] float verticalDeadband = 0.5f;
     [SerializeField] float verticalAccel = 18f;
     [SerializeField] float maxVerticalSpeed = 6f;
@@ -92,26 +92,21 @@ public class HoverDistanceEnemy2D : MonoBehaviour
     private float maintainanceVerticalOffset(Vector2 toPlayer)
     {
         // Determine target height
-        float yError;
-        float groundDistance = GetGroundDistance();
+        float targetY = player.position.y + preferredVerticalOffset;
+        float targetVerticalOffset = targetY - rb.position.y;
 
+        float groundDistance = GetGroundDistance();
         // Priority 1: Maintain minimum ground clearance
         if (groundDistance < minGroundClearance)
         {
             // Too close to ground - error is how much we need to climb
-            yError = minGroundClearance - groundDistance;
-        }
-        // Priority 2: Match player vertical offset
-        else
-        {
-            // Safe height - use player relative positioning
-            yError = toPlayer.y - preferredVerticalOffset;
+            targetVerticalOffset = minGroundClearance - groundDistance;
         }
 
         float targetAccelY;
-        if (Mathf.Abs(yError) > verticalDeadband)
+        if (Mathf.Abs(targetVerticalOffset) > verticalDeadband)
         {
-            targetAccelY = Mathf.Sign(yError) * verticalAccel;
+            targetAccelY = Mathf.Sign(targetVerticalOffset) * verticalAccel;
         }
         else
         {
@@ -124,19 +119,27 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
     private float GetGroundDistance()
     {
+        // Cast from the bottom of the collider, not rb.position
+        float bottomY = col.bounds.min.y;
+        Vector2 origin = new Vector2(rb.position.x, bottomY);
+
+        // Cast far enough to reliably find ground
+        const float maxCast = 100f;
+
         RaycastHit2D hit = Physics2D.Raycast(
-            rb.position,
+            origin,
             Vector2.down,
-            minGroundClearance,
+            maxCast,
             groundProbeSettings.groundLayer
         );
 
         if (hit.collider != null)
             return hit.distance;
 
-        // No ground detected - assume safe distance
-        return minGroundClearance;
+        // No ground detected - treat as very far away
+        return float.PositiveInfinity;
     }
+
 
     void OnDrawGizmosSelected()
     {
