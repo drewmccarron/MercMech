@@ -795,7 +795,7 @@ MonoBehaviour:
     thrustRampUpSpeed: 12
     thrustRampDownSpeed: 18
   quickBoostSettings:
-    quickBoostStartSpeed: 20
+    quickBoostStartSpeed: 30
     quickBoostDuration: 0.5
     quickBoostCurve:
       serializedVersion: 2
@@ -810,7 +810,6 @@ MonoBehaviour:
     quickBoostNeutralExitSpeed: 2
     qbChainBufferTime: 0.2
     qbChainStartPercent: 0.8
-    qbChainMinInterval: 0.05
   fallSettings:
     maxFallSpeed: 12
 --- !u!120 &646307105
