@@ -213,18 +213,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverDistanceEnemy2D
   player: {fileID: 646307101}
   preferredHorizontalDistance: 6
-  horizontalHeadband: 0.75
+  horizontalDeadband: 0.75
   approachAccel: 20
   retreatAccel: 35
   maxSpeed: 8
   damping: 8
-  maintainVerticalOffset: 1
   preferredVerticalOffset: 2
   verticalDeadband: 0.5
   verticalAccel: 18
   maxVerticalSpeed: 6
-  minGroundClearance: 3
-  groundCheckDistance: 10
+  minGroundClearance: 7
   groundProbeSettings:
     groundLayer:
       serializedVersion: 2
@@ -3512,6 +3510,10 @@ PrefabInstance:
     - target: {fileID: 6870247985186119032, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
       propertyPath: m_BodyType
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6870247985186119032, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
+      propertyPath: m_Constraints
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6870247985186119032, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
       propertyPath: m_AngularDamping

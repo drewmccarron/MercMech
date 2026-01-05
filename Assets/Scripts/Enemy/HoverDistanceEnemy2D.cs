@@ -7,7 +7,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
     [Header("Distance")]
     [SerializeField] float preferredHorizontalDistance = 6f;
-    [SerializeField] float horizontalHeadband = 0.75f;
+    [SerializeField] float horizontalDeadband = 0.75f;
 
     [Header("Movement")]
     [SerializeField] float approachAccel = 20f;
@@ -16,7 +16,6 @@ public class HoverDistanceEnemy2D : MonoBehaviour
     [SerializeField] float damping = 8f;
 
     [Header("Vertical Hover")]
-    [SerializeField] bool maintainVerticalOffset = true;
     [SerializeField] float preferredVerticalOffset = 2f;
     [SerializeField] float verticalDeadband = 0.5f;
     [SerializeField] float verticalAccel = 18f;
@@ -49,21 +48,30 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
         // Check if grounded
         bool isGrounded = groundProbe.Evaluate(rb, out var debugInfo);
-
         Vector2 toPlayer = (Vector2)player.position - rb.position;
 
         // --- Horizontal spacing ---
+        float newVx = maintainanceHorizontalDistance(toPlayer);
+
+        // --- Vertical hover ---
+        float newVy = maintainanceVerticalOffset(toPlayer);
+
+        rb.linearVelocity = new Vector2(newVx, newVy);
+    }
+
+    private float maintainanceHorizontalDistance(Vector2 toPlayer)
+    {
         float absX = Mathf.Abs(toPlayer.x);
-        float distError = absX - preferredHorizontalDistance;
+        float distanceFromEnemy = absX - preferredHorizontalDistance;
 
         float targetAccelX = 0f;
 
-        if (Mathf.Abs(distError) > horizontalHeadband)
+        // If outside deadband
+        if (Mathf.Abs(distanceFromEnemy) > horizontalDeadband)
         {
-            // Move towards correct distance.
             // If too far: accelerate toward player.
             // If too close: accelerate away from player.
-            bool tooFar = distError > 0f;
+            bool tooFar = distanceFromEnemy > 0f;
 
             float dirTowardPlayer = Mathf.Sign(toPlayer.x); // +1 means player is right of enemy
             float moveDir = tooFar ? dirTowardPlayer : -dirTowardPlayer;
@@ -78,50 +86,40 @@ public class HoverDistanceEnemy2D : MonoBehaviour
         }
 
         float newVx = rb.linearVelocity.x + targetAccelX * Time.fixedDeltaTime;
-        newVx = Mathf.Clamp(newVx, -maxSpeed, maxSpeed);
+        return Mathf.Clamp(newVx, -maxSpeed, maxSpeed);
+    }
 
-        // --- Vertical hover ---
-        float newVy = rb.linearVelocity.y;
-        if (maintainVerticalOffset)
+    private float maintainanceVerticalOffset(Vector2 toPlayer)
+    {
+        // Determine target height
+        float yError;
+        float groundDistance = GetGroundDistance();
+
+        // Priority 1: Maintain minimum ground clearance
+        if (groundDistance < minGroundClearance)
         {
-            // Get actual distance to ground
-            float groundDistance = GetGroundDistance();
-
-            // Determine target height
-            float yError;
-            float effectiveDeadband = verticalDeadband;
-            float effectiveAccel = verticalAccel;
-
-            // Priority 1: Maintain minimum ground clearance
-            if (groundDistance < minGroundClearance)
-            {
-                // Too close to ground - error is how much we need to climb
-                yError = minGroundClearance - groundDistance;
-                effectiveDeadband = 0.2f;
-                effectiveAccel = verticalAccel * 2f; // Double thrust when too low
-            }
-            // Priority 2: Match player vertical offset
-            else
-            {
-                // Safe height - use player relative positioning
-                yError = toPlayer.y - preferredVerticalOffset;
-            }
-
-            float targetAccelY;
-            if (Mathf.Abs(yError) > effectiveDeadband)
-            {
-                targetAccelY = Mathf.Sign(yError) * effectiveAccel;
-            }
-            else
-            {
-                targetAccelY = -rb.linearVelocity.y * damping;
-            }
-
-            newVy = rb.linearVelocity.y + targetAccelY * Time.fixedDeltaTime;
-            newVy = Mathf.Clamp(newVy, -maxVerticalSpeed, maxVerticalSpeed);
+            // Too close to ground - error is how much we need to climb
+            yError = minGroundClearance - groundDistance;
+        }
+        // Priority 2: Match player vertical offset
+        else
+        {
+            // Safe height - use player relative positioning
+            yError = toPlayer.y - preferredVerticalOffset;
         }
 
-        rb.linearVelocity = new Vector2(newVx, newVy);
+        float targetAccelY;
+        if (Mathf.Abs(yError) > verticalDeadband)
+        {
+            targetAccelY = Mathf.Sign(yError) * verticalAccel;
+        }
+        else
+        {
+            targetAccelY = -rb.linearVelocity.y * damping;
+        }
+
+        float newVy = rb.linearVelocity.y + targetAccelY * Time.fixedDeltaTime;
+        return Mathf.Clamp(newVy, -maxVerticalSpeed, maxVerticalSpeed);
     }
 
     private float GetGroundDistance()
@@ -172,8 +170,8 @@ public class HoverDistanceEnemy2D : MonoBehaviour
             Gizmos.color = Color.cyan;
             Vector2 playerPos = player.position;
             float dir = Mathf.Sign(rb.position.x - playerPos.x);
-            Vector2 closestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance - horizontalHeadband);
-            Vector2 farthestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance + horizontalHeadband);
+            Vector2 closestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance - horizontalDeadband);
+            Vector2 farthestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance + horizontalDeadband);
 
             Gizmos.DrawLine(closestPoint + Vector2.up * 5f, closestPoint + Vector2.down * 5f);
             Gizmos.DrawLine(farthestPoint + Vector2.up * 5f, farthestPoint + Vector2.down * 5f);
