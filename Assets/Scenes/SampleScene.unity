@@ -3459,6 +3459,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Helicopter
       objectReference: {fileID: 0}
+    - target: {fileID: 4282033946589941791, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
+      propertyPath: m_FlipX
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5384058022271039115, guid: 01ec126ca78beab4bbc14989924692cf, type: 3}
       propertyPath: destroyOnDeath
       value: 0
