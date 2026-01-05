@@ -37,6 +37,8 @@ public class QuickBoostMotor2D
         public float quickBoostDecel = 260f;
 
         [Header("QB -> Fly Transition")]
+        [Tooltip("The percent into the quickboost you need to be before enabling flying")]
+        public float quickBoostPercentToFlyTransition = 0.5f;
 
         [Tooltip("Horizontal exit speed when no input on dash exit (neutral exit).\nSuggested range: 1-4")]
         public float quickBoostNeutralExitSpeed = 2f;
@@ -53,6 +55,7 @@ public class QuickBoostMotor2D
 
     // State
     public bool IsQuickBoosting { get; private set; }
+    public float QBPercentComplete => Mathf.Clamp01(quickBoostTimer / settings.quickBoostDuration);
     private float quickBoostTimer;
     private float cooldownTimer;
     private int dashDirection; // -1 or +1
