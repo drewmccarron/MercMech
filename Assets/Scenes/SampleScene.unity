@@ -213,14 +213,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverDistanceEnemy2D
   player: {fileID: 646307101}
   preferredHorizontalDistance: 6
-  horizontalDeadband: 0.75
+  horizontalDeadband: 2.5
   approachAccel: 12.5
   retreatAccel: 25
   maxSpeed: 8
   damping: 8
   preferredVerticalOffset: 7
   verticalDeadband: 0.5
-  verticalAccel: 18
+  verticalAccel: 15
   maxVerticalSpeed: 6
   minGroundClearance: 7
   groundProbeSettings:
