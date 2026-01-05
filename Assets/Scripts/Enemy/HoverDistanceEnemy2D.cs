@@ -24,7 +24,6 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
     [Header("Ground Clearance")]
     [SerializeField] float minGroundClearance = 7f;
-    [SerializeField] float groundCheckDistance = 10f;
     [SerializeField] GroundProbe2D.Settings groundProbeSettings = new GroundProbe2D.Settings();
 
     Rigidbody2D rb;
@@ -130,7 +129,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(
             rb.position,
             Vector2.down,
-            groundCheckDistance,
+            minGroundClearance,
             groundProbeSettings.groundLayer
         );
 
@@ -138,7 +137,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
             return hit.distance;
 
         // No ground detected - assume safe distance
-        return groundCheckDistance;
+        return minGroundClearance;
     }
 
     void OnDrawGizmosSelected()
@@ -156,11 +155,11 @@ public class HoverDistanceEnemy2D : MonoBehaviour
         float groundDist = GetGroundDistance();
         Gizmos.color = Color.yellow;
         Vector2 start = rb.position;
-        Vector2 end = start + Vector2.down * Mathf.Min(groundDist, groundCheckDistance);
+        Vector2 end = start + Vector2.down * Mathf.Min(groundDist, minGroundClearance);
         Gizmos.DrawLine(start, end);
 
         // Draw minimum clearance threshold
-        if (groundDist < groundCheckDistance)
+        if (groundDist < minGroundClearance)
         {
             Gizmos.color = groundDist < minGroundClearance ? Color.red : Color.green;
             Vector2 targetHeight = start - Vector2.up * (groundDist - minGroundClearance);
