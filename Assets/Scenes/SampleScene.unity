@@ -223,6 +223,16 @@ MonoBehaviour:
   verticalDeadband: 0.5
   verticalAccel: 18
   maxVerticalSpeed: 6
+  minGroundClearance: 3
+  groundCheckDistance: 10
+  groundProbeSettings:
+    groundLayer:
+      serializedVersion: 2
+      m_Bits: 2097152
+    groundBoxOffset: {x: 0, y: -0.01}
+    widthMultiplier: 0.9
+    probeHeight: 0.08
+    maxContacts: 8
 --- !u!1 &510903186
 GameObject:
   m_ObjectHideFlags: 0
