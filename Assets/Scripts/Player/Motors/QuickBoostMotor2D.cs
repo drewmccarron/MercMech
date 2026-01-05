@@ -14,7 +14,7 @@ public class QuickBoostMotor2D
     [Header("Quick Boost Speed")]
 
     [Tooltip("Initial dash speed (peak velocity).\nSuggested range: 15-25")]
-    public float quickBoostStartSpeed = 20f;
+    public float quickBoostStartSpeed = 30f;
 
     [Tooltip("Dash duration in seconds (full boost window).\nSuggested range: 0.3-0.6")]
     public float quickBoostDuration = 0.5f;
