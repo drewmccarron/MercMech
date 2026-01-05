@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnergyPool : MonoBehaviour
 {
   [Header("Energy")]
-  [SerializeField] private float maxEnergy = 120f;
+  [SerializeField] private float maxEnergy = 400;
 
   [SerializeField, Tooltip("Current energy at runtime (read-only in inspector).")]
   private float currentEnergy;

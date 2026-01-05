@@ -992,7 +992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6e44e53aa755b43b11779f3cc4aa57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnergyPool
-  maxEnergy: 120
+  maxEnergy: 400
   currentEnergy: 0
   groundRegenRate: 30
   groundBoostRegenRate: 15
