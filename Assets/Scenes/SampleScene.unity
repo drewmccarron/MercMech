@@ -788,14 +788,14 @@ MonoBehaviour:
     maxContacts: 8
   flightSettings:
     flyAcceleration: 30
-    maxFlyUpSpeed: 4.5
+    maxFlyUpSpeed: 7
     flyGravityScale: 2
     normalGravityScale: 3
     flyUpwardEngageVelocityThreshold: 4
     thrustRampUpSpeed: 12
     thrustRampDownSpeed: 18
   quickBoostSettings:
-    quickBoostStartSpeed: 20
+    quickBoostStartSpeed: 30
     quickBoostDuration: 0.5
     quickBoostCurve:
       serializedVersion: 2
@@ -803,21 +803,15 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    quickBoostCooldown: 0.4
+    quickBoostCooldown: 0.6
     quickBoostCost: 25
     quickBoostAccel: 200
     quickBoostDecel: 260
-    qbFlyCarryTime: 0.18
-    qbFlyReleasePercent: 0.85
-    quickBoostFlyExitUpVelocity: 10
     quickBoostNeutralExitSpeed: 2
     qbChainBufferTime: 0.2
     qbChainStartPercent: 0.8
-    qbChainMinInterval: 0.05
-    quickBoostFlyExitUpVelocityNonFlightMultiplier: 0.6
-    quickBoostFlyExitUpVelocityFlightMultiplier: 1
   fallSettings:
-    maxFallSpeed: 7
+    maxFallSpeed: 12
 --- !u!120 &646307105
 LineRenderer:
   serializedVersion: 3
@@ -998,7 +992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6e44e53aa755b43b11779f3cc4aa57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnergyPool
-  maxEnergy: 120
+  maxEnergy: 400
   currentEnergy: 0
   groundRegenRate: 30
   groundBoostRegenRate: 15
@@ -1064,8 +1058,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8558087cd44845345bbea9ef944a9bd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VelocityAccelDebugRendererURP
-  targetCamera: {fileID: 0}
-  player: {fileID: 0}
+  targetCamera: {fileID: 519420031}
+  player: {fileID: 646307104}
   enabledDebug: 1
   requireDebugSettingsEnabled: 1
   origin: {x: 10, y: 10}
