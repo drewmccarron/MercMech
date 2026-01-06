@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class HoverDistanceEnemy2D : MonoBehaviour
 {
-    [SerializeField] Transform player;
+    [SerializeField] GameObject player;
 
     [Header("Distance")]
     [SerializeField] float preferredHorizontalDistance = 6f;
@@ -28,12 +28,18 @@ public class HoverDistanceEnemy2D : MonoBehaviour
     Rigidbody2D rb;
     Collider2D col;
     GroundProbe2D groundProbe;
+    Transform playerTf;
+
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         groundProbe = new GroundProbe2D(col, groundProbeSettings);
+        player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player != null)
+            playerTf = player.transform;
     }
 
     void Reset()
@@ -48,7 +54,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
 
         // Check if grounded
         bool isGrounded = groundProbe.Evaluate(rb, out var debugInfo);
-        Vector2 toPlayer = (Vector2)player.position - rb.position;
+        Vector2 toPlayer = (Vector2)playerTf.position - rb.position;
 
         // --- Horizontal spacing ---
         float newVx = maintainanceHorizontalDistance(toPlayer);
@@ -92,7 +98,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
     private float maintainanceVerticalOffset(Vector2 toPlayer)
     {
         // Determine target height
-        float targetY = player.position.y + preferredVerticalOffset;
+        float targetY = playerTf.position.y + preferredVerticalOffset;
         float targetVerticalOffset = targetY - rb.position.y;
 
         // Maintain minimum ground clearance
@@ -171,7 +177,7 @@ public class HoverDistanceEnemy2D : MonoBehaviour
         if (player != null)
         {
             Gizmos.color = Color.cyan;
-            Vector2 playerPos = player.position;
+            Vector2 playerPos = playerTf.position;
             float dir = Mathf.Sign(rb.position.x - playerPos.x);
             Vector2 closestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance - horizontalDeadband);
             Vector2 farthestPoint = playerPos + Vector2.right * dir * (preferredHorizontalDistance + horizontalDeadband);

@@ -8,8 +8,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int maxEnemies = 10;
 
     [Header("Spawn Area")]
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(40f, 20f);
-    [SerializeField] private Vector2 spawnAreaCenter = Vector2.zero;
+    [SerializeField] private Vector2 spawnAreaSize = new Vector2(25f, 9f);
+    [SerializeField] private Vector2 spawnAreaCenter = new Vector2(1f,2f);
 
     private float spawnTimer;
     private int currentEnemyCount;
@@ -33,10 +33,10 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
-        // Random position within spawn area
+        // Random position within spawn area (half-extents)
         Vector2 randomOffset = new Vector2(
-            Random.Range(-spawnAreaSize.x, spawnAreaSize.x),
-            Random.Range(-spawnAreaSize.y, spawnAreaSize.y)
+            Random.Range(-spawnAreaSize.x * 0.5f, spawnAreaSize.x * 0.5f),
+            Random.Range(-spawnAreaSize.y * 0.5f, spawnAreaSize.y * 0.5f)
         );
 
         Vector3 spawnPosition = (Vector2)transform.position + spawnAreaCenter + randomOffset;
@@ -46,15 +46,19 @@ public class EnemySpawner : MonoBehaviour
         // Track enemy count
         currentEnemyCount++;
 
-        // Subscribe to destruction event to decrement count
-        var combatant = enemy.GetComponent<Combatant>();
-        if (combatant != null)
+        // Subscribe to health death event to decrement count
+        var health = enemy.GetComponent<Health>();
+        if (health != null)
         {
-            combatant.OnDeath += () => OnEnemyDestroyed();
+            health.OnDeath += OnEnemyDied;
+        }
+        else
+        {
+            Debug.LogWarning($"{nameof(EnemySpawner)}: Spawned enemy has no Health component!");
         }
     }
 
-    private void OnEnemyDestroyed()
+    private void OnEnemyDied()
     {
         currentEnemyCount--;
     }
@@ -68,10 +72,10 @@ public class EnemySpawner : MonoBehaviour
 
         // Draw spawn area corners
         Gizmos.color = Color.red;
-        Vector3 topLeft = center + new Vector3(-spawnAreaSize.x, spawnAreaSize.y);
-        Vector3 topRight = center + new Vector3(spawnAreaSize.x, spawnAreaSize.y);
-        Vector3 bottomLeft = center + new Vector3(-spawnAreaSize.x, -spawnAreaSize.y);
-        Vector3 bottomRight = center + new Vector3(spawnAreaSize.x, -spawnAreaSize.y);
+        Vector3 topLeft = center + new Vector3(-spawnAreaSize.x * 0.5f, spawnAreaSize.y * 0.5f);
+        Vector3 topRight = center + new Vector3(spawnAreaSize.x * 0.5f, spawnAreaSize.y * 0.5f);
+        Vector3 bottomLeft = center + new Vector3(-spawnAreaSize.x * 0.5f, -spawnAreaSize.y * 0.5f);
+        Vector3 bottomRight = center + new Vector3(spawnAreaSize.x * 0.5f, -spawnAreaSize.y * 0.5f);
 
         Gizmos.DrawSphere(topLeft, 0.2f);
         Gizmos.DrawSphere(topRight, 0.2f);
