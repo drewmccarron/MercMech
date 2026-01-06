@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerRifle
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig2D
   projectilePrefab: {fileID: 77620100358782737, guid: c5fd1cbaca784474391e05768b401b89, type: 3}
-  projectileSpeed: 30
+  projectileSpeed: 40
   projectileLifetimeSeconds: 10
   fireCooldownSeconds: 0.3
   damagePerHit: 50
