@@ -15,6 +15,7 @@ public class Health : MonoBehaviour
 
     // Event for reactive systems (UI, PlayerStats, etc.)
     public event Action<float, float> OnHealthChanged; // (current, max)
+    public event Action OnDeath; // Fires once when health reaches zero
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth => currentHealth;
@@ -42,7 +43,8 @@ public class Health : MonoBehaviour
 
         if (currentHealth <= 0f && destroyOnDeath)
         {
-            // For a dummy target, destroying is fine.
+            // Fire death event before destroying
+            OnDeath?.Invoke();
             Destroy(gameObject);
         }
     }
