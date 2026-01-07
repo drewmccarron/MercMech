@@ -12,6 +12,7 @@ public class AimBiasedCameraTarget2D : MonoBehaviour
     [Header("Bias")]
     [Range(0f, 1f)]
     [SerializeField] private float xBias = 0.15f;
+    [Range(0f, 1f)]
     [SerializeField] private float yBias = 0.45f;
 
     [SerializeField] private float maxOffset = 6f; // prevents crazy offsets
