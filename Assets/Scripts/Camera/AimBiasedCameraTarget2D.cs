@@ -34,13 +34,13 @@ public class AimBiasedCameraTarget2D : MonoBehaviour
         if (playerTransform == null || cameraTarget == null || playerControls == null)
             return;
 
-        Vector3 p = playerTransform.position;
+        Vector3 playerPosition = playerTransform.position;
         Vector2 aim = playerControls.AimWorldPosition;
 
-        float dx = Mathf.Clamp(aim.x - p.x, -maxOffset, maxOffset) * xBias;
-        float dy = Mathf.Clamp(aim.y - p.y, -maxOffset, maxOffset) * yBias;
+        float desiredX = Mathf.Clamp(aim.x - playerPosition.x, -maxOffset, maxOffset) * xBias;
+        float desiredY = Mathf.Clamp(aim.y - playerPosition.y, -maxOffset, maxOffset) * yBias;
 
-        Vector3 desired = new Vector3(p.x + dx, p.y + dy, p.z);
+        Vector3 desired = new Vector3(playerPosition.x + desiredX, playerPosition.y + desiredY, playerPosition.z);
 
         float t = 1f - Mathf.Exp(-followSmooth * Time.unscaledDeltaTime);
         cameraTarget.position = Vector3.Lerp(cameraTarget.position, desired, t);
