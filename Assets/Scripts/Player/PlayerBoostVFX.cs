@@ -16,9 +16,9 @@ public class PlayerBoostVFX : MonoBehaviour
     [SerializeField] private Transform boostEmitter;
 
     [Header("Emission (particles/sec)")]
-    [SerializeField] private float qbEmissionMax = 1000f;
-    [SerializeField] private float flightEmissionMax = 140f;
-    [SerializeField] private float boostEmissionMax = 120f;
+    [SerializeField] private float qbEmissionMax = 2000f;
+    [SerializeField] private float flightEmissionMax = 1000f;
+    [SerializeField] private float boostEmissionMax = 1000f;
 
     [Header("Smoothing")]
     [SerializeField] private float intensityRiseSpeed = 18f;
