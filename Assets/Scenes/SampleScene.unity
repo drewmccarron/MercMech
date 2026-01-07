@@ -1321,6 +1321,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1205203949}
+  - component: {fileID: 1205203950}
   m_Layer: 8
   m_Name: CameraTarget
   m_TagString: Untagged
@@ -1343,6 +1344,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 646307101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1205203950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205203948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1188d680a19d8064c8bc88a94eab2bb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AimBiasedCameraTarget2D
+  playerTransform: {fileID: 1205203949}
+  playerControls: {fileID: 646307104}
+  cameraTarget: {fileID: 1205203949}
+  worldCamera: {fileID: 519420031}
+  aimBias: 0.5
+  maxOffset: 6
+  followSmooth: 1.5
 --- !u!1 &1239459461
 GameObject:
   m_ObjectHideFlags: 0
