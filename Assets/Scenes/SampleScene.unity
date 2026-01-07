@@ -1360,7 +1360,8 @@ MonoBehaviour:
   playerControls: {fileID: 646307104}
   cameraTarget: {fileID: 1205203949}
   worldCamera: {fileID: 519420031}
-  aimBias: 0.5
+  xBias: 0.15
+  yBias: 0.45
   maxOffset: 6
   followSmooth: 1.5
 --- !u!1 &1239459461

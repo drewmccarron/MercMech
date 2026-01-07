@@ -11,7 +11,8 @@ public class AimBiasedCameraTarget2D : MonoBehaviour
 
     [Header("Bias")]
     [Range(0f, 1f)]
-    [SerializeField] private float aimBias = 0.5f; // 0=player, 1=aim point
+    [SerializeField] private float xBias = 0.15f;
+    [SerializeField] private float yBias = 0.45f;
 
     [SerializeField] private float maxOffset = 6f; // prevents crazy offsets
     [SerializeField] private float followSmooth = 1.5f; // higher = snappier
@@ -32,13 +33,13 @@ public class AimBiasedCameraTarget2D : MonoBehaviour
         if (playerTransform == null || cameraTarget == null || playerControls == null)
             return;
 
-        Vector2 aimWorld = playerControls.AimWorldPosition;
-
         Vector3 p = playerTransform.position;
-        Vector3 towardAim = (Vector3)aimWorld - p;
+        Vector2 aim = playerControls.AimWorldPosition;
 
-        Vector3 offset = Vector3.ClampMagnitude(towardAim, maxOffset);
-        Vector3 desired = p + offset * aimBias;
+        float dx = Mathf.Clamp(aim.x - p.x, -maxOffset, maxOffset) * xBias;
+        float dy = Mathf.Clamp(aim.y - p.y, -maxOffset, maxOffset) * yBias;
+
+        Vector3 desired = new Vector3(p.x + dx, p.y + dy, p.z);
 
         float t = 1f - Mathf.Exp(-followSmooth * Time.unscaledDeltaTime);
         cameraTarget.position = Vector3.Lerp(cameraTarget.position, desired, t);
