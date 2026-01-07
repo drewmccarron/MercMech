@@ -1356,7 +1356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1188d680a19d8064c8bc88a94eab2bb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimBiasedCameraTarget2D
-  playerTransform: {fileID: 1205203949}
+  playerTransform: {fileID: 646307101}
   playerControls: {fileID: 646307104}
   cameraTarget: {fileID: 1205203949}
   worldCamera: {fileID: 519420031}
