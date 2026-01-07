@@ -109,8 +109,9 @@ public class PlayerControls : MonoBehaviour
     public float HealthCurrent => playerStats.Health.CurrentHealth;
     public float HealthMax => playerStats.Health.MaxHealth;
 
-    // Expose ground probe for debug rendering
-
+    // Expose params for boost particle effects
+    public float QuickBoostStrength01 => quickBoostMotor != null ? quickBoostMotor.QBStrength01 : 0f;
+    public float FlyThrottle01 => flightMotor != null && flightMotor.IsFlying ? flightMotor.FlyThrottle01 : 0f;
 
     // ------------------------
     // Unity lifecycle methods
