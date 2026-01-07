@@ -84,7 +84,7 @@ public class PlayerBoostVFX : MonoBehaviour
         Vector2 thrusterDir = -dir;
 
         SetEmitterRotation(quickBoostEmitter, thrusterDir, emitterForwardAngleOffset);
-        SetEmitterRotation(boostEmitter, thrusterDir, emitterForwardAngleOffset);
+        SetEmitterRotation(boostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
 
         // Flight thruster: usually downward (or opposite of vertical velocity if you want)
         // If you want it to “push down” always:
