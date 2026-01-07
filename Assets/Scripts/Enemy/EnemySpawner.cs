@@ -3,6 +3,7 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
+    [SerializeField] private bool spawnEnabled = true;
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private float spawnInterval = 5f;
     [SerializeField] private int maxEnemies = 10;
@@ -32,6 +33,9 @@ public class EnemySpawner : MonoBehaviour
             Debug.LogWarning($"{nameof(EnemySpawner)}: No enemy prefab assigned!");
             return;
         }
+
+        if (!spawnEnabled)
+            return;
 
         // Random position within spawn area (half-extents)
         Vector2 randomOffset = new Vector2(
