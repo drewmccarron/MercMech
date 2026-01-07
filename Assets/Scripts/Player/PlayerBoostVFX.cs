@@ -33,9 +33,6 @@ public class PlayerBoostVFX : MonoBehaviour
     [Tooltip("If speed is below this, fall back to facing direction instead of velocity direction.")]
     [SerializeField] private float minSpeedForVelocityDir = 0.25f;
 
-    [Tooltip("Degrees to add so your sprite points the correct way. Use this to match your art.")]
-    [SerializeField] private float spriteForwardAngleOffset = 0f;
-
     [Tooltip("If your thruster art points RIGHT by default, leave this 0. If it points LEFT, set 180.")]
     [SerializeField] private float emitterForwardAngleOffset = 180f;
 
