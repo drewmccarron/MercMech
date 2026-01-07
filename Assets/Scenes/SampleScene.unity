@@ -5839,14 +5839,19 @@ MonoBehaviour:
   quickBoostRed: {fileID: 1896449985}
   flightBlue: {fileID: 778608862}
   boostGreen: {fileID: 512887815}
-  qbEmissionMax: 120
-  flightEmissionMax: 70
-  boostEmissionMax: 60
+  quickBoostEmitter: {fileID: 1896449983}
+  flightEmitter: {fileID: 778608860}
+  boostEmitter: {fileID: 512887813}
+  qbEmissionMax: 240
+  flightEmissionMax: 140
+  boostEmissionMax: 120
   intensityRiseSpeed: 18
   intensityFallSpeed: 22
   speedForMax: 12
   minVisualBoost: 0.2
-  scaleQBAndFlightBySpeed: 1
+  minSpeedForVelocityDir: 0.25
+  spriteForwardAngleOffset: 0
+  emitterForwardAngleOffset: 0
 --- !u!1 &778608859
 GameObject:
   m_ObjectHideFlags: 0
@@ -6598,7 +6603,7 @@ ParticleSystem:
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 0, y: 0, z: -120}
+    m_Rotation: {x: 0, y: 0, z: -30}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
