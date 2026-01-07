@@ -5,8 +5,10 @@ public class QuickBoostMotor2D
 {
     private readonly Rigidbody2D rb;
     private readonly Settings settings;
-    private readonly HorizontalMotor2D.Settings moveSettings;
     private readonly FlightMotor2D.Settings flightSettings;
+
+    public float QBStrength01 =>
+    IsQuickBoosting ? Mathf.Clamp01(settings.quickBoostCurve.Evaluate(QBPercentComplete)) : 0f;
 
     [System.Serializable]
     public class Settings
@@ -69,7 +71,6 @@ public class QuickBoostMotor2D
     {
         this.rb = rb;
         this.settings = settings;
-        this.moveSettings = moveSettings;
         this.flightSettings = flightSettings;
     }
 
