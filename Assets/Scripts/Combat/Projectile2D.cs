@@ -57,16 +57,22 @@ public class Projectile2D : MonoBehaviour
             InterceptProjectile(otherProj);
         }
 
+
         if (other.TryGetComponent<IDamageable>(out var damageable))
         {
+            // Team hit
             if (damageable.Team == sourceTeam)
                 return;
 
+            // Enemy hit
             var point = (Vector2)transform.position;
             var normal = Vector2.zero;
 
             var info = new DamageInfo(weaponConfig.damagePerHit, point, normal, source, sourceTeam);
             damageable.TakeDamage(in info);
+
+            // Spawn VFX
+            SpawnImpactVfx(weaponConfig.damageImpactVfx, point, normal);
 
             Destroy(gameObject);
             return;
@@ -120,4 +126,47 @@ public class Projectile2D : MonoBehaviour
         // Apply rotation
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
+
+    private void SpawnImpactVfx(ImpactVFXConfig2D cfg, Vector2 point, Vector2 normal)
+    {
+        if (cfg == null || !cfg.IsValid)
+            return;
+
+        Quaternion rot = Quaternion.identity;
+
+        if (cfg.orientToNormal && normal.sqrMagnitude > 0.0001f)
+        {
+            float baseAngle = Mathf.Atan2(normal.y, normal.x) * Mathf.Rad2Deg;
+            float random = (cfg.randomAngleDegrees > 0f)
+                ? Random.Range(-cfg.randomAngleDegrees, cfg.randomAngleDegrees)
+                : 0f;
+
+            rot = Quaternion.Euler(0f, 0f, baseAngle + random);
+        }
+        else if (cfg.randomAngleDegrees > 0f)
+        {
+            rot = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+        }
+
+        var go = Instantiate(cfg.vfxPrefab, point, rot);
+
+        if (cfg.scale != 1f)
+            go.transform.localScale *= cfg.scale;
+
+        float ttl = 0f;
+        // Try to infer duration from ParticleSystem, if present
+        var ps = go.GetComponent<ParticleSystem>();
+        if (ps != null)
+        {
+            // duration + max lifetime is a decent upper bound
+            ttl = ps.main.duration + ps.main.startLifetime.constantMax;
+        }
+        else
+        {
+            ttl = 0.75f;
+        }
+
+        Destroy(go, ttl);
+    }
+
 }

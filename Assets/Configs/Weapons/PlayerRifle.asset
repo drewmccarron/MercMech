@@ -18,3 +18,4 @@ MonoBehaviour:
   fireCooldownSeconds: 0.3
   damagePerHit: 50
   muzzleForwardOffset: 0.15
+  damageImpactVfx: {fileID: 11400000, guid: 1583ce8c8fb22c547a7bdb1bd3a6ce46, type: 2}
