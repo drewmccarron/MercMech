@@ -10813,7 +10813,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81d95c215716be24a8241caa3a41fad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  spawnEnabled: 0
+  spawnEnabled: 1
   enemyPrefab: {fileID: 8041000337500281105, guid: 441ab0ab5bcf9ae4292a062451cde741, type: 3}
   spawnInterval: 5
   maxEnemies: 10

@@ -17,6 +17,9 @@ public class WeaponConfig2D : ScriptableObject
     [Header("Spawn")]
     public float muzzleForwardOffset = 0.15f;
 
+    [Header("Impact VFX")]
+    public ImpactVFXConfig2D damageImpactVfx;
+
     public Projectile2D ProjectilePrefabTyped
     {
         get
