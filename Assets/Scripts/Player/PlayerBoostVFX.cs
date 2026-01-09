@@ -30,9 +30,6 @@ public class PlayerBoostVFX : MonoBehaviour
     [SerializeField] private float minVisualBoost = 0.2f;
 
     [Header("Orientation")]
-    [Tooltip("If speed is below this, fall back to facing direction instead of velocity direction.")]
-    [SerializeField] private float minSpeedForVelocityDir = 0.25f;
-
     [Tooltip("If your thruster art points RIGHT by default, leave this 0. If it points LEFT, set 180.")]
     [SerializeField] private float emitterForwardAngleOffset = 180f;
 
@@ -75,28 +72,9 @@ public class PlayerBoostVFX : MonoBehaviour
         ApplyEmission(flightBlue, flightEmissionMax * flight01);
         ApplyEmission(boostGreen, boostEmissionMax * boost01);
 
-        // --- Orient emitters based on movement direction ---
-        // Use velocity direction if moving; otherwise use facing.
-        Vector2 dir = GetMovementDir(v, player.FacingDirection);
-
-        // For thrusters, you usually emit BACKWARDS relative to movement:
-        // If moving right, spray left.
-        Vector2 thrusterDir = -dir;
-
-        SetEmitterRotation(quickBoostEmitter, thrusterDir, emitterForwardAngleOffset);
+        SetEmitterRotation(quickBoostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
         SetEmitterRotation(boostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
-
-        // Flight thruster: usually downward (or opposite of vertical velocity if you want)
-        // If you want it to “push down” always:
         SetEmitterRotation(flightEmitter, Vector2.down, emitterForwardAngleOffset);
-    }
-
-    private Vector2 GetMovementDir(Vector2 velocity, int facingDir)
-    {
-        if (velocity.magnitude >= minSpeedForVelocityDir)
-            return velocity.normalized;
-
-        return new Vector2(Mathf.Sign(facingDir), 0f);
     }
 
     private void SetEmitterRotation(Transform emitter, Vector2 dir, float angleOffsetDeg)
