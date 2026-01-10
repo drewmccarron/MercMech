@@ -1,3 +1,4 @@
+using System.Drawing;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -87,8 +88,12 @@ public class Projectile2D : MonoBehaviour
 
     public void InterceptProjectile(Projectile2D otherProj)
     {
+        if (sourceTeam == otherProj.sourceTeam)
+            return;
         if (!isInterceptable && !otherProj.isInterceptable)
             return;
+
+        SpawnImpactVfx(weaponConfig.damageImpactVfx, (Vector2)transform.position, Vector2.zero);
         Destroy(otherProj.gameObject);
         Destroy(gameObject);
     }
