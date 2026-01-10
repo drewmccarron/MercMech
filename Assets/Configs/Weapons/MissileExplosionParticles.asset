@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4476e79ac03319340a0129f8f831d089, type: 3}
-  m_Name: ImpactVFXConfig2D
+  m_Name: MissileExplosionParticles
   m_EditorClassIdentifier: Assembly-CSharp::ImpactVFXConfig2D
-  vfxPrefab: {fileID: 2263332722611517104, guid: 6e2d417535547e54694770581a43ec23, type: 3}
+  vfxPrefab: {fileID: 7500636378388851889, guid: c5dbadd2eb4756c47b3d17e073cc53fc, type: 3}
   randomAngleDegrees: 15
   scale: 1
   orientToNormal: 1
