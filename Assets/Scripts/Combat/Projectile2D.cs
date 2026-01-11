@@ -121,6 +121,10 @@ public class Projectile2D : MonoBehaviour
             // When flipped horizontally, angles need to be mirrored
             // The formula is: 180° - angle (which mirrors across vertical axis)
             angle -= 180;
+
+            // Adjust BoxCollider2D offset if present
+            BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+            boxCollider.offset = new Vector2(-boxCollider.offset.x, boxCollider.offset.y);
         }
         else
         {
