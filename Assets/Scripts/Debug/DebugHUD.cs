@@ -64,7 +64,7 @@ public class DebugHUD : MonoBehaviour
 
         sb.Append("<b>Movement</b>\n");
         sb.Append("Grounded: ").Append(player.IsGrounded ? "YES" : "no").AppendLine();
-        sb.Append("Facing: ").Append(player.FacingDirection).AppendLine();
+        sb.Append("Facing: ").Append(player.MovementDirection).AppendLine();
         sb.Append("v: ").Append(Format(v.magnitude)).Append("  (")
           .Append(Format(v.x)).Append(", ").Append(Format(v.y)).Append(")\n");
 

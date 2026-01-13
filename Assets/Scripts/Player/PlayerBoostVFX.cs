@@ -72,8 +72,8 @@ public class PlayerBoostVFX : MonoBehaviour
         ApplyEmission(flightBlue, flightEmissionMax * flight01);
         ApplyEmission(boostGreen, boostEmissionMax * boost01);
 
-        SetEmitterRotation(quickBoostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
-        SetEmitterRotation(boostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
+        SetEmitterRotation(quickBoostEmitter, new Vector2(-player.MovementDirection, 0f), emitterForwardAngleOffset);
+        SetEmitterRotation(boostEmitter, new Vector2(-player.MovementDirection, 0f), emitterForwardAngleOffset);
         SetEmitterRotation(flightEmitter, Vector2.down, emitterForwardAngleOffset);
     }
 

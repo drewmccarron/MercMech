@@ -83,8 +83,8 @@ public class PlayerControls : MonoBehaviour
     public bool FirePressedThisFrame => firePressedThisFrame;
 
     // Facing / state
-    private int facingDirection = 1;
-    public int FacingDirection => facingDirection;
+    private int movementDirection = 1;
+    public int MovementDirection => movementDirection;
 
     // Input tracking
     private bool flyKeyHeld;
@@ -125,7 +125,7 @@ public class PlayerControls : MonoBehaviour
 
         // Update visual/logic facing based on input
         int dir = InputUtils.AxisToDir(moveInputDirection);
-        if (dir != 0) facingDirection = dir;
+        if (dir != 0) movementDirection = dir;
 
         firePressedThisFrame = false;
     }
@@ -254,7 +254,7 @@ public class PlayerControls : MonoBehaviour
 
             quickBoostMotor.DoQuickBoostStep(
               moveInputDirection: moveInputDirection,
-              facingDirection: facingDirection,
+              facingDirection: movementDirection,
               anyFlyInputHeld: anyFlyInputHeld,
               currentMaxSpeed: currentMaxSpeed
             );
@@ -366,7 +366,7 @@ public class PlayerControls : MonoBehaviour
     {
         quickBoostMotor.OnQuickBoost(
           moveInputDirection: moveInputDirection,
-          facingDirection: facingDirection,
+          facingDirection: movementDirection,
           anyFlyInputHeld: anyFlyInputHeld,
           groundedNow: IsGrounded,
           energyPool: energyPool
