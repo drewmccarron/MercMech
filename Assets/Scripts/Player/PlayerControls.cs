@@ -29,6 +29,7 @@ public class PlayerControls : MonoBehaviour
 
     // Horizontal input (-1..1)
     private float moveInputDirection;
+    [SerializeField] private Transform visualRoot; // usually the player root
 
     #region Acceleration settings (Inspector -> HorizontalMotor2D.Settings)
     [Header("Horizontal Movement")]
@@ -86,6 +87,8 @@ public class PlayerControls : MonoBehaviour
     private int movementDirection = 1;
     public int MovementDirection => movementDirection;
 
+    private int facing = -1;
+
     // Input tracking
     private bool flyKeyHeld;
     private bool jumpKeyHeld;
@@ -126,6 +129,11 @@ public class PlayerControls : MonoBehaviour
         // Update visual/logic facing based on input
         int dir = InputUtils.AxisToDir(moveInputDirection);
         if (dir != 0) movementDirection = dir;
+
+        // Update facing based on aim position
+        int desiredFacing = aimMotor.AimWorldPosition.x >= transform.position.x ? -1 : 1;
+        if (desiredFacing != facing)
+            UpdateFacing(aimMotor.AimWorldPosition);
 
         firePressedThisFrame = false;
     }
@@ -340,6 +348,20 @@ public class PlayerControls : MonoBehaviour
     {
         if (rb.linearVelocity.y < -fallSettings.maxFallSpeed)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -fallSettings.maxFallSpeed);
+    }
+
+    void UpdateFacing(Vector2 aimWorldPos)
+    {
+        int newFacing = aimWorldPos.x >= transform.position.x ? -1 : 1;
+
+        if (newFacing == facing)
+            return;
+
+        facing = newFacing;
+
+        Vector3 scale = visualRoot.localScale;
+        scale.x = Mathf.Abs(scale.x) * facing;
+        visualRoot.localScale = scale;
     }
 
     // ------------------------
