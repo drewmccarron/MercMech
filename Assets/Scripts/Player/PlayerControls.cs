@@ -87,7 +87,7 @@ public class PlayerControls : MonoBehaviour
     private int movementDirection = 1;
     public int MovementDirection => movementDirection;
 
-    private int facing = -1;
+    private int facing = 1;
 
     // Input tracking
     private bool flyKeyHeld;
@@ -131,9 +131,9 @@ public class PlayerControls : MonoBehaviour
         if (dir != 0) movementDirection = dir;
 
         // Update facing based on aim position
-        int desiredFacing = aimMotor.AimWorldPosition.x >= transform.position.x ? -1 : 1;
+        int desiredFacing = aimMotor.AimWorldPosition.x >= transform.position.x ? 1 : -1;
         if (desiredFacing != facing)
-            UpdateFacing(aimMotor.AimWorldPosition);
+            UpdateFacing(desiredFacing);
 
         firePressedThisFrame = false;
     }
@@ -350,13 +350,8 @@ public class PlayerControls : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -fallSettings.maxFallSpeed);
     }
 
-    void UpdateFacing(Vector2 aimWorldPos)
+    void UpdateFacing(int newFacing)
     {
-        int newFacing = aimWorldPos.x >= transform.position.x ? -1 : 1;
-
-        if (newFacing == facing)
-            return;
-
         facing = newFacing;
 
         Vector3 scale = visualRoot.localScale;
