@@ -29,10 +29,6 @@ public class PlayerBoostVFX : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float minVisualBoost = 0.2f;
 
-    [Header("Orientation")]
-    [Tooltip("If your thruster art points RIGHT by default, leave this 0. If it points LEFT, set 180.")]
-    [SerializeField] private float emitterForwardAngleOffset = 180f;
-
     private float qb01, flight01, boost01;
 
     private void Reset()
@@ -72,17 +68,17 @@ public class PlayerBoostVFX : MonoBehaviour
         ApplyEmission(flightBlue, flightEmissionMax * flight01);
         ApplyEmission(boostGreen, boostEmissionMax * boost01);
 
-        SetEmitterRotation(quickBoostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
-        SetEmitterRotation(boostEmitter, new Vector2(-player.FacingDirection, 0f), emitterForwardAngleOffset);
-        SetEmitterRotation(flightEmitter, Vector2.down, emitterForwardAngleOffset);
+        SetEmitterRotation(quickBoostEmitter, new Vector2(-player.MovementDirection, 0f));
+        SetEmitterRotation(boostEmitter, new Vector2(-player.MovementDirection, 0f));
+        SetEmitterRotation(flightEmitter, Vector2.down);
     }
 
-    private void SetEmitterRotation(Transform emitter, Vector2 dir, float angleOffsetDeg)
+    private void SetEmitterRotation(Transform emitter, Vector2 dir)
     {
         if (emitter == null) return;
         if (dir.sqrMagnitude < 0.0001f) return;
 
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + angleOffsetDeg;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         emitter.localRotation = Quaternion.Euler(0f, 0f, angle);
     }
 
